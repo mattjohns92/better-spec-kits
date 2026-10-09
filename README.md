@@ -97,3 +97,18 @@ This is an early public-ready foundation (`v0.2.0`). The next priorities are ups
 ## Licence
 
 MIT.
+
+## Interactive setup (v0.3)
+
+On Windows, run `install.ps1` (or `bootstrap.ps1` for GitHub download). The installer
+shows the target project, detects whether Spec Kit is present, previews changed
+files, asks before replacing any existing customisations, and offers optional
+Ponytail / UI UX Pro Max setup. Existing files are backed up by default.
+
+For unattended use, pass `-NonInteractive` and, only when intended, `-Force`.
+Optional third-party integrations are **not** installed in unattended mode.
+The interactive setup currently targets PowerShell; the POSIX shell installer
+remains non-interactive.
+
+The optional integrations execute third-party installation commands only after
+an explicit confirmation. See `docs/integrations.md` for upstream references.

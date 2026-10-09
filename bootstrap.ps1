@@ -3,7 +3,8 @@ param(
   [Parameter(Position = 0)][string]$TargetPath = (Get-Location).Path,
   [string]$Ref = 'main',
   [switch]$Force,
-  [switch]$InstallConstitution
+  [switch]$InstallConstitution,
+  [switch]$NonInteractive
 )
 $ErrorActionPreference = 'Stop'
 $archive = Join-Path ([IO.Path]::GetTempPath()) ('better-spec-kit-' + [guid]::NewGuid().ToString('N') + '.zip')
@@ -17,7 +18,7 @@ try {
   Expand-Archive -LiteralPath $archive -DestinationPath $work
   $installer = @(Get-ChildItem -LiteralPath $work -Filter 'install.ps1' -File -Recurse | Where-Object { $_.Directory.Parent.FullName -eq $work })
   if ($installer.Count -ne 1) { throw 'Expected exactly one Better Spec Kit installer in downloaded archive.' }
-  & $installer[0].FullName -TargetPath $TargetPath -Force:$Force -InstallConstitution:$InstallConstitution
+  & $installer[0].FullName -TargetPath $TargetPath -Force:$Force -InstallConstitution:$InstallConstitution -NonInteractive:$NonInteractive
   if (-not $?) { throw 'Better Spec Kit installation failed.' }
 } finally {
   Remove-Item -LiteralPath $archive -Force -ErrorAction SilentlyContinue
