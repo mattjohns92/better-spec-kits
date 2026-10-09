@@ -1,24 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 TARGET="${1:-$PWD}"
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FORCE="${FORCE:-0}"
 INSTALL_CONSTITUTION="${INSTALL_CONSTITUTION:-0}"
 [[ -d "$TARGET" ]] || { echo "Target project does not exist: $TARGET" >&2; exit 1; }
-files=("speckit-design" "speckit-plan" "speckit-tasks" "speckit-implement")
-for skill in "${files[@]}"; do
-  src="$ROOT/skills/$skill/SKILL.md"; dst="$TARGET/.github/skills/$skill/SKILL.md"
-  if [[ -e "$dst" && "$FORCE" != "1" ]]; then echo "Refusing to replace $dst. Re-run with FORCE=1." >&2; exit 1; fi
+files=(".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-implement/SKILL.md")
+if [[ "$INSTALL_CONSTITUTION" == "1" ]]; then files+=(".specify/memory/constitution.md"); fi
+for dst in "${files[@]}"; do
+  if [[ -e "$TARGET/$dst" && "$FORCE" != "1" ]]; then
+    echo "Refusing to replace $TARGET/$dst. Set FORCE=1 to replace with backups." >&2; exit 1
+  fi
 done
 stamp="$(date +%Y%m%d-%H%M%S)"
-for skill in "${files[@]}"; do
-  src="$ROOT/skills/$skill/SKILL.md"; dst="$TARGET/.github/skills/$skill/SKILL.md"
-  if [[ -e "$dst" ]]; then mkdir -p "$TARGET/.better-spec-kit-backup/$stamp/.github/skills/$skill"; cp "$dst" "$TARGET/.better-spec-kit-backup/$stamp/.github/skills/$skill/SKILL.md"; fi
-  mkdir -p "$(dirname "$dst")"; cp "$src" "$dst"
+for dst in "${files[@]}"; do
+  if [[ "$dst" == ".specify/memory/constitution.md" ]]; then src="$ROOT/constitution/constitution.md"; else src="$ROOT/skills/${dst#'.github/skills/'}"; fi
+  [[ -f "$src" ]] || { echo "Missing source $src" >&2; exit 1; }
 done
-if [[ "$INSTALL_CONSTITUTION" == "1" ]]; then
-  dst="$TARGET/.specify/memory/constitution.md"
-  if [[ -e "$dst" && "$FORCE" != "1" ]]; then echo "Refusing to replace $dst. Re-run with FORCE=1." >&2; exit 1; fi
-  mkdir -p "$(dirname "$dst")"; cp "$ROOT/constitution/constitution.md" "$dst"
-fi
+for dst in "${files[@]}"; do
+  if [[ "$dst" == ".specify/memory/constitution.md" ]]; then src="$ROOT/constitution/constitution.md"; else src="$ROOT/skills/${dst#'.github/skills/'}"; fi
+  if [[ -e "$TARGET/$dst" ]]; then
+    mkdir -p "$TARGET/.better-spec-kit-backup/$stamp/$(dirname "$dst")"
+    cp "$TARGET/$dst" "$TARGET/.better-spec-kit-backup/$stamp/$dst"
+  fi
+  mkdir -p "$TARGET/$(dirname "$dst")"
+  cp "$src" "$TARGET/$dst"
+done
+mkdir -p "$TARGET/.specify"
+printf '{"name":"better-spec-kit","version":"%s","constitutionInstalled":%s}\n' "$(cat "$ROOT/VERSION")" "$([[ "$INSTALL_CONSTITUTION" == "1" ]] && echo true || echo false)" > "$TARGET/.specify/better-spec-kit.json"
 echo "Better Spec Kit $(cat "$ROOT/VERSION") installed into $TARGET"

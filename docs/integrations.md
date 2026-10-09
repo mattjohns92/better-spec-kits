@@ -1,15 +1,29 @@
-# Optional Integrations
+# Optional integrations
 
-Better Spec Kit is usable without external specialist skills.
+Better Spec Kit does not redistribute or automatically install third-party tools. They are optional, independently maintained, and may be installed in the agent environment.
+
+## Ponytail — GitHub Copilot CLI
+
+Official project: https://github.com/DietrichGebert/ponytail
+
+```bash
+copilot plugin marketplace add DietrichGebert/ponytail
+copilot plugin install ponytail@ponytail
+```
+
+In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. Ponytail's review capability is invoked when available; without it, Better Spec Kit still applies its built-in reuse/simplicity rules.
 
 ## UI UX Pro Max
 
-When available, the design stage uses UI UX Pro Max as an active design input for MINOR and SIGNIFICANT UI changes. For significant work it should help explore meaningfully different workflows or interaction approaches before selection.
+Official project: https://github.com/nextlevelbuilder/ui-ux-pro-max-skill
 
-It does not override project requirements, the constitution, accessibility requirements, brand/design-system constraints, or material technical feasibility constraints.
+The project's CLI supports GitHub Copilot setup:
 
-## Ponytail
+```bash
+npm install -g uipro-cli
+uipro init --ai copilot
+```
 
-When available, planning, task generation, implementation, and final review use Ponytail's simplicity and reuse guidance. Its role is to discourage duplicate functionality, speculative abstractions, unnecessary dependencies, wrappers, configuration, and architecture.
+The CLI setup is project-scoped; a globally installed CLI does not by itself mean the skill is available globally to Copilot. Better Spec Kit uses the skill when the agent can discover it, otherwise follows its built-in design guidance.
 
-It does not override the specification, design, project constitution, or required behaviour.
+The installer never silently runs these commands. Review the upstream instructions and install optional tools separately.

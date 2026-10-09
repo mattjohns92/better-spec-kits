@@ -38,31 +38,38 @@ Better Spec Kit intentionally makes no assumptions about:
 
 The workflow is **discover first, then decide**.
 
-## Installation
+## Installation directly from GitHub
 
-Start with a project that already has GitHub Spec Kit initialised. Clone Better Spec Kit, then run the installer against your project.
+Start with a project where GitHub Spec Kit is already initialised. Install from the public repository without cloning it permanently.
 
-### PowerShell
+### Windows / PowerShell (recommended: download, inspect, run)
 
 ```powershell
-.\install.ps1 C:\Projects\MyProject
+$bootstrap = Join-Path $env:TEMP 'better-spec-kit-bootstrap.ps1'
+Invoke-WebRequest 'https://raw.githubusercontent.com/mattjohns92/better-spec-kits/main/bootstrap.ps1' -OutFile $bootstrap
+& $bootstrap -TargetPath 'C:\Projects\MyProject'
 ```
 
 ### macOS / Linux
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/mattjohns92/better-spec-kits/main/bootstrap.sh -o /tmp/better-spec-kit-bootstrap.sh
+bash /tmp/better-spec-kit-bootstrap.sh /path/to/MyProject
+```
+
+The bootstrap downloads the current GitHub source archive into a temporary directory, invokes the local installer, and cleans up. **Review the downloaded bootstrap script before running it**; for reproducible installs, specify a release tag using `-Ref v0.2.0` (PowerShell) or `BETTER_SPEC_KIT_REF=v0.2.0` (shell) once that release exists.
+
+### Local installation
+
+```powershell
+.\install.ps1 C:\Projects\MyProject
+```
+
+```bash
 ./install.sh /path/to/MyProject
 ```
 
-By default Better Spec Kit does **not** replace the project's constitution.
-
-For a greenfield project that wants to adopt the neutral Better Spec Kit constitution:
-
-```powershell
-.\install.ps1 C:\Projects\MyProject -InstallConstitution
-```
-
-Existing managed files are never silently overwritten. Use `-Force` (PowerShell) or `FORCE=1` (shell) when replacement is intentional; existing files are backed up first.
+By default the existing project constitution is preserved. To adopt the neutral constitution explicitly, pass `-InstallConstitution` (PowerShell) or set `INSTALL_CONSTITUTION=1` (shell). Existing skills are never silently overwritten; use `-Force` or `FORCE=1` to replace them with backups.
 
 ## Constitution
 
@@ -85,7 +92,7 @@ Better Spec Kit intentionally refuses to overwrite existing managed files unless
 
 ## Status
 
-This is an early public-ready foundation (`v0.1.0`). The next priorities are upstream-aware updating, an idempotent patch/overlay mechanism, automated validation against supported Spec Kit versions, and improved installation ergonomics.
+This is an early public-ready foundation (`v0.2.0`). The next priorities are upstream-aware updating, an idempotent patch/overlay mechanism, automated validation against supported Spec Kit versions, and improved installation ergonomics.
 
 ## Licence
 

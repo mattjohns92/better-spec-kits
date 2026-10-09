@@ -8,7 +8,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
-$RepoRoot = Split-Path $PSScriptRoot -Parent
+$RepoRoot = $PSScriptRoot
 $TargetRoot = [IO.Path]::GetFullPath($TargetPath)
 $Version = (Get-Content (Join-Path $RepoRoot 'VERSION') -Raw).Trim()
 if (-not (Test-Path $TargetRoot)) { throw "Target project does not exist: $TargetRoot" }
