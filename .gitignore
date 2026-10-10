@@ -2,4 +2,6 @@
 Thumbs.db
 *.zip
 .better-spec-kit-backup/
-/bin
+/node_modules
+.specify
+.github/skills

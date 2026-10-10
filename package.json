@@ -41,5 +41,8 @@
   "homepage": "https://github.com/mattjohns92/better-spec-kits#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "better-spec-kit": "^0.4.1"
   }
 }
