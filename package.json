@@ -1,6 +1,6 @@
 {
   "name": "better-spec-kit",
-  "version": "0.4.7",
+  "version": "0.5.0",
   "description": "Technology-agnostic enhancements for GitHub Spec Kit: design, simplicity, reuse and stronger implementation workflows.",
   "type": "module",
   "bin": {
@@ -40,8 +40,5 @@
   "homepage": "https://github.com/mattjohns92/better-spec-kits#readme",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "better-spec-kit": "^0.4.1"
   }
 }

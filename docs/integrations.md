@@ -11,7 +11,7 @@ copilot plugin marketplace add DietrichGebert/ponytail
 copilot plugin install ponytail@ponytail
 ```
 
-In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. Ponytail's review capability is invoked when available; without it, Better Spec Kit still applies its built-in reuse/simplicity rules.
+In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. `/speckit-review` invokes Ponytail's installed review capability as additional simplicity/reuse evidence when available. Without it, Better Spec Kit still performs all five built-in review passes.
 
 ## UI UX Pro Max
 

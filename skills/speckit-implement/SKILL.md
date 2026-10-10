@@ -240,34 +240,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Check that implemented features match the original specification
    - Validate that tests pass and coverage meets requirements
    - Confirm the implementation follows the technical plan
-   - If `design.md` exists:
-     - Confirm the implemented UI matches the documented user workflows and material design decisions
-     - Confirm documented desktop and mobile behaviour is implemented where applicable
-     - Confirm documented loading, empty, error, success, disabled, and validation states are implemented where applicable
-     - Confirm documented accessibility requirements are satisfied
-     - Confirm identified existing components and patterns were reused where appropriate
-     - Confirm no material UI/UX decisions were silently changed during implementation   
-   - **Ponytail final review**:
-     - If Ponytail is available, use its installed review capability to review
-       the completed feature before reporting completion.
-     - Review the feature changes, not unrelated legacy code.
-     - Look specifically for:
-       - duplicated functionality
-       - unnecessary abstractions
-       - unnecessary new files
-       - wrappers that add no meaningful behaviour
-       - unnecessary dependencies
-       - avoidable configuration
-       - over-engineered implementations
-       - opportunities to reuse or extend existing functionality
-       - code that can be made materially simpler without reducing clarity
-     - Correct material issues found by the review when doing so remains within
-       the approved feature scope.
-     - Do NOT perform unrelated refactoring merely because Ponytail identifies
-       legacy complexity elsewhere in the repository.
-     - After simplification, rerun affected tests and validation.   
-
-Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit-tasks` first to regenerate the task list.
+   - If `design.md` exists: - Confirm the implemented UI matches the documented user workflows and material design decisions - Confirm documented desktop and mobile behaviour is implemented where applicable - Confirm documented loading, empty, error, success, disabled, and validation states are implemented where applicable - Confirm documented accessibility requirements are satisfied - Confirm identified existing components and patterns were reused where appropriate - Confirm no material UI/UX decisions were silently changed during implementation  
+     Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit-tasks` first to regenerate the task list.
 
 ## Mandatory Post-Execution Hooks
 

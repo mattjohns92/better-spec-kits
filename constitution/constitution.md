@@ -180,11 +180,13 @@ For user-facing features, technically correct behaviour is insufficient when the
 
 ## Better Spec Kit Workflow
 
-The expected workflow is:
+The recommended workflow is:
 
-`specify → clarify → design → plan → tasks → analyze → implement`
+`specify → clarify → design → plan → tasks → implement → review`
 
-`design` is the authoritative UI/UX design stage. `plan`, `tasks`, `analyze`, and `implement` MUST preserve material decisions from `design.md` when it exists.
+The upstream `analyze` command remains available as an optional pre-implementation consistency check; it is not part of the recommended sequence.
+
+`design` is the authoritative UI/UX design stage. `plan`, `tasks`, `analyze` when used, `implement`, and `review` MUST preserve material decisions from `design.md` when it exists.
 
 Optional external skills may provide specialist guidance, but they MUST NOT override the project constitution, approved requirements, authoritative design decisions, or discovered project constraints.
 

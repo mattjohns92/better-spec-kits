@@ -2,13 +2,15 @@
 
 **Better design. Simpler code. Stronger Spec Kit workflows.**
 
-Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec Kit. It adds a dedicated design stage, stronger codebase discovery, reuse-before-creation guidance, implementation discipline, and final validation without prescribing your language, framework, database, architecture, or repository structure.
+Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec Kit. It adds a dedicated design stage, stronger codebase discovery, reuse-before-creation guidance, implementation discipline, and an independent post-implementation review without prescribing your language, framework, database, architecture, or repository structure.
 
 ## Workflow
 
 ```text
-specify → clarify → design → plan → tasks → analyze → implement
+specify → clarify → design → plan → tasks → implement → review
 ```
+
+Analyze remains available as an optional consistency check before implementation.
 
 ## Install
 
@@ -35,7 +37,7 @@ better-spec-kit
 better-spec-kit             Interactive wizard
 better-spec-kit install     Install into the current project
 better-spec-kit update      Update an existing installation
-better-spec-kit status      Show project and integration status
+better-spec-kit status      Show project, Review skill, and integration status
 better-spec-kit doctor      Diagnose blocking installation issues
 better-spec-kit --version   Show CLI version
 ```
@@ -68,7 +70,7 @@ Its rule is simple: **discover first, then decide**.
 Better Spec Kit can take advantage of specialist tools such as:
 
 - **UI UX Pro Max** during design
-- **Ponytail** during planning, task generation, implementation, and simplicity/reuse review
+- **Ponytail** during planning, task generation, implementation, and Review's simplicity/reuse pass
 
 They are separate projects and are not bundled or silently installed. Better Spec Kit continues with its built-in guidance when they are unavailable.
 
@@ -89,7 +91,27 @@ better-spec-kit
 
 ## Status
 
-`v0.4.0` introduces the cross-platform Node CLI and replaces PowerShell/Bash scripts as the primary installation experience. The package still needs to be published to npm before `npx better-spec-kit@latest` works publicly.
+`v0.5.0` adds an independent post-implementation Review stage and installs it for new and existing Better Spec Kit projects. The package must be published to npm before `npx better-spec-kit@latest` provides this release.
+
+## Repository structure
+
+Better Spec Kit dogfoods its own workflow.
+
+The canonical distributable skills live in:
+
+skills/
+
+These are the source files packaged and installed by Better Spec Kit.
+
+The repository also contains:
+
+.github/skills/
+
+These are the installed project copies used by GitHub Copilot while
+developing Better Spec Kit itself. They are not the canonical source.
+
+Changes to Better Spec Kit skills should be made in `skills/` and then
+installed into the repository using the local CLI.
 
 ## Licence
 

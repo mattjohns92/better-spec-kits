@@ -4,4 +4,8 @@ Thumbs.db
 .better-spec-kit-backup/
 /node_modules
 .specify
-.github/skills
+.env*
+*.log
+dist/
+build/
+/specs

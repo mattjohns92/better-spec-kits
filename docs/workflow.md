@@ -1,8 +1,10 @@
 # Workflow
 
-Better Spec Kit uses:
+The recommended Better Spec Kit workflow is:
 
-`specify → clarify → design → plan → tasks → analyze → implement`
+`specify → clarify → design → plan → tasks → implement → review`
+
+Analyze remains available as an optional consistency check before implementation; it is not part of the recommended sequence.
 
 ## Design
 
@@ -16,10 +18,14 @@ Discovers the project's actual technology, architecture, conventions, dependenci
 
 Produces implementation-ready work while preferring reuse and extension over unnecessary new files, dependencies, abstractions, or infrastructure.
 
-## Analyze
+## Analyze (Optional)
 
-Remains the consistency gate between the specification, design, plan, and tasks. A Better Spec Kit-specific analyze enhancement is planned for a later release.
+Checks consistency between the specification, design, plan, and tasks before implementation. The upstream `/speckit.analyze` command remains available.
 
 ## Implement
 
-Re-inspects relevant code before each task, preserves authoritative design decisions, implements the smallest maintainable change, validates behaviour, and performs a final simplicity/reuse review.
+Re-inspects relevant code before each task, preserves authoritative design decisions, implements the smallest maintainable change, and validates behavior. Independent acceptance review happens in the following Review stage.
+
+## Review
+
+Runs after implementation as an independent, read-only completion gate. It checks requirements and task coverage, design compliance, correctness and regression risk, test quality, and simplicity/reuse/maintainability. It reports evidence-backed findings or a clear completion outcome; it does not fix files.

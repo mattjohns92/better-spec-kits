@@ -26,4 +26,6 @@ Then, from a disposable Spec Kit project:
 better-spec-kit
 ```
 
-The CLI previews managed-file changes, preserves the existing constitution by default, backs up replaced files outside the target repository, and requires explicit approval for files it cannot safely classify.
+The CLI previews managed-file changes, including the Review skill as `ADD` for projects that do not have it. Fresh installs and updates install `.github/skills/speckit-review/SKILL.md` through the existing managed-skill process. `status` reports whether Review is installed, and `doctor` flags a missing Review skill in an installed Better Spec Kit project.
+
+The installer preserves the existing constitution by default, backs up replaced files outside the target repository, and requires explicit approval for customized or unknown managed files.
