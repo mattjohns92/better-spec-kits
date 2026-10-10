@@ -1,121 +1,96 @@
 # Better Spec Kit
 
-**A technology-agnostic, opinionated extension to GitHub Spec Kit for better design, simpler code, stronger reuse, and more reliable AI-assisted implementation.**
+**Better design. Simpler code. Stronger Spec Kit workflows.**
 
-Better Spec Kit does not choose your language, framework, database, architecture, or repository structure. It inspects the project that already exists and works within its established constraints.
+Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec Kit. It adds a dedicated design stage, stronger codebase discovery, reuse-before-creation guidance, implementation discipline, and final validation without prescribing your language, framework, database, architecture, or repository structure.
 
-## What it changes
-
-Better Spec Kit extends the normal workflow to:
+## Workflow
 
 ```text
 specify → clarify → design → plan → tasks → analyze → implement
 ```
 
-The main additions are:
+## Install
 
-- a dedicated `design` stage for meaningful user-facing changes
-- explicit discovery of the existing codebase before architecture or implementation decisions
-- reuse-before-creation and anti-overengineering guidance
-- stronger preservation of requirements and design decisions through planning and implementation
-- final implementation validation
-- optional use of installed specialist skills such as Ponytail and UI UX Pro Max when available
+Start in a project where GitHub Spec Kit is already initialised:
 
-Optional integrations enhance the workflow but are not required. Project requirements and the project's own constitution remain authoritative.
+```bash
+npx better-spec-kit@latest
+```
+
+The CLI detects the current project and launches an interactive installation or update wizard.
+
+You can also install the CLI globally:
+
+```bash
+npm install -g better-spec-kit
+better-spec-kit
+```
+
+> Until the npm package is published, test locally with `npm link` from this repository, then run `better-spec-kit` from a disposable Spec Kit project.
+
+## CLI
+
+```text
+better-spec-kit             Interactive wizard
+better-spec-kit install     Install into the current project
+better-spec-kit update      Update an existing installation
+better-spec-kit status      Show project and integration status
+better-spec-kit doctor      Diagnose blocking installation issues
+better-spec-kit --version   Show CLI version
+```
+
+A project path may be supplied after a command, for example:
+
+```bash
+better-spec-kit status ../my-project
+```
+
+## Safety
+
+Better Spec Kit is designed to upgrade an existing Spec Kit project in place.
+
+- Standard recognisable Spec Kit `plan`, `tasks`, and `implement` skills are treated as the expected upgrade path.
+- Original files are backed up outside the target repository before replacement.
+- Unknown or customised managed files are flagged for explicit approval.
+- Existing constitutions are preserved by default.
+- The neutral Better Spec Kit constitution is opt-in.
+- Better Spec Kit records its installed version in `.specify/better-spec-kit.json`.
 
 ## Technology neutrality
 
-Better Spec Kit intentionally makes no assumptions about:
+Better Spec Kit makes no assumptions about programming language, frontend/backend framework, database, test framework, deployment platform, repository topology, state management, or architectural style.
 
-- programming language
-- frontend or backend framework
-- database
-- state management
-- test framework
-- deployment platform
-- monorepo or multi-repository structure
-- architectural style
-
-The workflow is **discover first, then decide**.
-
-## Installation directly from GitHub
-
-Start with a project where GitHub Spec Kit is already initialised. Install from the public repository without cloning it permanently.
-
-### Windows / PowerShell (recommended: download, inspect, run)
-
-```powershell
-$bootstrap = Join-Path $env:TEMP 'better-spec-kit-bootstrap.ps1'
-Invoke-WebRequest 'https://raw.githubusercontent.com/mattjohns92/better-spec-kits/main/bootstrap.ps1' -OutFile $bootstrap
-& $bootstrap -TargetPath 'C:\Projects\MyProject'
-```
-
-### macOS / Linux
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/mattjohns92/better-spec-kits/main/bootstrap.sh -o /tmp/better-spec-kit-bootstrap.sh
-bash /tmp/better-spec-kit-bootstrap.sh /path/to/MyProject
-```
-
-The bootstrap downloads the current GitHub source archive into a temporary directory, invokes the local installer, and cleans up. **Review the downloaded bootstrap script before running it**; for reproducible installs, specify a release tag using `-Ref v0.3.2` (PowerShell) or `BETTER_SPEC_KIT_REF=v0.3.2` (shell) once that release exists.
-
-### Local installation
-
-```powershell
-.\install.ps1 C:\Projects\MyProject
-```
-
-```bash
-./install.sh /path/to/MyProject
-```
-
-By default the existing project constitution is preserved. To adopt the neutral constitution explicitly, pass `-InstallConstitution` (PowerShell) or set `INSTALL_CONSTITUTION=1` (shell). Existing skills are never silently overwritten; use `-Force` or `FORCE=1` to replace them with backups.
-
-## Constitution
-
-`constitution/constitution.md` is a technology-neutral baseline. It covers discovery, simplicity, reuse, scope, contracts, persistence safety, testing, observability, security, performance, refactoring, documentation, UI/UX, implementation discipline, and completion validation.
-
-Projects are encouraged to keep project-specific architectural and technology decisions in their own constitution. Better Spec Kit should complement those decisions rather than replace them.
+Its rule is simple: **discover first, then decide**.
 
 ## Optional integrations
 
-Better Spec Kit's skills can use specialist capabilities when they are installed in the coding-agent environment:
+Better Spec Kit can take advantage of specialist tools such as:
 
-- **UI UX Pro Max** during the design stage
-- **Ponytail** during planning, task generation, implementation, and final simplicity/reuse review
+- **UI UX Pro Max** during design
+- **Ponytail** during planning, task generation, implementation, and simplicity/reuse review
 
-The workflow continues using its built-in guidance when either integration is unavailable.
+They are separate projects and are not bundled or silently installed. Better Spec Kit continues with its built-in guidance when they are unavailable.
 
-## Safety when adopting into an existing project
+## Development
 
-When an existing Spec Kit project is detected, Better Spec Kit treats the standard `speckit-plan`, `speckit-tasks`, and `speckit-implement` skills as the normal upgrade path. Their originals are backed up outside the repository before replacement.
+Requires Node.js 20 or later.
 
-Files that cannot be classified as standard Spec Kit or an existing Better Spec Kit installation are flagged for review and require explicit approval (or `-Force` in unattended use). Project constitutions remain opt-in and are never replaced merely because Spec Kit is present.
+```bash
+npm test
+npm link
+```
+
+Then open a disposable project with GitHub Spec Kit initialised and run:
+
+```bash
+better-spec-kit
+```
 
 ## Status
 
-This is an early public-ready foundation (`v0.3.2`). The next priorities are upstream-aware updating, an idempotent patch/overlay mechanism, automated validation against supported Spec Kit versions, and improved installation ergonomics.
+`v0.4.0` introduces the cross-platform Node CLI and replaces PowerShell/Bash scripts as the primary installation experience. The package still needs to be published to npm before `npx better-spec-kit@latest` works publicly.
 
 ## Licence
 
 MIT.
-
-## Interactive setup (v0.3)
-
-On Windows, run `install.ps1` (or `bootstrap.ps1` for GitHub download). The installer
-shows the target project, detects whether Spec Kit is present, previews changed
-files, asks before replacing any existing customisations, and offers optional
-Ponytail / UI UX Pro Max setup. Existing files are backed up by default.
-
-For unattended use, pass `-NonInteractive` and, only when intended, `-Force`.
-Optional third-party integrations are **not** installed in unattended mode.
-The interactive setup currently targets PowerShell; the POSIX shell installer
-remains non-interactive.
-
-The optional integrations execute third-party installation commands only after
-an explicit confirmation. See `docs/integrations.md` for upstream references.
-
-
-## Clean target repositories
-
-The GitHub bootstrap downloads and extracts Better Spec Kit only in the operating system temporary directory and removes those working files after installation. Backups of replaced files are stored outside the target repository (under the user local application-data directory on Windows, or the operating-system temporary directory when no local application-data directory is available). Better Spec Kit does not create a package or backup folder in the target repository.

@@ -1,0 +1,42 @@
+{
+  "name": "better-spec-kit",
+  "version": "0.4.0",
+  "description": "Technology-agnostic enhancements for GitHub Spec Kit: design, simplicity, reuse and stronger implementation workflows.",
+  "type": "module",
+  "bin": {
+    "better-spec-kit": "bin/better-spec-kit.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills",
+    "constitution",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "VERSION"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "start": "node bin/better-spec-kit.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "spec-kit",
+    "github-copilot",
+    "ai",
+    "developer-tools",
+    "spec-driven-development"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattjohns92/better-spec-kits.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mattjohns92/better-spec-kits/issues"
+  },
+  "homepage": "https://github.com/mattjohns92/better-spec-kits#readme"
+}
