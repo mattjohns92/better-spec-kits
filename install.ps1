@@ -85,7 +85,11 @@ if ($interactive) {
 }
 $backupRoot = $null
 if ($conflicts.Count -gt 0 -and -not $NoBackup) {
-    $backupRoot = Join-Path $TargetRoot ('.better-spec-kit-backup/' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
+    $backupBase = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA 'BetterSpecKit/backups' } else { Join-Path ([IO.Path]::GetTempPath()) 'BetterSpecKit/backups' }
+    $projectName = Split-Path $TargetRoot -Leaf
+    if ([string]::IsNullOrWhiteSpace($projectName)) { $projectName = 'project' }
+    $projectKey = ($projectName -replace '[^a-zA-Z0-9._-]', '_')
+    $backupRoot = Join-Path $backupBase ($projectKey + '/' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
 }
 foreach ($item in $changed) {
     $src = Join-Path $RepoRoot $item.Source

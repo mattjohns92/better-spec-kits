@@ -112,3 +112,8 @@ remains non-interactive.
 
 The optional integrations execute third-party installation commands only after
 an explicit confirmation. See `docs/integrations.md` for upstream references.
+
+
+## Clean target repositories
+
+The GitHub bootstrap downloads and extracts Better Spec Kit only in the operating system temporary directory and removes those working files after installation. Backups of replaced files are stored outside the target repository (under the user local application-data directory on Windows, or the operating-system temporary directory when no local application-data directory is available). Better Spec Kit does not create a package or backup folder in the target repository.
