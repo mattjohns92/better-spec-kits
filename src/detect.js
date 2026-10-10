@@ -1,5 +1,5 @@
 import path from "node:path";
-import { exists, hash, read } from "./io.js";
+import { exists, hash } from "./io.js";
 import { managedFiles, metadataPath } from "./paths.js";
 
 export function detectProject(project) {
@@ -17,16 +17,9 @@ export function classifyFile(project, packageRoot, sourceRel, destinationRel) {
   if (!exists(destination)) return "new";
   if (hash(source) === hash(destination)) return "current";
 
-  const text = read(destination);
-  if (/Better Spec Kit|UI UX Pro Max|Ponytail/i.test(text)) return "better-spec-kit";
-
-  // Conservative recognition: only known Spec Kit skill destinations can be upgraded
-  // automatically. Unknown/custom files require explicit approval.
-  const normalized = destinationRel.replaceAll("\\", "/");
-  if (/^\.github\/skills\/speckit-(plan|tasks|implement)\/SKILL\.md$/.test(normalized)) {
-    const looksLikeSkill = /^---[\s\S]*?(name|description):/m.test(text) || /speckit/i.test(text);
-    if (looksLikeSkill) return "spec-kit";
-  }
+  // Never infer ownership from keywords or frontmatter: these are easy to
+  // preserve in a customised skill. Only byte-identical files are safe to skip.
+  // Until upstream release checksums are bundled, replacements need approval.
   return "custom";
 }
 

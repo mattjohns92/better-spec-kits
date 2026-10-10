@@ -26,8 +26,8 @@ test("unknown managed content requires review", () => {
   assert.equal(classifyFile(p,pkg,"x",".github/skills/speckit-plan/SKILL.md"),"custom");
 });
 
-test("recognisable Spec Kit skill is upgradeable", () => {
+test("upstream-looking skill is still treated as custom without a verified checksum", () => {
   const p=temp(), pkg=temp(); write(path.join(pkg,"x"),"new");
   write(path.join(p,".github/skills/speckit-plan/SKILL.md"),"---\nname: speckit-plan\ndescription: Spec Kit planning\n---\n");
-  assert.equal(classifyFile(p,pkg,"x",".github/skills/speckit-plan/SKILL.md"),"spec-kit");
+  assert.equal(classifyFile(p,pkg,"x",".github/skills/speckit-plan/SKILL.md"),"custom");
 });

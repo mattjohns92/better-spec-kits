@@ -1,6 +1,5 @@
 import path from "node:path";
-import fs from "node:fs";
-import { copy, ensureDir, exists, writeJson } from "./io.js";
+import { copy, exists, writeJson } from "./io.js";
 import { backupBase, metadataPath } from "./paths.js";
 
 function stamp() {
@@ -37,6 +36,12 @@ export function install({ project, packageRoot, plan, version, installConstituti
       copy(dst, path.join(backupRoot, ".specify", "memory", "constitution.md"));
     }
     copy(src, dst);
+  }
+
+  // Keep the previous install record recoverable on updates.
+  if (exists(metadataPath(project))) {
+    backupRoot ??= path.join(backupBase(), path.basename(project), stamp());
+    copy(metadataPath(project), path.join(backupRoot, ".specify", "better-spec-kit.json"));
   }
 
   writeJson(metadataPath(project), {

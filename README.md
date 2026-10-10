@@ -50,7 +50,7 @@ better-spec-kit status ../my-project
 
 Better Spec Kit is designed to upgrade an existing Spec Kit project in place.
 
-- Standard recognisable Spec Kit `plan`, `tasks`, and `implement` skills are treated as the expected upgrade path.
+- Existing Spec Kit skills are detected and shown for review. Until upstream release checksums are bundled, differing files require explicit approval before replacement.
 - Original files are backed up outside the target repository before replacement.
 - Unknown or customised managed files are flagged for explicit approval.
 - Existing constitutions are preserved by default.
@@ -94,3 +94,7 @@ better-spec-kit
 ## Licence
 
 MIT.
+
+## Releases
+
+See [docs/releasing.md](docs/releasing.md) for npm first-publish and GitHub Actions trusted publishing setup.

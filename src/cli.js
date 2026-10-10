@@ -1,5 +1,4 @@
 import path from "node:path";
-import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { detectProject, buildPlan } from "./detect.js";
 import { install } from "./installer.js";
@@ -30,6 +29,9 @@ function showPlan(plan) {
 
 export async function run(args) {
   const command = args[0]?.startsWith("-") ? null : args[0];
+  if (command && !["install", "update", "status", "doctor", "version"].includes(command)) {
+    throw new Error(`Unknown command: ${command}`);
+  }
   const projectArg = command ? args[1] : args[0];
   const project = path.resolve(projectArg && !projectArg.startsWith("-") ? projectArg : process.cwd());
 
@@ -79,11 +81,13 @@ export async function run(args) {
   showPlan(plan);
 
   const custom = plan.filter(x => x.classification === "custom");
-  let allowCustom = false;
+  const unattended = args.includes("--yes");
+  let allowCustom = args.includes("--allow-overwrite");
   if (custom.length) {
     console.log("\n  Customised/unknown files require explicit approval:");
     custom.forEach(x => console.log(`  ! ${x.destinationRel}`));
-    allowCustom = await yesNo("Back up and replace these files?", false);
+    if (!allowCustom && unattended) throw new Error("Custom files detected. Review changes, then use --allow-overwrite explicitly.");
+    if (!allowCustom) allowCustom = await yesNo("Back up and replace these files?", false);
     if (!allowCustom) { console.log("\nInstallation cancelled."); return; }
   }
 
@@ -91,7 +95,7 @@ export async function run(args) {
   if (detected.constitution) {
     console.log("\n  Constitution: existing constitution will be preserved.");
   } else {
-    installConstitution = await yesNo("Install the technology-neutral Better Spec Kit constitution?", false);
+    installConstitution = args.includes("--install-constitution") || (!unattended && await yesNo("Install the technology-neutral Better Spec Kit constitution?", false));
   }
 
   const integrations = integrationStatus();
@@ -100,7 +104,7 @@ export async function run(args) {
   console.log(`  ${integrations.npx ? "✔" : "○"} UI UX Pro Max setup capability: ${integrations.npx ? "available through npx" : "npx not detected"}`);
   console.log("  Third-party integrations are not silently installed by Better Spec Kit.");
 
-  if (!(await yesNo(`Proceed with ${selected}?`, true))) { console.log("\nCancelled."); return; }
+  if (!unattended && !(await yesNo(`Proceed with ${selected}?`, true))) { console.log("\nCancelled."); return; }
 
   const result = install({ project, packageRoot, plan, version, installConstitution, allowCustom });
   console.log(`\n✔ Better Spec Kit v${version} ${selected === "update" ? "updated" : "installed"}!`);

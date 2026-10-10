@@ -38,5 +38,8 @@
   "bugs": {
     "url": "https://github.com/mattjohns92/better-spec-kits/issues"
   },
-  "homepage": "https://github.com/mattjohns92/better-spec-kits#readme"
+  "homepage": "https://github.com/mattjohns92/better-spec-kits#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
