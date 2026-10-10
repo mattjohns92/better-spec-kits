@@ -13,8 +13,7 @@
     "constitution",
     "docs",
     "README.md",
-    "LICENSE",
-    "VERSION"
+    "LICENSE"
   ],
   "scripts": {
     "test": "node --test",

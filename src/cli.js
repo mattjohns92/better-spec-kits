@@ -8,7 +8,9 @@ import { read } from "./io.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(here, "..");
-const version = read(path.join(packageRoot, "VERSION")).trim();
+const packageJson = JSON.parse(read(path.join(packageRoot, "package.json")));
+
+const version = packageJson.version;
 
 function banner() {
   console.log(`
@@ -19,7 +21,7 @@ function banner() {
 }
 
 function actionName(c) {
-  return ({new:"+ ADD", "spec-kit":"~ UPGRADE", "better-spec-kit":"~ UPDATE", custom:"! REVIEW", current:"✓ KEEP"})[c] ?? c;
+  return { new: "+ ADD", "spec-kit": "~ UPGRADE", "better-spec-kit": "~ UPDATE", custom: "! REVIEW", current: "✓ KEEP" }[c] ?? c;
 }
 
 function showPlan(plan) {
@@ -36,7 +38,8 @@ export async function run(args) {
   const project = path.resolve(projectArg && !projectArg.startsWith("-") ? projectArg : process.cwd());
 
   if (args.includes("--version") || command === "version") {
-    console.log(version); return;
+    console.log(version);
+    return;
   }
 
   banner();
@@ -55,10 +58,16 @@ export async function run(args) {
 
   if (command === "doctor") {
     let problems = 0;
-    if (!detected.specKit) { console.log("\n  ✖ Initialise GitHub Spec Kit first."); problems++; }
+    if (!detected.specKit) {
+      console.log("\n  ✖ Initialise GitHub Spec Kit first.");
+      problems++;
+    }
     const plan = buildPlan(project, packageRoot);
-    const custom = plan.filter(x => x.classification === "custom");
-    if (custom.length) { console.log(`  ! ${custom.length} managed file(s) need manual review.`); problems++; }
+    const custom = plan.filter((x) => x.classification === "custom");
+    if (custom.length) {
+      console.log(`  ! ${custom.length} managed file(s) need manual review.`);
+      problems++;
+    }
     if (!problems) console.log("\n  ✔ No blocking Better Spec Kit issues detected.");
     return;
   }
@@ -66,12 +75,8 @@ export async function run(args) {
   if (!detected.specKit) throw new Error("GitHub Spec Kit is not initialised in this project.");
 
   let selected = command;
-  if (!["install","update"].includes(selected)) {
-    const idx = await choose("What would you like to do?", [
-      detected.betterSpecKit ? "Update Better Spec Kit" : "Install Better Spec Kit",
-      "Check installation",
-      "Exit",
-    ]);
+  if (!["install", "update"].includes(selected)) {
+    const idx = await choose("What would you like to do?", [detected.betterSpecKit ? "Update Better Spec Kit" : "Install Better Spec Kit", "Check installation", "Exit"]);
     if (idx === 1) return run(["status", project]);
     if (idx === 2) return;
     selected = detected.betterSpecKit ? "update" : "install";
@@ -80,22 +85,25 @@ export async function run(args) {
   const plan = buildPlan(project, packageRoot);
   showPlan(plan);
 
-  const custom = plan.filter(x => x.classification === "custom");
+  const custom = plan.filter((x) => x.classification === "custom");
   const unattended = args.includes("--yes");
   let allowCustom = args.includes("--allow-overwrite");
   if (custom.length) {
     console.log("\n  Customised/unknown files require explicit approval:");
-    custom.forEach(x => console.log(`  ! ${x.destinationRel}`));
+    custom.forEach((x) => console.log(`  ! ${x.destinationRel}`));
     if (!allowCustom && unattended) throw new Error("Custom files detected. Review changes, then use --allow-overwrite explicitly.");
     if (!allowCustom) allowCustom = await yesNo("Back up and replace these files?", false);
-    if (!allowCustom) { console.log("\nInstallation cancelled."); return; }
+    if (!allowCustom) {
+      console.log("\nInstallation cancelled.");
+      return;
+    }
   }
 
   let installConstitution = false;
   if (detected.constitution) {
     console.log("\n  Constitution: existing constitution will be preserved.");
   } else {
-    installConstitution = args.includes("--install-constitution") || (!unattended && await yesNo("Install the technology-neutral Better Spec Kit constitution?", false));
+    installConstitution = args.includes("--install-constitution") || (!unattended && (await yesNo("Install the technology-neutral Better Spec Kit constitution?", false)));
   }
 
   const integrations = integrationStatus();
@@ -104,12 +112,15 @@ export async function run(args) {
   console.log(`  ${integrations.npx ? "✔" : "○"} UI UX Pro Max setup capability: ${integrations.npx ? "available through npx" : "npx not detected"}`);
   console.log("  Third-party integrations are not silently installed by Better Spec Kit.");
 
-  if (!unattended && !(await yesNo(`Proceed with ${selected}?`, true))) { console.log("\nCancelled."); return; }
+  if (!unattended && !(await yesNo(`Proceed with ${selected}?`, true))) {
+    console.log("\nCancelled.");
+    return;
+  }
 
   const result = install({ project, packageRoot, plan, version, installConstitution, allowCustom });
   console.log(`\n✔ Better Spec Kit v${version} ${selected === "update" ? "updated" : "installed"}!`);
   console.log(`  ${result.changed} workflow skill(s) changed`);
   console.log(`  Constitution: ${installConstitution ? "neutral baseline installed" : "preserved"}`);
   if (result.backupRoot) console.log(`  Backups: ${result.backupRoot}`);
-  console.log("\n  Ready: specify → clarify → design → plan → tasks → analyze → implement\n");
+  console.log("\n  Ready: specify → clarify → design → plan → tasks → analyze → implement → review\n");
 }
