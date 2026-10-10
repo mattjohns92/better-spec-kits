@@ -36,6 +36,35 @@ function Invoke-Checked([string]$Executable, [string[]]$Arguments, [string]$Work
     } finally { Pop-Location }
 }
 
+
+function Get-SpecKitFileClassification([string]$Destination, [string]$Source) {
+    if (-not (Test-Path -LiteralPath $Destination -PathType Leaf)) { return 'new' }
+
+    $sourceHash = (Get-FileHash -LiteralPath $Source -Algorithm SHA256).Hash
+    $destinationHash = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
+    if ($sourceHash -eq $destinationHash) { return 'current' }
+
+    $text = Get-Content -LiteralPath $Destination -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($text)) { return 'custom' }
+
+    # Better Spec Kit-owned files identify themselves through their workflow language.
+    if (
+        $text -match '(?i)Better Spec Kit' -or
+        $text -match '(?i)UI UX Pro Max' -or
+        $text -match '(?i)Ponytail'
+    ) { return 'better-spec-kit' }
+
+    # Existing upstream Spec Kit skills use the expected speckit skill location/name
+    # and do not contain Better Spec Kit integration markers. Treat these as the
+    # normal upgrade path, while still showing the exact files that will be replaced.
+    $normalized = $Destination.Replace('\','/')
+    if ($normalized -match '/\.github/skills/speckit-(plan|tasks|implement)/SKILL\.md$') {
+        return 'spec-kit'
+    }
+
+    return 'custom'
+}
+
 $interactive = -not $NonInteractive -and -not $WhatIfPreference -and [Environment]::UserInteractive
 Write-Host "`nBetter Spec Kit v$Version" -ForegroundColor Green
 Write-Host "Project: $TargetRoot"
@@ -58,20 +87,63 @@ if ($InstallConstitution) { $files += @{ Source='constitution/constitution.md'; 
 foreach ($item in $files) {
     if (-not (Test-Path (Join-Path $RepoRoot $item.Source) -PathType Leaf)) { throw "Missing package file: $($item.Source)" }
 }
-$existing = @($files | Where-Object { Test-Path (Join-Path $TargetRoot $_.Destination) })
-$changed = @($files | Where-Object {
-    $destination = Join-Path $TargetRoot $_.Destination
-    -not (Test-Path $destination) -or (Get-FileHash (Join-Path $RepoRoot $_.Source) -Algorithm SHA256).Hash -ne (Get-FileHash $destination -Algorithm SHA256).Hash
-})
-$conflicts = @($changed | Where-Object { Test-Path (Join-Path $TargetRoot $_.Destination) })
-Write-Host "`nFiles to add/change: $($changed.Count)"
-$changed | ForEach-Object { Write-Host "  $($_.Destination)" }
-if ($conflicts.Count -gt 0 -and -not $Force) {
-    if (-not $interactive) { throw 'Existing customised files would change. Re-run with -Force to back up and replace them.' }
-    Write-Host "`n$($conflicts.Count) existing file(s) differ from this release." -ForegroundColor Yellow
-    $Force = Ask-Yes 'Replace differing files after backing them up?'
+$fileStates = @()
+foreach ($item in $files) {
+    $src = Join-Path $RepoRoot $item.Source
+    $dst = Join-Path $TargetRoot $item.Destination
+    $classification = Get-SpecKitFileClassification $dst $src
+    $fileStates += [pscustomobject]@{
+        Item = $item
+        Source = $src
+        Destination = $dst
+        Classification = $classification
+    }
+}
+
+$changedStates = @($fileStates | Where-Object { $_.Classification -ne 'current' })
+$changed = @($changedStates | ForEach-Object { $_.Item })
+$standardUpgrades = @($changedStates | Where-Object { $_.Classification -eq 'spec-kit' })
+$betterUpdates = @($changedStates | Where-Object { $_.Classification -eq 'better-spec-kit' })
+$customConflicts = @($changedStates | Where-Object { $_.Classification -eq 'custom' })
+$replaceStates = @($changedStates | Where-Object { Test-Path -LiteralPath $_.Destination -PathType Leaf })
+
+$markerPath = Join-Path $TargetRoot '.specify/better-spec-kit.json'
+$betterInstalled = Test-Path -LiteralPath $markerPath -PathType Leaf
+
+Write-Host "Better Spec Kit: $(if ($betterInstalled) {'detected'} else {'not installed'})"
+
+Write-Host "`nPlanned changes:"
+foreach ($state in $changedStates) {
+    $action = switch ($state.Classification) {
+        'new' { 'ADD' }
+        'spec-kit' { 'UPGRADE' }
+        'better-spec-kit' { 'UPDATE' }
+        'custom' { 'REVIEW' }
+        default { 'CHANGE' }
+    }
+    Write-Host ("  {0,-8} {1}" -f $action, $state.Item.Destination)
+}
+
+if ($standardUpgrades.Count -gt 0) {
+    Write-Host "`nExisting Spec Kit detected." -ForegroundColor Green
+    Write-Host "Better Spec Kit will enhance $($standardUpgrades.Count) standard Spec Kit skill(s)."
+    Write-Host 'Original files will be backed up automatically outside the repository.'
+}
+
+if ($betterUpdates.Count -gt 0) {
+    Write-Host "`nExisting Better Spec Kit files will be updated." -ForegroundColor Cyan
+}
+
+if ($customConflicts.Count -gt 0 -and -not $Force) {
+    Write-Host "`n$($customConflicts.Count) file(s) could not be safely classified as standard Spec Kit or Better Spec Kit." -ForegroundColor Yellow
+    $customConflicts | ForEach-Object { Write-Host "  $($_.Item.Destination)" -ForegroundColor Yellow }
+    if (-not $interactive) {
+        throw 'Customised/unknown files would change. Re-run with -Force only after reviewing them.'
+    }
+    $Force = Ask-Yes 'Replace these customised/unknown files after backing them up?'
     if (-not $Force) { Write-Host 'Installation cancelled. No files changed.'; return }
 }
+
 $integrationChoice = 0
 if ($interactive) {
     $integrationChoice = Ask-Choice 'Optional integrations (installed separately; never bundled)' @('Skip','Install Ponytail for Copilot CLI','Install UI UX Pro Max globally for Copilot','Install both') 0
@@ -84,7 +156,7 @@ if ($interactive) {
     if (-not (Ask-Yes 'Proceed with installation?' $true)) { Write-Host 'Installation cancelled.'; return }
 }
 $backupRoot = $null
-if ($conflicts.Count -gt 0 -and -not $NoBackup) {
+if ($replaceStates.Count -gt 0 -and -not $NoBackup) {
     $backupBase = if ($env:LOCALAPPDATA) { Join-Path $env:LOCALAPPDATA 'BetterSpecKit/backups' } else { Join-Path ([IO.Path]::GetTempPath()) 'BetterSpecKit/backups' }
     $projectName = Split-Path $TargetRoot -Leaf
     if ([string]::IsNullOrWhiteSpace($projectName)) { $projectName = 'project' }
@@ -107,7 +179,7 @@ foreach ($item in $changed) {
 $marker = Join-Path $TargetRoot '.specify/better-spec-kit.json'
 if ($PSCmdlet.ShouldProcess($marker, 'Write Better Spec Kit installation metadata')) {
     New-Item -ItemType Directory -Path (Split-Path $marker -Parent) -Force | Out-Null
-    [ordered]@{ name='better-spec-kit'; version=$Version; constitutionInstalled=[bool]$InstallConstitution; installedAt=(Get-Date).ToString('o') } |
+    [ordered]@{ name='better-spec-kit'; version=$Version; constitutionInstalled=[bool]$InstallConstitution; upgradedExistingSpecKit=[bool]($standardUpgrades.Count -gt 0); installedAt=(Get-Date).ToString('o') } |
         ConvertTo-Json | Set-Content -LiteralPath $marker -Encoding UTF8
 }
 Write-Host "`nBetter Spec Kit v$Version installed." -ForegroundColor Green

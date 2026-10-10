@@ -57,7 +57,7 @@ curl -fsSL https://raw.githubusercontent.com/mattjohns92/better-spec-kits/main/b
 bash /tmp/better-spec-kit-bootstrap.sh /path/to/MyProject
 ```
 
-The bootstrap downloads the current GitHub source archive into a temporary directory, invokes the local installer, and cleans up. **Review the downloaded bootstrap script before running it**; for reproducible installs, specify a release tag using `-Ref v0.2.0` (PowerShell) or `BETTER_SPEC_KIT_REF=v0.2.0` (shell) once that release exists.
+The bootstrap downloads the current GitHub source archive into a temporary directory, invokes the local installer, and cleans up. **Review the downloaded bootstrap script before running it**; for reproducible installs, specify a release tag using `-Ref v0.3.2` (PowerShell) or `BETTER_SPEC_KIT_REF=v0.3.2` (shell) once that release exists.
 
 ### Local installation
 
@@ -88,11 +88,13 @@ The workflow continues using its built-in guidance when either integration is un
 
 ## Safety when adopting into an existing project
 
-Better Spec Kit intentionally refuses to overwrite existing managed files unless explicitly forced. Review differences before replacing heavily customised Spec Kit skills or a project constitution.
+When an existing Spec Kit project is detected, Better Spec Kit treats the standard `speckit-plan`, `speckit-tasks`, and `speckit-implement` skills as the normal upgrade path. Their originals are backed up outside the repository before replacement.
+
+Files that cannot be classified as standard Spec Kit or an existing Better Spec Kit installation are flagged for review and require explicit approval (or `-Force` in unattended use). Project constitutions remain opt-in and are never replaced merely because Spec Kit is present.
 
 ## Status
 
-This is an early public-ready foundation (`v0.2.0`). The next priorities are upstream-aware updating, an idempotent patch/overlay mechanism, automated validation against supported Spec Kit versions, and improved installation ergonomics.
+This is an early public-ready foundation (`v0.3.2`). The next priorities are upstream-aware updating, an idempotent patch/overlay mechanism, automated validation against supported Spec Kit versions, and improved installation ergonomics.
 
 ## Licence
 
