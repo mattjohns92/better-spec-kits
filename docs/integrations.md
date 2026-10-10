@@ -2,6 +2,10 @@
 
 Better Spec Kit does not redistribute or automatically install third-party tools. They are optional, independently maintained, and may be installed in the agent environment.
 
+## GitHub Spec Kit Converge
+
+`/speckit.converge` is an upstream GitHub Spec Kit capability, not a Better Spec Kit integration. Better Spec Kit does not bundle or replace it. If it is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit). After implementation, repeat `converge → implement → converge` while it reports outstanding tasks, then proceed to Review.
+
 ## Ponytail — GitHub Copilot CLI
 
 Official project: https://github.com/DietrichGebert/ponytail
@@ -11,7 +15,7 @@ copilot plugin marketplace add DietrichGebert/ponytail
 copilot plugin install ponytail@ponytail
 ```
 
-In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. `/speckit-review` invokes Ponytail's installed review capability as additional simplicity/reuse evidence when available. Without it, Better Spec Kit still performs all five built-in review passes.
+In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. `/speckit-review` invokes Ponytail's installed review capability as additional simplicity/reuse evidence when available. Without it, Better Spec Kit still performs all four built-in implementation-quality checks.
 
 ## UI UX Pro Max
 

@@ -22,6 +22,21 @@ test("fresh install preserves constitution and writes metadata", () => {
   assert.equal(fs.readFileSync(path.join(p, ".specify/memory/constitution.md"), "utf8"), "custom constitution");
   assert.equal(JSON.parse(fs.readFileSync(path.join(p, ".specify/better-spec-kit.json"), "utf8")).version, "0.4.0");
 });
+
+test("install leaves the upstream Converge skill unmanaged and unchanged", () => {
+  const p = project();
+  const convergePath = path.join(p, ".github/skills/speckit-converge/SKILL.md");
+  const convergeContent = "upstream-owned Converge skill\n";
+  fs.mkdirSync(path.dirname(convergePath), { recursive: true });
+  fs.writeFileSync(convergePath, convergeContent);
+
+  const plan = buildPlan(p, packageRoot);
+  assert.ok(!plan.some((item) => item.destinationRel === ".github/skills/speckit-converge/SKILL.md"));
+  install({ project: p, packageRoot, plan, version: "0.5.1" });
+
+  assert.equal(fs.readFileSync(convergePath, "utf8"), convergeContent);
+});
+
 test("upgrading a pre-Review installation adds the Review skill", () => {
   const p = project();
   for (const name of ["speckit-design", "speckit-plan", "speckit-tasks", "speckit-implement"]) {

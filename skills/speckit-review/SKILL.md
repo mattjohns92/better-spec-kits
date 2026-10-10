@@ -1,6 +1,6 @@
 ---
 name: speckit-review
-description: Independently assess whether an implemented feature is complete, correct, and ready to accept.
+description: Independently assess whether a completed implementation is correct, maintainable, appropriately tested, and ready for acceptance.
 compatibility: Requires access to the repository and relevant feature artifacts.
 ---
 
@@ -14,15 +14,21 @@ Consider any feature path, review focus, or other context supplied by the user. 
 
 ## Purpose
 
-Review is the independent, post-implementation completion gate in Better Spec Kit:
+Review is the independent, post-convergence implementation-quality gate in Better Spec Kit:
 
-`specify -> clarify -> design -> plan -> tasks -> implement -> review`
+`specify -> clarify -> design -> plan -> tasks -> implement -> converge -> review`
 
-Analyze remains available as an optional upstream consistency check. It is not a required step in this workflow.
+GitHub Spec Kit owns `/speckit.converge`. When it identifies outstanding work, repeat `converge -> implement -> converge` until convergence is achieved, then proceed to Review. Analyze remains available as an optional pre-implementation consistency check; it is not a required step.
 
-Review answers: **Does the completed implementation deliver what was agreed, correctly and completely, without material regressions or unnecessary complexity?**
+Review answers: **Is the completed implementation correct, maintainable, appropriately tested, and ready for acceptance?**
 
 Review inspects and reports. The initial operation is read-only: do not modify implementation, tests, specifications, design, plans, tasks, configuration, or other repository files. Do not automatically fix findings. Do not change an authoritative artifact merely to make an implementation discrepancy disappear.
+
+Review remains read-only with respect to `tasks.md`. Tasks creates the original implementation plan, Implement may append Review-remediation work, and upstream Converge may append completeness work; Review never creates, edits, or checks off ledger tasks. Task completion does not transition finding status or establish acceptance.
+
+For a completed feature, create or update a `review.md` artifact in the active feature directory. The file is the durable source of review outcome, evidence, current findings, and brief resolved-history. Keep it authoritative for the feature handoff and do not rely on temporary conversation state or session-only notes. Assign each material finding a stable ID and preserve it across repeated runs until the issue is resolved.
+
+Implementation work may change code or tests to address a finding, but only a subsequent Review reassessment may change status to `RESOLVED`. Review is the only authority for changing finding status and for deciding whether the feature is ready to pass after fresh evidence.
 
 ## Establish Review Scope
 
@@ -33,33 +39,39 @@ Review inspects and reports. The initial operation is read-only: do not modify i
 5. Read the diff and the surrounding implementation needed to understand behavior, callers, contracts, side effects, and tests. A diff alone is not sufficient when surrounding code determines correctness.
 6. Preserve unrelated user changes. Do not stage, reset, revert, or rewrite repository state.
 
+## Convergence Evidence
+
+For a Spec Kit feature, determine whether a Converge result is available and applies to the identified feature and current implementation. Discover evidence from the existing feature artifacts, task changes, repository state, and current session; do not require a specific result filename or introduce stored status tracking.
+
+- **Current successful Converge evidence**: When evidence establishes successful convergence for this feature and implementation state, treat it as evidence of requirements completeness. Do not repeat an exhaustive requirement-by-requirement or task-by-task coverage pass. Continue independently with the four quality passes below and consult specific requirements when a quality finding depends on them.
+- **Converge-added tasks remain outstanding**: Explain that convergence is incomplete, identify the known outstanding work, do not report final acceptance as PASS, and recommend completing implementation and rerunning Converge.
+- **Missing, unavailable, stale, unrelated, or unverifiable evidence**: Clearly disclose that convergence is not established. Treat a prior result as stale rather than current when implementation changed afterward and no evidence re-establishes it. Perform enough independent requirements checking to avoid approving an obviously incomplete feature; do not claim convergence occurred. Missing convergence evidence alone MUST NOT force INCOMPLETE REVIEW.
+- **Contradictory evidence**: A Converge result does not override observed missing requirements, incorrect behavior, or other concrete contrary evidence. Report the demonstrated issue and do not return PASS when it is material.
+- **Standalone code review**: A standalone code review unrelated to a Spec Kit feature does not require Converge or feature artifacts.
+
+An unchecked task marker alone is not proof that work remains if completion is demonstrated; likewise, checked tasks or a previous convergence claim do not override observed missing work.
+
 ## Review Passes
 
-Perform and report each of these five passes independently. Record a concise conclusion and the evidence considered for each. A pass with no applicable UI or artifact requirement may be marked not applicable with a reason; do not invent requirements.
+Perform and report each applicable pass independently. Record a concise conclusion and key evidence. A pass with no applicable UI or design requirement may be marked not applicable with a reason; do not invent requirements.
 
-### 1. Requirements and Task Coverage
+### 1. Correctness and Regression Risk
 
-Trace delivered behavior to the agreed feature intent. Compare the implementation with each material functional requirement, acceptance scenario, success criterion, approved scope, and task outcome. Inspect the result of tasks marked complete rather than trusting checkboxes. Identify omitted requirements, incomplete outcomes, and unapproved behavior that materially expands or contradicts scope.
+Inspect changed code and relevant surrounding implementation. Identify demonstrated incorrect behavior, edge cases, race conditions, invalid state transitions, error-handling problems, security and data-integrity risks, contract violations, regressions, and architecture violations. Confirm apparent issues in context and do not report speculative concerns.
 
 ### 2. Design Compliance
 
-When `design.md` exists and the feature affects the user experience, compare the implementation with its material workflows, information architecture, interactions, responsive behavior, states and feedback, accessibility needs, and decisions about established project primitives. Report material unexplained deviations, not harmless implementation differences.
+When the feature affects user experience and approved design decisions exist, verify workflows, interactions, responsive behavior, accessibility, and important UX decisions against the applicable design. Report material unexplained deviations, not harmless implementation differences. For features without UI impact, state that design requirements are not applicable and invent none.
 
-When the feature has no UI impact and no design artifact, state that this pass has no applicable design requirements and succeeds without inventing any.
+### 3. Test Quality
 
-### 3. Correctness and Regression Risk
+Assess whether tests meaningfully demonstrate changed behavior, including important positive, negative, integration, and regression scenarios where relevant. Passing tests do not establish correctness by themselves. Do not request tests merely to increase coverage numbers.
 
-Review the relevant code and its surrounding implementation like a careful pull-request reviewer. Look for demonstrated incorrect behavior, edge cases, invalid transitions, error-handling gaps, data-integrity risks, contract violations, security or accessibility problems, regressions, required compatibility failures, and conflicts with established architecture or conventions. Confirm an apparent issue in its actual context before reporting it. Do not report speculative concerns.
+Discover relevant validation commands and run them when practical and safe. Do not run commands that knowingly alter files, apply fixes, deploy, publish, or modify external state. Report commands run and actual results; distinguish checks not run from passing checks.
 
-### 4. Test Quality
+### 4. Simplicity, Reuse, and Maintainability
 
-Determine whether the available tests and validation meaningfully demonstrate the changed behavior. Check for material requirements without behavioral evidence, important negative or failure paths, tests that assert implementation details but could pass while behavior is broken, regression coverage, and integration or contract coverage when a boundary changed. Do not request tests merely to increase coverage numbers.
-
-Discover the project's relevant validation commands. Run them when practical only if they are appropriate and will not violate read-only behavior. Do not run commands that knowingly alter tracked files, apply fixes, deploy, publish, or modify external state. Report commands actually run and their real results; distinguish not-run checks from passing checks.
-
-### 5. Simplicity, Reuse, and Maintainability
-
-Assess demonstrated duplication, missed reuse, parallel behavior, unnecessary abstractions or layers, wrappers, files, configuration, dependencies, compatibility code, or premature generalization. Compare choices with existing project functionality and the current requirement. Report only concrete problems; do not turn style preference or hypothetical future reuse into findings.
+Assess demonstrated duplication, missed opportunities to reuse existing code, unnecessary abstractions, wrappers or layers, speculative configuration, unnecessary dependencies, premature generalization, and avoidable complexity. Report concrete problems, not style preferences or hypothetical concerns.
 
 #### Ponytail Integration
 
@@ -80,6 +92,7 @@ Every material finding must include:
 - **Impact**: the user, requirement, correctness, safety, or maintainability consequence.
 - **Reference**: relevant requirement, design decision, or task, when applicable.
 - **Resolution direction**: the smallest appropriate direction for addressing it; do not make the change.
+- **Status history**: a concise record of whether the finding is open or already closed, without rewriting the original issue record or merging it into `tasks.md`.
 
 Use severity consistently:
 
@@ -92,7 +105,7 @@ Do not treat missing optional artifacts or Ponytail as findings by themselves. D
 
 ## Report and Outcome
 
-Report the scope and comparison base used, evidence inspected, and validation commands actually run. Then summarize the five passes and list evidence-backed findings, grouped by severity. For each pass, state its conclusion and the key evidence or limitation.
+Report the scope and comparison base used, evidence inspected, and validation commands actually run. Keep the report concise and specific to the changed behavior. Then summarize the four passes and list evidence-backed findings, grouped by severity. For each pass, state its conclusion and key evidence or limitation. Clearly distinguish completion-blocking findings from non-blocking improvements.
 
 Finish with exactly one overall outcome:
 

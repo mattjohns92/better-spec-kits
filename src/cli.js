@@ -129,6 +129,6 @@ export async function run(args) {
   console.log(`  ${result.changed} workflow skill(s) changed`);
   console.log(`  Constitution: ${installConstitution ? "neutral baseline installed" : "preserved"}`);
   if (result.backupRoot) console.log(`  Backups: ${result.backupRoot}`);
-  console.log("\n  Ready: specify → clarify → design → plan → tasks → implement → review");
+  console.log("\n  Ready: specify → clarify → design → plan → tasks → implement → converge → review");
   console.log("  Analyze remains available as an optional pre-implementation check.\n");
 }

@@ -101,6 +101,10 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Parallel execution examples per story
    - Implementation strategy section (MVP first, incremental delivery)
 
+## Task Ledger Ownership
+
+Tasks creates the original implementation plan in the feature's `tasks.md`. It does not create Review-remediation work or copy Review finding records into the ledger. Implement may append Review-remediation work as tasks to that same file under `## Review Remediation`; upstream Converge may append missing implementation or completeness work. Review reads `tasks.md` but never modifies it or treats checked tasks as finding resolution.
+
 ## Mandatory Post-Execution Hooks
 
 **You MUST complete this section before reporting completion to the user.**

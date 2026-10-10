@@ -12,6 +12,8 @@ npx better-spec-kit@latest
 
 Run it from the root of a project where GitHub Spec Kit is already initialised.
 
+GitHub Spec Kit supplies `/speckit.converge`; Better Spec Kit does not package or automatically install it. If it is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit), then verify the command is available. If it appends tasks, repeat `converge → implement → converge` until no work remains, then proceed to Review.
+
 ## Local development
 
 From the Better Spec Kit repository:

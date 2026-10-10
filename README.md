@@ -7,10 +7,16 @@ Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec K
 ## Workflow
 
 ```text
-specify → clarify → design → plan → tasks → implement → review
+specify → clarify → design → plan → tasks → implement → converge → review
 ```
 
 Analyze remains available as an optional consistency check before implementation.
+
+GitHub Spec Kit provides `/speckit.converge` to check for work still missing after implementation. If it appends tasks, repeat `converge → implement → converge` until no work remains, then run Review. Better Spec Kit does not bundle or replace Converge. If the command is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit) and verify the command is available before continuing.
+
+Review writes a durable `review.md` artifact in the active feature directory. That artifact is the authoritative record for review outcome, blocking findings, validation evidence, and the concise resolved-history that survives the implementation handoff.
+
+The feature's `tasks.md` remains the single implementation work ledger: Tasks creates the original planned work, upstream Converge may append completeness work, Implement may append Review-remediation tasks, and Review reads the ledger without modifying it. After remediation, the expected sequence remains `implement -> converge -> review`; only a subsequent Review reassessment can resolve a finding.
 
 ## Install
 
