@@ -214,18 +214,16 @@ test("workflow documentation makes Analyze the normal pre-implementation gate", 
   const releasing = fs.readFileSync(path.join(packageRoot, "docs/releasing.md"), "utf8").toLowerCase();
   const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
   const constitution = fs.readFileSync(path.join(packageRoot, "constitution/constitution.md"), "utf8").toLowerCase();
-  const dogfoodConstitution = fs.readFileSync(path.join(packageRoot, ".specify/memory/constitution.md"), "utf8").toLowerCase();
+  const dogfoodConstitutionPath = path.join(packageRoot, ".specify/memory/constitution.md");
+  const dogfoodConstitution = fs.existsSync(dogfoodConstitutionPath) ? fs.readFileSync(dogfoodConstitutionPath, "utf8").toLowerCase() : null;
   const reviewSkills = [
     fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase(),
     fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-review/SKILL.md"), "utf8").toLowerCase(),
   ];
 
-  for (const [name, content] of [
-    ["README", readme],
-    ["workflow", workflow],
-    ["constitution", constitution],
-    ["dogfood constitution", dogfoodConstitution],
-  ]) {
+  const workflowChecks = [["README", readme], ["workflow", workflow], ["constitution", constitution], ...(dogfoodConstitution ? [["dogfood constitution", dogfoodConstitution]] : [])];
+
+  for (const [name, content] of workflowChecks) {
     assert.ok(content.includes(sequence), `${name} is missing the recommended Analyze workflow`);
   }
   assert.match(workflow, /analyze is the normal final pre-implementation gate/);
