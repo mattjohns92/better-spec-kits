@@ -34,12 +34,13 @@ async function capture(args) {
   return output;
 }
 
-test("install preview lists Review as ADD when it is absent", async () => {
+test("install preview lists Review and Analyze as ADD when they are absent", async () => {
   const directory = project();
   const output = await capture(["install", directory, "--yes"]);
   assert.match(output, /\+ ADD\s+\.github\/skills\/speckit-review\/SKILL\.md/);
-  assert.match(output, /Ready: specify → clarify → design → plan → tasks → implement → converge → review/);
-  assert.match(output, /Analyze remains available as an optional pre-implementation check/);
+  assert.match(output, /\+ ADD\s+\.github\/skills\/speckit-analyze\/SKILL\.md/);
+  assert.match(output, /Ready: specify → clarify → design → plan → tasks → analyze → implement → converge → review/);
+  assert.match(output, /Analyze is the normal final pre-implementation check/);
 });
 
 test("status reports whether the Review skill is installed", async () => {
@@ -54,9 +55,151 @@ test("status reports whether the Review skill is installed", async () => {
   assert.match(await capture(["status", installedProject]), /Review skill: installed/);
 });
 
+test("status reports missing, installed, and conflicting Analyze skills", async () => {
+  const missingProject = project();
+  assert.match(await capture(["status", missingProject]), /Analyze skill: missing/);
+
+  const installedProject = project();
+  const source = path.join(packageRoot, "skills/speckit-analyze/SKILL.md");
+  const destination = path.join(installedProject, ".github/skills/speckit-analyze/SKILL.md");
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(source, destination);
+  assert.match(await capture(["status", installedProject]), /Analyze skill: installed/);
+
+  const conflictingProject = project();
+  const conflictingDestination = path.join(conflictingProject, ".github/skills/speckit-analyze/SKILL.md");
+  fs.mkdirSync(path.dirname(conflictingDestination), { recursive: true });
+  fs.writeFileSync(conflictingDestination, "upstream Analyze skill");
+  assert.match(await capture(["status", conflictingProject]), /Analyze skill: needs review/);
+});
+
 test("doctor flags a missing Review skill in an installed project", async () => {
   const output = await capture(["doctor", project()]);
   assert.match(output, /Review skill is missing/);
+});
+
+test("doctor flags missing and conflicting Analyze skills in an installed project", async () => {
+  assert.match(await capture(["doctor", project()]), /Analyze skill is missing/);
+
+  const conflictingProject = project();
+  const destination = path.join(conflictingProject, ".github/skills/speckit-analyze/SKILL.md");
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.writeFileSync(destination, "upstream Analyze skill");
+  assert.match(await capture(["doctor", conflictingProject]), /Analyze skill needs manual review/);
+});
+
+test("workflow documentation makes Analyze the normal pre-implementation gate", () => {
+  const sequence = "specify → clarify → design → plan → tasks → analyze → implement → converge → review";
+  const readme = fs.readFileSync(path.join(packageRoot, "README.md"), "utf8").toLowerCase();
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+  const installation = fs.readFileSync(path.join(packageRoot, "docs/installation.md"), "utf8").toLowerCase();
+  const releasing = fs.readFileSync(path.join(packageRoot, "docs/releasing.md"), "utf8").toLowerCase();
+  const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
+  const constitution = fs.readFileSync(path.join(packageRoot, "constitution/constitution.md"), "utf8").toLowerCase();
+  const dogfoodConstitution = fs.readFileSync(path.join(packageRoot, ".specify/memory/constitution.md"), "utf8").toLowerCase();
+  const reviewSkills = [
+    fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase(),
+    fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-review/SKILL.md"), "utf8").toLowerCase(),
+  ];
+
+  for (const [name, content] of [
+    ["README", readme],
+    ["workflow", workflow],
+    ["constitution", constitution],
+    ["dogfood constitution", dogfoodConstitution],
+  ]) {
+    assert.ok(content.includes(sequence), `${name} is missing the recommended Analyze workflow`);
+  }
+  assert.match(workflow, /analyze is the normal final pre-implementation gate/);
+  assert.match(workflow, /blocking findings/);
+  assert.match(installation, /enhanced `\.github\/skills\/speckit-analyze\/skill\.md`/);
+  assert.match(installation, /backup/);
+  assert.match(releasing, /skills\/speckit-analyze\/skill\.md/);
+  const releaseVersionSteps = releasing.match(/^1\..*$/gm) ?? [];
+  assert.equal(releaseVersionSteps.length, 1, "release guide should have one version synchronization step");
+  assert.ok(releaseVersionSteps[0].includes("`version`, `package.json`, and `package-lock.json`"));
+  assert.match(integrations, /analyze skill/);
+  assert.match(integrations, /upstream/);
+  for (const skill of reviewSkills) {
+    assert.doesNotMatch(skill, /analyze remains available as an optional/);
+    assert.match(skill, /normal final pre-implementation check/);
+  }
+});
+
+test("Analyze skill preserves consistency checks and challenges material decisions", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "spec.md",
+    "plan.md",
+    "tasks.md",
+    "duplication detection",
+    "ambiguity detection",
+    "constitution alignment",
+    "coverage gaps",
+    "cross-artifact inconsistency",
+    "relevant established project conventions",
+    "demonstrated current problem",
+    "existing project capability",
+    "hypothetical future",
+    "proportionate",
+    "ponytail",
+    "execution boundary",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing decision-challenge guidance: ${phrase}`);
+  }
+});
+
+test("Analyze skill persists stable findings and exclusively owns analysis.md", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "# pre-implementation analysis",
+    "**outcome:** pass | findings | incomplete analysis",
+    "**blocking findings:**",
+    "## analysis context",
+    "## current findings",
+    "## resolved findings",
+    "a001",
+    "preserve the id of an open finding when the same underlying issue remains",
+    "next unused sequential",
+    "status:** open",
+    "blocking:** yes | no",
+    "only this analyze run may move an open finding to resolved",
+    "resolution verified",
+    "only file created or changed by analyze is the active feature's `analysis.md`",
+    "other workflows must not resolve, delete, renumber, or rewrite an analyze finding",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing persistence/ownership guidance: ${phrase}`);
+  }
+});
+
+test("Analyze skill routes findings and applies severity and outcome rules", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "earliest authoritative stage",
+    "`clarify`",
+    "`design`",
+    "`plan`",
+    "`tasks`",
+    "do not route everything to tasks",
+    "potential downstream impact",
+    "`blocker`",
+    "`high`",
+    "`medium`",
+    "`low`",
+    "use high for material new complexity that is unsupported by current requirements",
+    "explicit `blocking: yes` or `blocking: no`",
+    "unless they demonstrate violation of an explicit requirement",
+    "**pass**",
+    "**findings**",
+    "**incomplete analysis**",
+    "do not redesign the interface",
+    "feature 006 remediation orchestration is out of scope",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing routing/outcome guidance: ${phrase}`);
+  }
 });
 
 test("Review skill uses current convergence evidence and four quality passes", () => {

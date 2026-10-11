@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FORCE="${FORCE:-0}"
 INSTALL_CONSTITUTION="${INSTALL_CONSTITUTION:-0}"
 [[ -d "$TARGET" ]] || { echo "Target project does not exist: $TARGET" >&2; exit 1; }
-files=(".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-implement/SKILL.md")
+files=(".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-analyze/SKILL.md" ".github/skills/speckit-implement/SKILL.md")
 if [[ "$INSTALL_CONSTITUTION" == "1" ]]; then files+=(".specify/memory/constitution.md"); fi
 for dst in "${files[@]}"; do
   if [[ -e "$TARGET/$dst" && "$FORCE" != "1" ]]; then

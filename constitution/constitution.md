@@ -182,11 +182,11 @@ For user-facing features, technically correct behaviour is insufficient when the
 
 The recommended workflow is:
 
-`specify → clarify → design → plan → tasks → implement → converge → review`
+`specify → clarify → design → plan → tasks → analyze → implement → converge → review`
 
-The upstream `analyze` command remains available as an optional pre-implementation consistency check; it is not part of the recommended sequence. GitHub Spec Kit owns Converge. When it identifies remaining work, repeat `converge → implement → converge` until convergence is achieved, then proceed to Review.
+Analyze is the normal, proportionate final pre-implementation gate. It checks artifact coherence and challenges material decisions before implementation; it records findings in feature-local `analysis.md` and does not modify upstream artifacts or implement remediation. When blocking findings remain, address them through the routed upstream stage and rerun Analyze before implementation normally proceeds. GitHub Spec Kit owns Converge. When it identifies remaining work, repeat `converge → implement → converge` until convergence is achieved, then proceed to Review.
 
-`design` is the authoritative UI/UX design stage. `plan`, `tasks`, `analyze` when used, `implement`, `converge`, and `review` MUST preserve material decisions from `design.md` when it exists.
+`design` is the authoritative UI/UX design stage. `plan`, `tasks`, `analyze`, `implement`, `converge`, and `review` MUST preserve material decisions from `design.md` when it exists.
 
 Optional external skills may provide specialist guidance, but they MUST NOT override the project constitution, approved requirements, authoritative design decisions, or discovered project constraints.
 

@@ -7,10 +7,10 @@ Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec K
 ## Workflow
 
 ```text
-specify → clarify → design → plan → tasks → implement → converge → review
+specify → clarify → design → plan → tasks → analyze → implement → converge → review
 ```
 
-Analyze remains available as an optional consistency check before implementation.
+Analyze is the normal final pre-implementation check after Tasks. It checks artifact consistency and challenges material decisions, then records its outcome and any findings in the feature's `analysis.md`. Analyze does not modify upstream artifacts. Address blocking findings through their routed upstream stage and rerun Analyze before implementation normally proceeds.
 
 GitHub Spec Kit provides `/speckit.converge` to check for work still missing after implementation. If it appends tasks, repeat `converge → implement → converge` until no work remains, then run Review. Better Spec Kit does not bundle or replace Converge. If the command is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit) and verify the command is available before continuing.
 
@@ -43,7 +43,7 @@ better-spec-kit
 better-spec-kit             Interactive wizard
 better-spec-kit install     Install into the current project
 better-spec-kit update      Update an existing installation
-better-spec-kit status      Show project, Review skill, and integration status
+better-spec-kit status      Show project, Review/Analyze skills, and integration status
 better-spec-kit doctor      Diagnose blocking installation issues
 better-spec-kit --version   Show CLI version
 ```

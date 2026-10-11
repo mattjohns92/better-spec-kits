@@ -18,7 +18,7 @@ Review is the independent, post-convergence implementation-quality gate in Bette
 
 `specify -> clarify -> design -> plan -> tasks -> implement -> converge -> review`
 
-GitHub Spec Kit owns `/speckit.converge`. When it identifies outstanding work, repeat `converge -> implement -> converge` until convergence is achieved, then proceed to Review. Analyze remains available as an optional pre-implementation consistency check; it is not a required step.
+Run Analyze after Tasks and before Implement as the normal final pre-implementation check. It owns its `analysis.md` findings and does not modify upstream artifacts or implement remediation. Address blocking findings through their routed stages and rerun Analyze before implementation normally proceeds. GitHub Spec Kit owns `/speckit.converge`. When it identifies outstanding work, repeat `converge -> implement -> converge` until convergence is achieved, then proceed to Review.
 
 Review answers: **Is the completed implementation correct, maintainable, appropriately tested, and ready for acceptance?**
 

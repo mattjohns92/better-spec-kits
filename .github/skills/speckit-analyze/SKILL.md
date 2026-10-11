@@ -1,12 +1,10 @@
 ---
-name: "speckit-analyze"
-description: "Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation."
-compatibility: "Requires spec-kit project structure with .specify/ directory"
+name: speckit-analyze
+description: Persistently analyze feature artifacts and challenge whether material decisions are justified and proportionate before implementation.
+compatibility: Requires a GitHub Spec Kit project with an initialized .specify/ directory and completed feature tasks.
 metadata:
-  author: "github-spec-kit"
-  source: "templates/commands/analyze.md"
+  author: better-spec-kit
 ---
-
 
 ## User Input
 
@@ -14,246 +12,236 @@ metadata:
 $ARGUMENTS
 ```
 
-You **MUST** consider the user input before proceeding (if not empty).
+Consider any user-provided focus when analyzing, but do not let it override the feature requirements, project constitution, approved design, or available evidence.
 
 ## Pre-Execution Checks
 
-**Check for extension hooks (before analysis)**:
-- Check if `.specify/extensions.yml` exists in the project root.
-- If it exists, read it and look for entries under the `hooks.before_analyze` key
-- If the YAML cannot be parsed or is invalid, do not skip silently: tell the user that `.specify/extensions.yml` could not be read (include the parser error) and that no hooks were checked, including any mandatory (`optional: false`) hooks registered there, then continue normally
-- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
-- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
-  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
-  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
-- When constructing command invocations from hook command names, replace dots (`.`) with hyphens (`-`). For example, `speckit.git.commit` → `/speckit-git-commit`.
-- For each executable hook, output the following based on its `optional` flag:
-  - **Optional hook** (`optional: true`):
-    ```
-    ## Extension Hooks
-
-    **Optional Pre-Hook**: {extension}
-    Command: `/{command}`
-    Description: {description}
-
-    Prompt: {prompt}
-    To execute: `/{command}`
-    ```
-  - **Mandatory hook** (`optional: false`):
-    ```
-    ## Extension Hooks
-
-    **Automatic Pre-Hook**: {extension}
-    Executing: `/{command}`
-    EXECUTE_COMMAND: {command}
-
-    Wait for the result of the hook command before proceeding to the Goal.
-    ```
-    After emitting the block above you MUST actually invoke the hook and wait for it to finish before continuing. Run it the same way you would run the command yourself in this agent/session (the invocation may differ from the literal `{command}` id shown above, e.g. a skills-mode agent runs it as `/skill:speckit-...` or `$speckit-...`). Emitting the block alone does not run the hook.
-- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
+Check whether `.specify/extensions.yml` exists. If it does, inspect `hooks.before_analyze` using the extension hook rules established by the project. Do not evaluate non-empty `condition` expressions. Skip hooks explicitly disabled. A mandatory hook must be invoked and completed before analysis; report optional hooks for the user to invoke. If the file is absent or no hook is registered, continue without a hook notice. If the YAML is invalid or unreadable, report the parser/read error and that no hooks, including mandatory hooks, were checked, then continue normally.
 
 ## Goal
 
-Identify inconsistencies, duplications, ambiguities, and underspecified items across the three core artifacts (`spec.md`, `plan.md`, `tasks.md`) before implementation. This command MUST run only after `/speckit-tasks` has successfully produced a complete `tasks.md`.
+Perform the normal final pre-implementation quality gate:
+
+`specify → clarify → design → plan → tasks → analyze → implement`
+
+Analyze answers both:
+
+- Are the applicable requirements, decisions, and planned tasks a coherent set of instructions?
+- Are the material product and technical choices justified and proportionate to the current feature?
+
+Analyze challenges and records findings. It does not remediate them.
 
 ## Operating Constraints
 
-**STRICTLY READ-ONLY**: Do **not** modify any files. Output a structured analysis report. Offer an optional remediation plan (user must explicitly approve before any follow-up editing commands would be invoked manually).
-
-**Constitution Authority**: The project constitution (`.specify/memory/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside `/speckit-analyze`.
+- **Analyze is read-only except for its own artifact.** Create or update only `analysis.md` in the active feature directory. Do not edit `spec.md`, clarification decisions, `design.md`, `plan.md`, `tasks.md`, constitution, implementation files, tests, or any other file.
+- **Analyze owns `analysis.md` and its findings.** Other workflows must not resolve, delete, renumber, or rewrite an Analyze finding or claim that Analyze accepted remediation.
+- GitHub Spec Kit continues to own its upstream Analyze capability. Preserve useful upstream consistency checks while applying this enhanced contract.
+- The constitution, approved requirements, design decisions, and discovered project constraints remain authoritative.
+- Analyze is technology-agnostic. Do not assume a language, framework, database, deployment platform, repository layout, or application type.
+- Do not implement a finding, invoke Clarify/Design/Plan/Tasks automatically, or run an automatic Analyze-remediate-Analyze loop. Feature 006 remediation orchestration is out of scope.
 
 ## Execution Steps
 
-### 1. Initialize Analysis Context
+### 1. Resolve the active feature
 
-Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireSpec -RequireTasks -IncludeTasks` once from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS. Derive absolute paths:
+Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireSpec -RequireTasks -IncludeTasks` once from the repository root. Parse `FEATURE_DIR` and `AVAILABLE_DOCS`; use the active feature directory returned by setup rather than inferring it from a branch name. If setup fails or required inputs are missing, report the exact impediment and do not report PASS.
 
-- SPEC = FEATURE_DIR/spec.md
-- PLAN = FEATURE_DIR/plan.md
-- TASKS = FEATURE_DIR/tasks.md
+For single quotes in arguments such as `I'm Groot`, escape them as `I'\''m Groot` or use double quotes where possible.
 
-Abort with an error message if any required file is missing (instruct the user to run missing prerequisite command).
-For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+### 2. Read applicable evidence
 
-### 2. Load Artifacts (Progressive Disclosure)
+Read the active feature's:
 
-Load only the minimal necessary context from each artifact:
+- Required: `spec.md`, `plan.md`, and `tasks.md`.
+- If present: `design.md`, `research.md`, `data-model.md`, `quickstart.md`, `contracts/`, and prior `analysis.md`.
+- Project constitution at `.specify/memory/constitution.md`, if present.
+- Relevant established project conventions and existing capabilities where practical. Search only enough project context to support material decisions; do not turn a small feature into a repository-wide architecture review.
 
-**From spec.md:**
+Use clarification decisions recorded in the specification. Do not require optional artifacts that do not apply to the feature. Treat material decisions in an existing `design.md` as authoritative; Analyze may identify a concern and route it to DESIGN, but must not redesign the interface.
 
-- Overview/Context
-- Functional Requirements
-- Success Criteria (measurable outcomes — e.g., performance, security, availability, user success, business impact)
-- User Stories
-- Edge Cases (if present)
+If a relevant project convention or justification is available outside the feature artifacts, consider it before challenging a decision. Do not demand that each plan repeat settled project-wide rationale. If evidence cannot be accessed, record the limitation rather than guessing.
 
-**From plan.md:**
+### 3. Build the analysis context
 
-- Architecture/stack choices
-- Data Model references
-- Phases
-- Technical constraints
+Identify the feature and the artifact state actually examined. Note absent optional artifacts only when their absence limits a responsible conclusion. Record important evidence limitations, including unavailable project context or validation boundaries. Do not claim to have inspected, executed, or verified anything that was not inspected, executed, or verified.
 
-**From tasks.md:**
+If `analysis.md` already exists:
 
-- Task IDs
-- Descriptions
-- Phase grouping
-- Parallel markers [P]
-- Referenced file paths
+- Read its current findings and resolved history before assigning IDs.
+- Preserve the ID of an OPEN finding when the same underlying issue remains, even if the wording or evidence is updated.
+- Assign the next unused sequential `A001`, `A002`, ... ID only to a materially distinct finding.
+- Never delete or reuse an ID. Do not move a finding to resolved history merely because an upstream artifact changed; independently verify that the underlying issue is addressed.
 
-**From constitution:**
+### 4. Perform proportionate analysis passes
 
-- Load `.specify/memory/constitution.md` for principle validation
+Scale analysis to the feature's material risk. A simple, well-justified feature can pass quickly. Do not invent findings, challenge trivial implementation details, or demand written justification for obvious language/framework-level choices.
 
-### 3. Build Semantic Models
+#### A. Artifact consistency
 
-Create internal representations (do not include raw artifacts in output):
+Check applicable feature artifacts against one another and the constitution/project rules for material:
 
-- **Requirements inventory**: For each Functional Requirement (FR-###) and Success Criterion (SC-###), record a stable key. Use the explicit FR-/SC- identifier as the primary key when present, and optionally also derive an imperative-phrase slug for readability (e.g., "User can upload file" → `user-can-upload-file`). Include only Success Criteria items that require buildable work (e.g., load-testing infrastructure, security audit tooling), and exclude post-launch outcome metrics and business KPIs (e.g., "Reduce support tickets by 50%").
-- **User story/action inventory**: Discrete user actions with acceptance criteria
-- **Task coverage mapping**: Map each task to one or more requirements or stories (inference by keyword / explicit reference patterns like IDs or key phrases)
-- **Constitution rule set**: Extract principle names and MUST/SHOULD normative statements
+Retain the useful upstream passes explicitly: duplication detection, ambiguity detection, underspecification, constitution alignment, coverage gaps, and cross-artifact inconsistency.
 
-### 4. Detection Passes (Token-Efficient Analysis)
+- Contradictions, incompatible assumptions, or ambiguous terminology.
+- Missing requirement coverage or a requirement with no credible implementation path.
+- Plan decisions not represented in tasks, or substantial tasks unsupported by the specification, approved design, plan, constitution, project conventions, or demonstrated need.
+- Design decisions contradicted by the plan.
+- Constitution conflicts, duplicated responsibilities, or meaningful ordering/ownership conflicts.
 
-Focus on high-signal findings. Limit to 50 findings total; aggregate remainder in overflow summary.
+Do not invent a missing-artifact problem when an optional artifact is not relevant to the feature.
 
-#### A. Duplication Detection
+#### B. Requirement and decision traceability
 
-- Identify near-duplicate requirements
-- Mark lower-quality phrasing for consolidation
+For each material planned decision or work item, determine whether it traces to a requirement, constraint, approved design decision, project convention, or demonstrated technical need. Ask:
 
-#### B. Ambiguity Detection
+- What current requirement or constraint caused this work?
+- Is it needed for this feature and solving a demonstrated problem?
+- Is it speculative preparation for hypothetical future work?
+- Does the project already provide a suitable capability that could be extended?
+- Has work appeared in Plan or Tasks that the feature did not request?
+- Does each material requirement have a credible planned implementation path?
 
-- Flag vague adjectives (fast, scalable, secure, intuitive, robust) lacking measurable criteria
-- Flag unresolved placeholders (TODO, TKTK, ???, `<placeholder>`, etc.)
+Do not require every trivial implementation detail to map to a functional requirement.
 
-#### C. Underspecification
+#### C. Decision and complexity challenge
 
-- Requirements with verbs but missing object or measurable outcome
-- User stories missing acceptance criteria alignment
-- Tasks referencing files or components not defined in spec/plan
+Challenge material product, architecture, technology, and operational choices for proportionality. Consider whether the feature introduces unjustified dependencies, frameworks, services, databases, caches, queues, workers, repositories, managers, coordinators, adapters, wrappers, abstraction layers, configuration systems, compatibility layers, event systems, infrastructure, deployment changes, persistence mechanisms, custom implementations, or speculative extensibility.
 
-#### D. Constitution Alignment
+For material decisions, consider:
 
-- Any requirement or plan element conflicting with a MUST principle
-- Missing mandated sections or quality gates from constitution
+1. What current requirement, constraint, or demonstrated current problem justifies the choice?
+2. What existing project capability was considered?
+3. Could the existing responsibility be extended instead?
+4. Is there a materially simpler solution that meets the requirement?
+5. What maintenance, operational, cognitive, security, or failure-mode cost is added?
+6. Is the complexity needed now or only for hypothetical future needs?
+7. Does it create another way to do something the project already does?
+8. Does each architectural layer own a demonstrated responsibility?
+9. Is custom functionality duplicating an adequate project, platform, or established dependency capability?
+10. Is the benefit sufficient to justify the added complexity?
 
-#### E. Coverage Gaps
+Existing architecture is the default, not unquestionable. Do not recommend replacing an established technology merely because an alternative exists. Challenge an established choice only with concrete feature-specific evidence of a limitation, risk, incompatibility, maintainability, security, performance, operational cost, or requirement mismatch. Use a higher evidence threshold for established project decisions than for new complexity introduced by the current plan.
 
-- Requirements with zero associated tasks
-- Tasks with no mapped requirement/story
-- Success Criteria requiring buildable work (performance, security, availability) not reflected in tasks
+Statements such as “generic for future use” are not justification when the future need is outside the current requirements. Respect separation of responsibility when it solves a demonstrated problem; do not endorse layers for symmetry or theoretical purity.
 
-#### F. Inconsistency
+If Ponytail's relevant planning/simplicity capability is installed and available, it may provide supporting evidence. Do not require Ponytail, search for or emulate unavailable Ponytail functionality, or treat its opinion as authority over the constitution, requirements, design, or project evidence.
 
-- Terminology drift (same concept named differently across files)
-- Data entities referenced in plan but absent in spec (or vice versa)
-- Task ordering contradictions (e.g., integration tasks before foundational setup tasks without dependency note)
-- Conflicting requirements (e.g., one requires Next.js while other specifies Vue)
+#### D. Product and UX challenge
 
-### 5. Severity Assignment
+Identify material unnecessary steps, repeated data entry, navigation/modal transitions, approval stages, or workflow complexity only when supported by feature evidence or conflict with approved design. Record the issue and route it to DESIGN. Do not redesign the interface or silently replace an approved design decision.
 
-Use this heuristic to prioritize findings:
+#### E. Testing and execution boundary
 
-- **CRITICAL**: Violates constitution MUST, missing core spec artifact, or requirement with zero coverage that blocks baseline functionality
-- **HIGH**: Duplicate or conflicting requirement, ambiguous security/performance attribute, untestable acceptance criterion
-- **MEDIUM**: Terminology drift, missing non-functional task coverage, underspecified edge case
-- **LOW**: Style/wording improvements, minor redundancy not affecting execution order
+Use the strongest practical evidence at the actual execution boundary. Do not require substantial infrastructure solely to test behavior owned by an external runtime unless that infrastructure is independently justified. This is not an excuse to omit automated tests for behavior the repository owns and can execute. Distinguish repository-owned packaging/contracts from behavior executed by an external agent; do not claim a static skill-text test proves agent behavior.
 
-### 6. Produce Compact Analysis Report
+### 5. Record findings and remediation routes
 
-Output a Markdown report (no file writes) with the following structure:
+Raise a finding only when it is material, supported by available evidence, and actionable or important to safe progression. Explain the actual evidence; do not turn missing evidence into an invented architecture recommendation.
 
-## Specification Analysis Report
+Use only these severity values:
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
-|----|----------|----------|-------------|---------|----------------|
-| A1 | Duplication | HIGH | spec.md:L120-134 | Two similar requirements ... | Merge phrasing; keep clearer version |
+- `BLOCKER`
+- `HIGH`
+- `MEDIUM`
+- `LOW`
 
-(Add one row per finding; generate stable IDs prefixed by category initial.)
+By default, BLOCKER and HIGH findings are blocking; MEDIUM and LOW are non-blocking unless they demonstrate violation of an explicit requirement, constitution rule, approved design decision, or other mandatory project constraint. Include an explicit `Blocking: YES` or `Blocking: NO` field for every current finding and state evidence for any severity-default exception.
 
-**Coverage Summary Table:**
+Use HIGH for material new complexity that is unsupported by current requirements, such as a new dependency, service, or persistence layer without demonstrated need. Reserve BLOCKER for a direct mandatory-constraint violation or a risk that makes implementation unsafe to proceed.
 
-| Requirement Key | Has Task? | Task IDs | Notes |
-|-----------------|-----------|----------|-------|
+Route each actionable finding to the earliest authoritative stage capable of addressing the underlying issue. Use exactly one of:
 
-**Constitution Alignment Issues:** (if any)
+- `CLARIFY`: Requirement, scope, business rule, permission, constraint, expected behavior, or acceptance-criteria uncertainty.
+- `DESIGN`: Material UX, interaction, information architecture, workflow, or responsive-behavior decision.
+- `PLAN`: Architecture, technology, dependencies, infrastructure, data approach, technical boundaries, implementation strategy, or unnecessary technical complexity.
+- `TASKS`: Missing, unnecessary, incorrectly structured, inconsistent, or untraceable implementation work when upstream decisions are sound.
 
-**Unmapped Tasks:** (if any)
+Do not route everything to TASKS. A questionable plan decision is not repaired by adding or reshaping tasks. When a task exposes an upstream requirements/design/plan mismatch, route to that earlier authoritative stage.
 
-**Metrics:**
+For each finding, identify the decision or artifact, problem/question, evidence, why it matters, relevant references, and resolution direction. Where reasonably predictable, include structured `Potential downstream impact` with only likely affected artifacts. This metadata is advisory; do not edit those artifacts. A material UX finding is routed to DESIGN, never solved by Analyze.
 
-- Total Requirements
-- Total Tasks
-- Coverage % (requirements with >=1 task)
-- Ambiguity Count
-- Duplication Count
-- Critical Issues Count
+### 6. Determine the outcome
 
-### 7. Provide Next Actions
+Choose exactly one outcome for the latest run:
 
-At end of report, output a concise Next Actions block:
+- **PASS**: Evidence is sufficient to proceed responsibly and there are no OPEN blocking findings. Non-blocking observations may remain. Do not invent criticism to avoid PASS.
+- **FINDINGS**: One or more OPEN blocking findings require upstream remediation before implementation should normally proceed.
+- **INCOMPLETE ANALYSIS**: Evidence is insufficient to make a responsible determination. State the evidence limitation. Do not guess or convert missing evidence into an architectural recommendation.
 
-- If CRITICAL issues exist: Recommend resolving before `/speckit-implement`
-- If only LOW/MEDIUM: User may proceed, but provide improvement suggestions
-- Provide explicit command suggestions: e.g., "Run /speckit-specify with refinement", "Run /speckit-plan to adjust architecture", "Manually edit tasks.md to add coverage for 'performance-metrics'"
+If an evidence gap itself prevents safe progression, choose INCOMPLETE ANALYSIS. If the available evidence supports a blocking issue, record that finding and use FINDINGS. The blocking count is the number of current OPEN findings with `Blocking: YES`.
 
-### 8. Offer Remediation
+### 7. Persist `analysis.md`
 
-Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues?" (Do NOT apply them automatically.)
+Create or update only `${FEATURE_DIR}/analysis.md`. Keep it concise and understandable without conversation history; do not copy entire source artifacts into it.
 
-### 9. Check for extension hooks
+Use this structure and stable labels:
 
-After reporting, check if `.specify/extensions.yml` exists in the project root.
-- If it exists, read it and look for entries under the `hooks.after_analyze` key
-- If the YAML cannot be parsed or is invalid, do not skip silently: tell the user that `.specify/extensions.yml` could not be read (include the parser error) and that no hooks were checked, including any mandatory (`optional: false`) hooks registered there, then continue normally
-- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
-- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
-  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
-  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
-- When constructing command invocations from hook command names, replace dots (`.`) with hyphens (`-`). For example, `speckit.git.commit` → `/speckit-git-commit`.
-- For each executable hook, output the following based on its `optional` flag:
-  - **Optional hook** (`optional: true`):
-    ```
-    ## Extension Hooks
+```markdown
+# Pre-Implementation Analysis
 
-    **Optional Hook**: {extension}
-    Command: `/{command}`
-    Description: {description}
+**Outcome:** PASS | FINDINGS | INCOMPLETE ANALYSIS
+**Blocking findings:** <count>
 
-    Prompt: {prompt}
-    To execute: `/{command}`
-    ```
-  - **Mandatory hook** (`optional: false`):
-    ```
-    ## Extension Hooks
+## Analysis Context
 
-    **Automatic Hook**: {extension}
-    Executing: `/{command}`
-    EXECUTE_COMMAND: {command}
-    ```
-    After emitting the block above you MUST actually invoke the hook and wait for it to finish before continuing. Run it the same way you would run the command yourself in this agent/session (the invocation may differ from the literal `{command}` id shown above, e.g. a skills-mode agent runs it as `/skill:speckit-...` or `$speckit-...`). Emitting the block alone does not run the hook.
-- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
+**Analyzed:** <feature and relevant artifact state>
+**Evidence limitations:** <limitations or None identified>
 
-## Operating Principles
+## Current Findings
 
-### Context Efficiency
+### A001 — <short title>
 
-- **Minimal high-signal tokens**: Focus on actionable findings, not exhaustive documentation
-- **Progressive disclosure**: Load artifacts incrementally; don't dump all content into analysis
-- **Token-efficient output**: Limit findings table to 50 rows; summarize overflow
-- **Deterministic results**: Rerunning without changes should produce consistent IDs and counts
+**Severity:** BLOCKER | HIGH | MEDIUM | LOW
+**Status:** OPEN
+**Blocking:** YES | NO
+**Remediation stage:** CLARIFY | DESIGN | PLAN | TASKS
 
-### Analysis Guidelines
+**Decision being challenged:**
+<decision or artifact>
 
-- **NEVER modify files** (this is read-only analysis)
-- **NEVER hallucinate missing sections** (if absent, report them accurately)
-- **Prioritize constitution violations** (these are always CRITICAL)
-- **Use examples over exhaustive rules** (cite specific instances, not generic patterns)
-- **Report zero issues gracefully** (emit success report with coverage statistics)
+**Problem or question:**
+<concrete issue or unresolved question>
 
-## Context
+**Evidence:**
+<available evidence and relevant references>
 
-$ARGUMENTS
+**Why it matters:**
+<material impact>
+
+**References:**
+<artifact/project references or None identified>
+
+**Potential downstream impact:**
+- <only likely affected artifact names, or None identified>
+
+**Resolution direction:**
+<appropriate direction or question>
+
+## Resolved Findings
+
+### A002 — <short title>
+
+**Severity:** <original severity>
+**Status:** RESOLVED
+**Resolution verified:** <concise evidence from the resolving Analyze run>
+```
+
+Use `## Current Findings` with a concise `No open findings.` when there are none. Use `## Resolved Findings` with `None.` when no finding has been resolved. Omit potential downstream detail only when it is not reasonably predictable; use `None identified` when the field was considered and no impact is likely. Non-actionable observations may omit a remediation stage only when no upstream action is appropriate.
+
+When updating existing analysis:
+
+- Preserve unresolved finding IDs and update their current evidence/wording without changing their underlying identity.
+- Only this Analyze run may move an OPEN finding to RESOLVED, and only after independently checking current evidence.
+- Move the resolved record to `Resolved Findings` with concise resolution verification. Do not retain a verbose copy in Current Findings.
+- Preserve concise resolved history; do not delete it merely to make the current report shorter.
+- Recompute the blocking count and outcome from current evidence and findings.
+
+Before finishing, verify the only file created or changed by Analyze is the active feature's `analysis.md`. If another file was changed inadvertently, restore its prior content before reporting; never silently leave mutations to authoritative input artifacts.
+
+## Completion Report
+
+Report the outcome, blocking findings count, `analysis.md` path, a concise summary of any current findings and their remediation stages, evidence limitations, and validation actually performed. State that no upstream artifacts were modified. Do not claim a finding was resolved unless this Analyze run verified it.
+
+## Mandatory Post-Execution Hooks
+
+Check whether `.specify/extensions.yml` exists. If it does, inspect `hooks.after_analyze` with the same hook rules as the pre-execution checks. Invoke and wait for each enabled mandatory hook. Report optional hooks for the user. If the YAML is invalid or unreadable, report the error and that no hooks were checked, including mandatory hooks. If the file or hooks are absent, skip silently.

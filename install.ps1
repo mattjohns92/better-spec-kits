@@ -44,6 +44,9 @@ function Get-SpecKitFileClassification([string]$Destination, [string]$Source) {
     $destinationHash = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
     if ($sourceHash -eq $destinationHash) { return 'current' }
 
+    $normalized = $Destination.Replace('\','/')
+    if ($normalized -match '/\.github/skills/speckit-analyze/SKILL\.md$') { return 'custom' }
+
     $text = Get-Content -LiteralPath $Destination -Raw -ErrorAction SilentlyContinue
     if ([string]::IsNullOrWhiteSpace($text)) { return 'custom' }
 
@@ -57,7 +60,6 @@ function Get-SpecKitFileClassification([string]$Destination, [string]$Source) {
     # Existing upstream Spec Kit skills use the expected speckit skill location/name
     # and do not contain Better Spec Kit integration markers. Treat these as the
     # normal upgrade path, while still showing the exact files that will be replaced.
-    $normalized = $Destination.Replace('\','/')
     if ($normalized -match '/\.github/skills/speckit-(plan|tasks|implement)/SKILL\.md$') {
         return 'spec-kit'
     }
@@ -81,6 +83,7 @@ $files = @(
     @{ Source='skills/speckit-design/SKILL.md'; Destination='.github/skills/speckit-design/SKILL.md' },
     @{ Source='skills/speckit-plan/SKILL.md'; Destination='.github/skills/speckit-plan/SKILL.md' },
     @{ Source='skills/speckit-tasks/SKILL.md'; Destination='.github/skills/speckit-tasks/SKILL.md' },
+    @{ Source='skills/speckit-analyze/SKILL.md'; Destination='.github/skills/speckit-analyze/SKILL.md' },
     @{ Source='skills/speckit-implement/SKILL.md'; Destination='.github/skills/speckit-implement/SKILL.md' }
 )
 if ($InstallConstitution) { $files += @{ Source='constitution/constitution.md'; Destination='.specify/memory/constitution.md' } }

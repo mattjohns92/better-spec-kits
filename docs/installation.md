@@ -28,6 +28,6 @@ Then, from a disposable Spec Kit project:
 better-spec-kit
 ```
 
-The CLI previews managed-file changes, including the Review skill as `ADD` for projects that do not have it. Fresh installs and updates install `.github/skills/speckit-review/SKILL.md` through the existing managed-skill process. `status` reports whether Review is installed, and `doctor` flags a missing Review skill in an installed Better Spec Kit project.
+The CLI previews managed-file changes, including the Analyze skill as `ADD` for projects that do not have it. Fresh installs and updates distribute the enhanced `.github/skills/speckit-analyze/SKILL.md` through the existing managed-skill process. Bootstrap PowerShell and shell installers include the same canonical skill. `status` distinguishes a missing, installed, or differing Analyze skill, and `doctor` flags a missing skill or one that needs review.
 
-The installer preserves the existing constitution by default, backs up replaced files outside the target repository, and requires explicit approval for customized or unknown managed files.
+The installer preserves the existing constitution by default, backs up replaced files outside the target repository, and requires explicit approval for customized or unknown managed files. An existing upstream Analyze skill at the shared path is treated as a conflict; review the preview and approve replacement explicitly to retain its backup.

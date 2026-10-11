@@ -50,9 +50,12 @@ export async function run(args) {
   console.log(`  ${detected.constitution ? "✔" : "○"} Constitution ${detected.constitution ? "found" : "not found"}`);
 
   if (command === "status") {
-    const review = buildPlan(project, packageRoot).find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
+    const plan = buildPlan(project, packageRoot);
+    const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
+    const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
     const integrations = integrationStatus();
     console.log(`  Review skill: ${review?.classification === "new" ? "missing" : "installed"}`);
+    console.log(`  Analyze skill: ${analyze?.classification === "new" ? "missing" : analyze?.classification === "custom" ? "needs review" : "installed"}`);
     console.log(`\n  Copilot CLI: ${integrations.copilotCli ? "available" : "not detected"}`);
     console.log(`  npx: ${integrations.npx ? "available" : "not detected"}`);
     return;
@@ -66,8 +69,17 @@ export async function run(args) {
     }
     const plan = buildPlan(project, packageRoot);
     const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
+    const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
     if (detected.betterSpecKit && review?.classification === "new") {
       console.log("  ! Review skill is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
+    if (detected.betterSpecKit && analyze?.classification === "new") {
+      console.log("  ! Analyze skill is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
+    if (detected.betterSpecKit && analyze?.classification === "custom") {
+      console.log("  ! Analyze skill needs manual review before replacement.");
       problems++;
     }
     const custom = plan.filter((x) => x.classification === "custom");
@@ -129,6 +141,6 @@ export async function run(args) {
   console.log(`  ${result.changed} workflow skill(s) changed`);
   console.log(`  Constitution: ${installConstitution ? "neutral baseline installed" : "preserved"}`);
   if (result.backupRoot) console.log(`  Backups: ${result.backupRoot}`);
-  console.log("\n  Ready: specify → clarify → design → plan → tasks → implement → converge → review");
-  console.log("  Analyze remains available as an optional pre-implementation check.\n");
+  console.log("\n  Ready: specify → clarify → design → plan → tasks → analyze → implement → converge → review");
+  console.log("  Analyze is the normal final pre-implementation check.\n");
 }

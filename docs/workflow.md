@@ -2,9 +2,9 @@
 
 The recommended Better Spec Kit workflow is:
 
-`specify → clarify → design → plan → tasks → implement → converge → review`
+`specify → clarify → design → plan → tasks → analyze → implement → converge → review`
 
-Analyze remains available as an optional consistency check before implementation; it is not part of the recommended sequence.
+Analyze is the normal final pre-implementation gate. It checks that applicable artifacts form coherent instructions and challenges whether material decisions are justified and proportionate. It writes findings to the active feature's `analysis.md` and does not modify upstream artifacts. When blocking findings remain, use their remediation stages and rerun Analyze before implementation normally proceeds. Straightforward features should pass quickly without invented findings.
 
 ## Design
 
@@ -18,9 +18,9 @@ Discovers the project's actual technology, architecture, conventions, dependenci
 
 Creates the original implementation plan in the feature's `tasks.md` while preferring reuse and extension over unnecessary new files, dependencies, abstractions, or infrastructure. That file remains the single implementation work ledger: upstream Converge may append missing completeness work, Implement may append Review-remediation tasks under `## Review Remediation`, and Review reads the ledger without modifying it. Review findings remain in `review.md` and are never replaced by task status.
 
-## Analyze (Optional)
+## Analyze (Normal Gate)
 
-Checks consistency between the specification, design, plan, and tasks before implementation. The upstream `/speckit.analyze` command remains available.
+Checks applicable requirements, clarification decisions, design, plan, tasks, constitution, and relevant project conventions before implementation. The enhanced `/speckit.analyze` skill preserves useful upstream consistency checks and adds evidence-based decision challenge. Its durable `analysis.md` records stable findings, blocking status, and the earliest authoritative remediation stage. Analyze may write only that artifact; it does not remediate findings or replace Implement, Converge, or Review.
 
 ## Implement
 
