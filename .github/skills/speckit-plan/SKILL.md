@@ -128,7 +128,7 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated artifacts.
+Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated artifacts. After successful planning, recommend `/speckit-tasks` and explain that Tasks turns the approved approach into implementation-ready work. Do not recommend Tasks if a planning gate or required clarification remains unresolved.
 
 ## Phases
 

@@ -243,6 +243,14 @@ Before finishing, verify the only file created or changed by Analyze is the acti
 
 Report the outcome, blocking findings count, `analysis.md` path, a concise summary of any current findings and their remediation stages, evidence limitations, and validation actually performed. State that no upstream artifacts were modified. Do not claim a finding was resolved unless this Analyze run verified it.
 
+Give one concise, outcome-aware next step:
+
+- **PASS**: recommend `/speckit.implement` because no OPEN blocking findings remain.
+- **FINDINGS** with OPEN blocking findings: recommend `/speckit.remediate` because upstream artifacts need reconciliation before implementation.
+- **INCOMPLETE ANALYSIS**: name the missing evidence or prerequisite and its recovery action. Do not recommend implementation.
+
+Never recommend `/speckit.implement` while OPEN blocking findings remain. Non-blocking observations do not change a PASS recommendation.
+
 ## Mandatory Post-Execution Hooks
 
 Check whether `.specify/extensions.yml` exists. If it does, inspect `hooks.after_analyze` with the same hook rules as the pre-execution checks. Invoke and wait for each enabled mandatory hook. Report optional hooks for the user. If the YAML is invalid or unreadable, report the error and that no hooks were checked, including mandatory hooks. If the file or hooks are absent, skip silently.

@@ -299,7 +299,7 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Report final status with summary of completed work.
+Report final status with summary of completed work. When all implementation tasks and required validation succeed, recommend `/speckit.converge` and explain that Converge checks implementation completeness against the feature artifacts. If work remains blocked or incomplete, report the remaining task and next implementation action instead; do not describe the feature as complete.
 
 ## Done When
 

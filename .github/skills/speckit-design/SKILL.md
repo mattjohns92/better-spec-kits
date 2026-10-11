@@ -439,3 +439,5 @@ Finish with:
 - important design decisions
 - unresolved UX questions
 - readiness for `/speckit-plan`
+
+After successful design, state: `Next recommended step: /speckit-plan` and explain briefly that Plan turns the approved requirements and design into a technical approach. For `UI Impact: NONE`, do not create `design.md` and recommend Plan. If material UX questions remain unresolved, identify them and do not imply design is ready for planning.

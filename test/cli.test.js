@@ -34,11 +34,101 @@ async function capture(args) {
   return output;
 }
 
+test("Remediate skill preserves Analyze ownership and routes blocking findings", () => {
+  const skillPath = path.join(packageRoot, "skills/speckit-remediate/SKILL.md");
+  assert.ok(fs.existsSync(skillPath), "canonical Remediate skill is missing");
+  const skill = fs.readFileSync(skillPath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit.remediate",
+    "analysis.md",
+    "blocker",
+    "high",
+    "medium",
+    "low",
+    "clarify",
+    "design",
+    "plan",
+    "tasks",
+    "batch",
+    "dependency order",
+    "downstream impact",
+    "do not create, edit, delete, renumber, resolve, or reprioritize",
+    "no applicable blocking findings exist",
+    "/speckit.analyze",
+  ]) {
+    assert.ok(skill.includes(phrase), `Remediate skill is missing: ${phrase}`);
+  }
+});
+
+test("Remediate skill stops safely on stale evidence, unresolved decisions, and partial failure", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-remediate/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "materially changed after the recorded analyze run",
+    "do not apply obsolete remediation",
+    "cannot be inferred unambiguously",
+    "pause at the responsible stage",
+    "continue the same route only where the host supports continuation",
+    "stop before making that stage's changes",
+    "preserve correct completed work",
+    "stages completed and remaining",
+    "never claim full remediation when work remains",
+    "only analyze owns `analysis.md`",
+  ]) {
+    assert.ok(skill.includes(phrase), `Remediate skill is missing safety guidance: ${phrase}`);
+  }
+});
+
+test("Remediate dogfood skill matches the canonical skill", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-remediate/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-remediate/SKILL.md");
+  assert.ok(fs.existsSync(dogfoodPath), "Remediate dogfood skill is missing");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(fs.readFileSync(dogfoodPath, "utf8")), normalizeLineEndings(fs.readFileSync(canonicalPath, "utf8")));
+});
+
+test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
+  const skill = (name) => fs.readFileSync(path.join(packageRoot, `skills/speckit-${name}/SKILL.md`), "utf8").toLowerCase();
+  const analyze = skill("analyze");
+  const design = skill("design");
+  const plan = skill("plan");
+  const tasks = skill("tasks");
+  const implement = skill("implement");
+  const review = skill("review");
+
+  for (const phrase of ["pass", "findings", "incomplete analysis", "/speckit.implement", "/speckit.remediate", "blocking findings"]) {
+    assert.ok(analyze.includes(phrase), `Analyze guidance is missing: ${phrase}`);
+  }
+  assert.ok(design.includes("ui impact: none") && design.includes("/speckit-plan"), "Design NONE path must skip the artifact and recommend Plan");
+  assert.ok(design.includes("next recommended step: /speckit-plan"), "Design completion must recommend Plan");
+  assert.ok(design.includes("material ux questions remain unresolved"), "Design must not advance with material UX questions open");
+  assert.ok(plan.includes("/speckit-tasks"), "Plan guidance is missing the Tasks handoff");
+  assert.ok(tasks.includes("/speckit.analyze"), "Tasks guidance is missing the Analyze handoff");
+  assert.ok(implement.includes("/speckit.converge"), "Implement guidance is missing the Converge handoff");
+  assert.ok(review.includes("review pass") && review.includes("feature workflow is complete"), "Review PASS must state completion");
+  assert.ok(review.includes("blocking findings") && review.includes("converge"), "Review findings must return through Converge");
+
+  for (const [name, phrase] of [
+    ["analyze", "/speckit.remediate"],
+    ["design", "next recommended step: /speckit-plan"],
+    ["plan", "/speckit-tasks"],
+    ["tasks", "/speckit.analyze"],
+    ["implement", "/speckit.converge"],
+    ["review", "feature workflow is complete"],
+  ]) {
+    const dogfoodPath = path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`);
+    const dogfood = fs.readFileSync(dogfoodPath, "utf8").toLowerCase();
+    assert.ok(dogfood.includes(phrase), `Dogfood ${name} skill is missing: ${phrase}`);
+  }
+});
+
 test("install preview lists Review and Analyze as ADD when they are absent", async () => {
   const directory = project();
   const output = await capture(["install", directory, "--yes"]);
   assert.match(output, /\+ ADD\s+\.github\/skills\/speckit-review\/SKILL\.md/);
   assert.match(output, /\+ ADD\s+\.github\/skills\/speckit-analyze\/SKILL\.md/);
+  assert.match(output, /\+ ADD\s+\.github\/skills\/speckit-remediate\/SKILL\.md/);
   assert.match(output, /Ready: specify → clarify → design → plan → tasks → analyze → implement → converge → review/);
   assert.match(output, /Analyze is the normal final pre-implementation check/);
 });
@@ -53,6 +143,24 @@ test("status reports whether the Review skill is installed", async () => {
   fs.mkdirSync(path.dirname(destination), { recursive: true });
   fs.copyFileSync(source, destination);
   assert.match(await capture(["status", installedProject]), /Review skill: installed/);
+});
+
+test("status reports missing, installed, and conflicting Remediate skills", async () => {
+  const missingProject = project();
+  assert.match(await capture(["status", missingProject]), /Remediate skill: missing/);
+
+  const installedProject = project();
+  const source = path.join(packageRoot, "skills/speckit-remediate/SKILL.md");
+  const destination = path.join(installedProject, ".github/skills/speckit-remediate/SKILL.md");
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(source, destination);
+  assert.match(await capture(["status", installedProject]), /Remediate skill: installed/);
+
+  const conflictingProject = project();
+  const conflictingDestination = path.join(conflictingProject, ".github/skills/speckit-remediate/SKILL.md");
+  fs.mkdirSync(path.dirname(conflictingDestination), { recursive: true });
+  fs.writeFileSync(conflictingDestination, "custom Remediate workflow");
+  assert.match(await capture(["status", conflictingProject]), /Remediate skill: needs review/);
 });
 
 test("status reports missing, installed, and conflicting Analyze skills", async () => {
@@ -76,6 +184,16 @@ test("status reports missing, installed, and conflicting Analyze skills", async 
 test("doctor flags a missing Review skill in an installed project", async () => {
   const output = await capture(["doctor", project()]);
   assert.match(output, /Review skill is missing/);
+});
+
+test("doctor flags missing and conflicting Remediate skills in an installed project", async () => {
+  assert.match(await capture(["doctor", project()]), /Remediate skill is missing/);
+
+  const conflictingProject = project();
+  const destination = path.join(conflictingProject, ".github/skills/speckit-remediate/SKILL.md");
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.writeFileSync(destination, "custom Remediate workflow");
+  assert.match(await capture(["doctor", conflictingProject]), /Remediate skill needs manual review/);
 });
 
 test("doctor flags missing and conflicting Analyze skills in an installed project", async () => {
@@ -112,13 +230,20 @@ test("workflow documentation makes Analyze the normal pre-implementation gate", 
   }
   assert.match(workflow, /analyze is the normal final pre-implementation gate/);
   assert.match(workflow, /blocking findings/);
-  assert.match(installation, /enhanced `\.github\/skills\/speckit-analyze\/skill\.md`/);
+  assert.match(readme, /speckit\.remediate/);
+  assert.match(readme, /status.*analyze\/remediate\/review skills/);
+  assert.match(workflow, /analyze returns \*{0,2}pass[\s\S]*implement/);
+  assert.match(workflow, /blocking findings[\s\S]*remediate[\s\S]*analyze/);
+  assert.match(installation, /canonical skills to `\.github\/skills\//);
+  assert.match(installation, /speckit-remediate/);
   assert.match(installation, /backup/);
   assert.match(releasing, /skills\/speckit-analyze\/skill\.md/);
+  assert.match(releasing, /skills\/speckit-remediate\/skill\.md/);
   const releaseVersionSteps = releasing.match(/^1\..*$/gm) ?? [];
   assert.equal(releaseVersionSteps.length, 1, "release guide should have one version synchronization step");
   assert.ok(releaseVersionSteps[0].includes("`version`, `package.json`, and `package-lock.json`"));
   assert.match(integrations, /analyze skill/);
+  assert.match(integrations, /speckit\.remediate/);
   assert.match(integrations, /upstream/);
   for (const skill of reviewSkills) {
     assert.doesNotMatch(skill, /analyze remains available as an optional/);

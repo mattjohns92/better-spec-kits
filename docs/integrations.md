@@ -6,6 +6,10 @@ Better Spec Kit does not redistribute or automatically install third-party tools
 
 `/speckit.analyze` is an upstream GitHub Spec Kit capability. Better Spec Kit distributes an enhanced Analyze skill that preserves upstream consistency checks, challenges material decisions, and writes feature-local `analysis.md` findings. Run it after Tasks and before Implement. If an upstream or customized Analyze skill already occupies the installation path, review the proposed replacement; the installer requires explicit approval and creates a backup before replacing a differing managed file. Analyze itself remains non-mutating except for `analysis.md` and does not automate remediation.
 
+## Analyze remediation
+
+`/speckit.remediate` is a Better Spec Kit skill for coordinating the minimum upstream changes needed for OPEN blocking Analyze findings. It reads `analysis.md`, follows the installed authoritative Clarify, Design, Plan, or Tasks instructions, and leaves finding status for a later Analyze run. The skill does not assume a nested-command dispatcher; when the host cannot load or continue an authoritative stage, it reports the limitation instead of claiming that the stage ran.
+
 ## GitHub Spec Kit Converge
 
 `/speckit.converge` is an upstream GitHub Spec Kit capability, not a Better Spec Kit integration. Better Spec Kit does not bundle or replace it. If it is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit). After implementation, repeat `converge → implement → converge` while it reports outstanding tasks, then proceed to Review.

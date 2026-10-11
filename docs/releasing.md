@@ -17,8 +17,9 @@ GitHub Actions when a version tag is pushed.
    ```
 
 3. Inspect the dry-run output. Confirm the package filename is
-   `better-spec-kit-0.5.1.tgz`, `skills/speckit-analyze/SKILL.md` and
-   `skills/speckit-review/SKILL.md` are included, and no `.github/` files or
+   `better-spec-kit-0.5.1.tgz`, `skills/speckit-analyze/SKILL.md`,
+   `skills/speckit-remediate/SKILL.md`, and `skills/speckit-review/SKILL.md`
+   are included, and no `.github/` files or
    `speckit-converge` copy are included.
 4. Commit and push the release changes.
 5. Create and push the matching version tag (`v0.5.1`).

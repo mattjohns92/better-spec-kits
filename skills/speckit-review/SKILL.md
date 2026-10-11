@@ -114,3 +114,12 @@ Finish with exactly one overall outcome:
 - `INCOMPLETE REVIEW` - The evidence available was insufficient for a trustworthy determination. Name exactly what evidence or access was unavailable and why it prevents a reliable conclusion.
 
 Use `INCOMPLETE REVIEW` only when a material limitation prevents a trustworthy assessment; otherwise disclose limitations and choose `PASS` or `FINDINGS` based on the evidence that was available. The final overall outcome must be exactly one of the three labels above.
+
+Before the final outcome, give one concise, outcome-aware handoff:
+
+- **Review PASS**: state that the Better Spec Kit feature workflow is complete. Recommend no additional workflow command.
+- **FINDINGS** with blocking findings: recommend `/speckit.implement` for implementation remediation, followed by Converge and another Review. Do not skip Converge or change Review finding status.
+- **FINDINGS** with only non-blocking observations: identify them as non-blocking and do not imply that the feature is blocked.
+- **INCOMPLETE REVIEW**: name the missing evidence and recommend the minimum action needed to obtain it.
+
+Keep this handoff brief; the overall outcome remains the final label.

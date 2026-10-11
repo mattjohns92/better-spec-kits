@@ -107,6 +107,15 @@ Do not treat missing optional artifacts or Ponytail as findings by themselves. D
 
 Report the scope and comparison base used, evidence inspected, and validation commands actually run. Keep the report concise and specific to the changed behavior. Then summarize the four passes and list evidence-backed findings, grouped by severity. For each pass, state its conclusion and key evidence or limitation. Clearly distinguish completion-blocking findings from non-blocking improvements.
 
+Before the final overall outcome, give one concise, outcome-aware handoff:
+
+- **Review PASS**: state that the Better Spec Kit feature workflow is complete. Recommend no additional workflow command.
+- **FINDINGS** with blocking findings: recommend `/speckit.implement` for implementation remediation, followed by Converge and another Review. Do not skip Converge or change Review finding status.
+- **FINDINGS** with only non-blocking observations: identify them as non-blocking and do not imply that the feature is blocked.
+- **INCOMPLETE REVIEW**: name the missing evidence and recommend the minimum action needed to obtain it.
+
+Keep this handoff brief; the overall outcome remains the final label.
+
 Finish with exactly one overall outcome:
 
 - `PASS` - No material issues were found and the implementation can reasonably be considered complete.

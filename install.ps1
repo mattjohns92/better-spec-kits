@@ -84,6 +84,7 @@ $files = @(
     @{ Source='skills/speckit-plan/SKILL.md'; Destination='.github/skills/speckit-plan/SKILL.md' },
     @{ Source='skills/speckit-tasks/SKILL.md'; Destination='.github/skills/speckit-tasks/SKILL.md' },
     @{ Source='skills/speckit-analyze/SKILL.md'; Destination='.github/skills/speckit-analyze/SKILL.md' },
+    @{ Source='skills/speckit-remediate/SKILL.md'; Destination='.github/skills/speckit-remediate/SKILL.md' },
     @{ Source='skills/speckit-implement/SKILL.md'; Destination='.github/skills/speckit-implement/SKILL.md' }
 )
 if ($InstallConstitution) { $files += @{ Source='constitution/constitution.md'; Destination='.specify/memory/constitution.md' } }

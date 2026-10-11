@@ -53,9 +53,11 @@ export async function run(args) {
     const plan = buildPlan(project, packageRoot);
     const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
     const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
+    const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
     const integrations = integrationStatus();
     console.log(`  Review skill: ${review?.classification === "new" ? "missing" : "installed"}`);
     console.log(`  Analyze skill: ${analyze?.classification === "new" ? "missing" : analyze?.classification === "custom" ? "needs review" : "installed"}`);
+    console.log(`  Remediate skill: ${remediate?.classification === "new" ? "missing" : remediate?.classification === "custom" ? "needs review" : "installed"}`);
     console.log(`\n  Copilot CLI: ${integrations.copilotCli ? "available" : "not detected"}`);
     console.log(`  npx: ${integrations.npx ? "available" : "not detected"}`);
     return;
@@ -70,6 +72,7 @@ export async function run(args) {
     const plan = buildPlan(project, packageRoot);
     const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
     const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
+    const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
     if (detected.betterSpecKit && review?.classification === "new") {
       console.log("  ! Review skill is missing; run 'better-spec-kit update'.");
       problems++;
@@ -80,6 +83,14 @@ export async function run(args) {
     }
     if (detected.betterSpecKit && analyze?.classification === "custom") {
       console.log("  ! Analyze skill needs manual review before replacement.");
+      problems++;
+    }
+    if (detected.betterSpecKit && remediate?.classification === "new") {
+      console.log("  ! Remediate skill is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
+    if (detected.betterSpecKit && remediate?.classification === "custom") {
+      console.log("  ! Remediate skill needs manual review before replacement.");
       problems++;
     }
     const custom = plan.filter((x) => x.classification === "custom");

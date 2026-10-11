@@ -6,6 +6,14 @@ The recommended Better Spec Kit workflow is:
 
 Analyze is the normal final pre-implementation gate. It checks that applicable artifacts form coherent instructions and challenges whether material decisions are justified and proportionate. It writes findings to the active feature's `analysis.md` and does not modify upstream artifacts. When blocking findings remain, use their remediation stages and rerun Analyze before implementation normally proceeds. Straightforward features should pass quickly without invented findings.
 
+## Analyze outcomes
+
+- When Analyze returns **PASS**, continue to `/speckit-implement`.
+- When Analyze returns **FINDINGS** with OPEN blocking findings, run `/speckit.remediate`, then run Analyze again. Do not implement while blocking findings remain.
+- When Analyze returns **INCOMPLETE ANALYSIS**, obtain the missing evidence or prerequisite; do not recommend implementation yet.
+
+After Analyze passes, continue through Implement, Converge, and Review. Remediate coordinates only pre-implementation upstream changes; Analyze independently reassesses them.
+
 ## Design
 
 Classifies UI impact as NONE, MINOR, or SIGNIFICANT. MINOR and SIGNIFICANT changes produce `design.md`. Significant work explores materially different approaches rather than merely restyling the first idea.

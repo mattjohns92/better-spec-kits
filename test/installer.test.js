@@ -18,9 +18,10 @@ function project() {
 test("fresh install preserves constitution and writes metadata", () => {
   const p = project();
   const result = install({ project: p, packageRoot, plan: buildPlan(p, packageRoot), version: "0.4.0" });
-  assert.equal(result.changed, 6);
+  assert.equal(result.changed, 7);
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-review/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-analyze/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8"));
+  assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-remediate/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-remediate/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".specify/memory/constitution.md"), "utf8"), "custom constitution");
   assert.equal(JSON.parse(fs.readFileSync(path.join(p, ".specify/better-spec-kit.json"), "utf8")).version, "0.4.0");
 });
@@ -52,13 +53,16 @@ test("upgrading a pre-Review installation adds the Review skill", () => {
   const plan = buildPlan(p, packageRoot);
   const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
   const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
+  const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
   assert.equal(review.classification, "new");
   assert.equal(analyze.classification, "new");
+  assert.equal(remediate.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.5.0" });
 
-  assert.equal(result.changed, 2);
+  assert.equal(result.changed, 3);
   assert.equal(fs.readFileSync(path.join(p, review.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, review.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, analyze.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
+  assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
 });
 
 test("upstream Analyze skill requires approval and is backed up before replacement", () => {
@@ -87,13 +91,37 @@ test("PowerShell and shell installers distribute the canonical Analyze skill", (
   const lockVersion = JSON.parse(fs.readFileSync(path.join(packageRoot, "package-lock.json"), "utf8")).version;
 
   assert.ok(powershellInstaller.includes("Source='skills/speckit-analyze/SKILL.md'; Destination='.github/skills/speckit-analyze/SKILL.md'"));
+  assert.ok(powershellInstaller.includes("Source='skills/speckit-remediate/SKILL.md'; Destination='.github/skills/speckit-remediate/SKILL.md'"));
   assert.ok(shellInstaller.includes('".github/skills/speckit-analyze/SKILL.md"'));
+  assert.ok(shellInstaller.includes('".github/skills/speckit-remediate/SKILL.md"'));
   assert.ok(powershellInstaller.includes("$customConflicts.Count -gt 0 -and -not $Force"));
   assert.ok(shellInstaller.includes('"$FORCE" != "1"'));
   assert.ok(powershellInstaller.includes("(Get-Content (Join-Path $RepoRoot 'VERSION') -Raw).Trim()"));
   assert.ok(shellInstaller.includes('$(cat "$ROOT/VERSION")'));
   assert.equal(fs.readFileSync(path.join(packageRoot, "VERSION"), "utf8").trim(), version);
   assert.equal(lockVersion, version);
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  assert.ok(packageFiles.includes("skills"));
+  assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-remediate/SKILL.md")));
+});
+
+test("updating an installed project detects the new Remediate skill", () => {
+  const p = project();
+  for (const name of ["speckit-design", "speckit-plan", "speckit-tasks", "speckit-analyze", "speckit-implement", "speckit-review"]) {
+    const source = path.join(packageRoot, "skills", name, "SKILL.md");
+    const destination = path.join(p, ".github/skills", name, "SKILL.md");
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.copyFileSync(source, destination);
+  }
+  fs.writeFileSync(path.join(p, ".specify/better-spec-kit.json"), JSON.stringify({ name: "better-spec-kit", version: "0.5.1" }));
+
+  const plan = buildPlan(p, packageRoot);
+  const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
+  assert.equal(remediate.classification, "new");
+  const result = install({ project: p, packageRoot, plan, version: "0.6.0" });
+
+  assert.equal(result.changed, 1);
+  assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
 });
 
 test("PowerShell installer requires approval for a customized Analyze skill with Better Spec Kit markers", { skip: process.platform !== "win32" }, () => {

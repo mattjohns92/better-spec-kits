@@ -156,6 +156,8 @@ Output path to generated tasks.md and summary:
 - Suggested MVP scope (typically just User Story 1)
 - Format validation: Confirm ALL tasks follow the checklist format (checkbox, ID, labels, file paths)
 
+After successful task generation, recommend `/speckit.analyze` and explain that Analyze is the final pre-implementation check for consistency, justification, and unnecessary complexity. Do not recommend Implement directly from Tasks.
+
 Context for task generation: $ARGUMENTS
 
 The tasks.md should be immediately executable - each task must be specific enough that an LLM can complete it without additional context.

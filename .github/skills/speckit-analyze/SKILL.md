@@ -212,6 +212,7 @@ Use this structure and stable labels:
 <artifact/project references or None identified>
 
 **Potential downstream impact:**
+
 - <only likely affected artifact names, or None identified>
 
 **Resolution direction:**
@@ -241,6 +242,14 @@ Before finishing, verify the only file created or changed by Analyze is the acti
 ## Completion Report
 
 Report the outcome, blocking findings count, `analysis.md` path, a concise summary of any current findings and their remediation stages, evidence limitations, and validation actually performed. State that no upstream artifacts were modified. Do not claim a finding was resolved unless this Analyze run verified it.
+
+Give one concise, outcome-aware next step:
+
+- **PASS**: recommend `/speckit.implement` because no OPEN blocking findings remain.
+- **FINDINGS** with OPEN blocking findings: recommend `/speckit.remediate` because upstream artifacts need reconciliation before implementation.
+- **INCOMPLETE ANALYSIS**: name the missing evidence or prerequisite and its recovery action. Do not recommend implementation.
+
+Never recommend `/speckit.implement` while OPEN blocking findings remain. Non-blocking observations do not change a PASS recommendation.
 
 ## Mandatory Post-Execution Hooks
 
