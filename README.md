@@ -4,6 +4,8 @@
 
 Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec Kit. It adds a dedicated design stage, stronger codebase discovery, reuse-before-creation guidance, implementation discipline, and an independent post-implementation review without prescribing your language, framework, database, architecture, or repository structure.
 
+When you are unsure which workflow fits a request, start with the optional `/speckit.scope` entry. It routes bugs, contained changes, features, and initiatives; users who already know their workflow can continue to enter it directly.
+
 ## Workflow
 
 ```text
@@ -45,7 +47,7 @@ better-spec-kit
 better-spec-kit             Interactive wizard
 better-spec-kit install     Install into the current project
 better-spec-kit update      Update an existing installation
-better-spec-kit status      Show project, Analyze/Remediate/Review skills, and integration status
+better-spec-kit status      Show project, Analyze/Remediate/Review skills, Scope/Quick state, Bug provisioning, and integration status
 better-spec-kit doctor      Diagnose blocking installation issues
 better-spec-kit --version   Show CLI version
 ```
@@ -80,7 +82,7 @@ Better Spec Kit can take advantage of specialist tools such as:
 - **UI UX Pro Max** during design
 - **Ponytail** during planning, task generation, implementation, and Review's simplicity/reuse pass
 
-They are separate projects and are not bundled or silently installed. Better Spec Kit continues with its built-in guidance when they are unavailable.
+Ponytail and UI UX Pro Max are separate projects and remain optional; Better Spec Kit does not silently install them. The official Spec Kit Bug extension is different: standard install/update attempts native upstream provisioning when the project and prerequisites permit. Existing Bug installations are never force-reinstalled, re-enabled, or automatically updated. Provisioning failure is reported as partial success and does not roll back Better Spec Kit files or block other workflows. Successful installation is not evidence that a fresh Copilot session can consume a Bug handoff; that runtime check is separate.
 
 ## Development
 

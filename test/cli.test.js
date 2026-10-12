@@ -123,6 +123,82 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
   }
 });
 
+test("Scope skill classifies evidence-first and writes safe, durable handoffs", () => {
+  const scopePath = path.join(packageRoot, "skills/speckit-scope/SKILL.md");
+  const scope = fs.readFileSync(scopePath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit.scope",
+    "before asking questions",
+    "bug",
+    "quick",
+    "feature",
+    "initiative",
+    "arbitrary size proxies",
+    "redact",
+    "incomplete",
+    "specs/.scope/",
+    "brief.md",
+    "exact next action",
+  ]) {
+    assert.ok(scope.includes(phrase), `Scope skill is missing: ${phrase}`);
+  }
+});
+
+test("Feature Brief contract carries stable IDs, parent context, and exact directory", () => {
+  const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["f###", "non-reused", "brief.md", "parent_initiative", "dependencies", "feature_directory", "exact typed id", "ambiguous", "yaml front matter", "detailed specification"]) {
+    assert.ok(scope.includes(phrase), `Feature Brief contract is missing: ${phrase}`);
+  }
+});
+
+test("Quick skill follows a bounded quality loop and escalates material decisions", () => {
+  const quickPath = path.join(packageRoot, "skills/speckit-quick/SKILL.md");
+  const quick = fs.readFileSync(quickPath, "utf8").toLowerCase();
+
+  for (const phrase of ["/speckit.quick q###", "understand", "implement", "validate", "relevant code", "established patterns", "smallest correct change", "tests", "truthful", "escalation"]) {
+    assert.ok(quick.includes(phrase), `Quick skill is missing: ${phrase}`);
+  }
+});
+
+test("Scope Bug handoffs separate provisioning from fresh-session consumption", () => {
+  const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["b###", "redact", "present-disabled", "partial", "b001 runtime gate", "installation does not prove", "unverified"]) {
+    assert.ok(scope.includes(phrase), `Scope Bug handoff is missing: ${phrase}`);
+  }
+});
+
+test("Scope owns stable Initiative evolution and feature-map status", () => {
+  const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["i###", "independently specifiable", "recommended starting feature", "canonical in the parent map", "splitting", "merging", "reordering", "superseding", "never change"]) {
+    assert.ok(scope.includes(phrase), `Scope Initiative behavior is missing: ${phrase}`);
+  }
+});
+
+test("Scope and Quick dogfood copies match canonical files", () => {
+  const files = [
+    ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
+    ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
+    ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],
+  ];
+  const normalize = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const [canonical, dogfood] of files) {
+    assert.equal(normalize(fs.readFileSync(path.join(packageRoot, dogfood), "utf8")), normalize(fs.readFileSync(path.join(packageRoot, canonical), "utf8")), `${dogfood} is out of sync`);
+  }
+});
+
+test("handoff instruction returns material boundary changes to Scope", () => {
+  const instruction = fs.readFileSync(path.join(packageRoot, "instructions/scope-handoffs.instructions.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["material", "preserve the evidence", "stop", "return the decision to scope", "do not silently change scope-owned initiative structure"]) {
+    assert.ok(instruction.includes(phrase), `Handoff instruction is missing: ${phrase}`);
+  }
+});
+
 test("install preview lists Review and Analyze as ADD when they are absent", async () => {
   const directory = project();
   const output = await capture(["install", directory, "--yes"]);
@@ -131,6 +207,8 @@ test("install preview lists Review and Analyze as ADD when they are absent", asy
   assert.match(output, /\+ ADD\s+\.github\/skills\/speckit-remediate\/SKILL\.md/);
   assert.match(output, /Ready: specify → clarify → design → plan → tasks → analyze → implement → converge → review/);
   assert.match(output, /Analyze is the normal final pre-implementation check/);
+  assert.match(output, /Bug provisioning: partial success/);
+  assert.ok(fs.existsSync(path.join(directory, ".github/skills/speckit-review/SKILL.md")), "Bug provisioning failure must not roll back Better Spec Kit files");
 });
 
 test("status reports whether the Review skill is installed", async () => {
@@ -179,6 +257,55 @@ test("status reports missing, installed, and conflicting Analyze skills", async 
   fs.mkdirSync(path.dirname(conflictingDestination), { recursive: true });
   fs.writeFileSync(conflictingDestination, "upstream Analyze skill");
   assert.match(await capture(["status", conflictingProject]), /Analyze skill: needs review/);
+});
+
+test("status reports Scope, Quick, handoff instruction, and Bug provisioning state", async () => {
+  const missingProject = project();
+  const missing = await capture(["status", missingProject]);
+  assert.match(missing, /Scope skill: missing/);
+  assert.match(missing, /Quick skill: missing/);
+  assert.match(missing, /Scope handoff instruction: missing/);
+  assert.match(missing, /Bug provisioning: partial/);
+
+  const installedProject = project();
+  for (const [source, destination] of [
+    ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
+    ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
+    ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],
+  ]) {
+    const target = path.join(installedProject, destination);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(path.join(packageRoot, source), target);
+  }
+  const installed = await capture(["status", installedProject]);
+  assert.match(installed, /Scope skill: installed/);
+  assert.match(installed, /Quick skill: installed/);
+  assert.match(installed, /Scope handoff instruction: installed/);
+
+  fs.writeFileSync(path.join(installedProject, ".github/instructions/scope-handoffs.instructions.md"), "custom instruction");
+  assert.match(await capture(["status", installedProject]), /Scope handoff instruction: needs review/);
+});
+
+test("doctor reports missing Scope and Quick managed assets", async () => {
+  const output = await capture(["doctor", project()]);
+  assert.match(output, /Scope skill is missing/);
+  assert.match(output, /Quick skill is missing/);
+  assert.match(output, /Scope handoff instruction is missing/);
+});
+
+test("workflow and installation docs explain Scope entry and upstream Bug provisioning", () => {
+  const readme = fs.readFileSync(path.join(packageRoot, "README.md"), "utf8").toLowerCase();
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+  const installation = fs.readFileSync(path.join(packageRoot, "docs/installation.md"), "utf8").toLowerCase();
+  const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["/speckit.scope", "bug", "quick", "feature", "initiative", "optional"]) {
+    assert.ok(`${readme}\n${workflow}`.includes(phrase), `Workflow documentation is missing: ${phrase}`);
+  }
+  for (const phrase of ["specify extension add bug", "partial success", "never passes `--force`", "automatically updates an existing bug extension", "runtime handoff"]) {
+    assert.ok(`${installation}\n${integrations}`.includes(phrase), `Installation documentation is missing: ${phrase}`);
+  }
+  assert.match(`${installation}\n${integrations}`, /installation.{0,80}not.{0,40}runtime/i);
 });
 
 test("doctor flags a missing Review skill in an installed project", async () => {

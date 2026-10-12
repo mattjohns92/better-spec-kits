@@ -9,6 +9,9 @@ export const managedFiles = [
   ["skills/speckit-remediate/SKILL.md", ".github/skills/speckit-remediate/SKILL.md"],
   ["skills/speckit-implement/SKILL.md", ".github/skills/speckit-implement/SKILL.md"],
   ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
+  ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
+  ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
+  ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],
 ];
 
 export function metadataPath(project) {

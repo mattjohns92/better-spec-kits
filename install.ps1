@@ -85,7 +85,10 @@ $files = @(
     @{ Source='skills/speckit-tasks/SKILL.md'; Destination='.github/skills/speckit-tasks/SKILL.md' },
     @{ Source='skills/speckit-analyze/SKILL.md'; Destination='.github/skills/speckit-analyze/SKILL.md' },
     @{ Source='skills/speckit-remediate/SKILL.md'; Destination='.github/skills/speckit-remediate/SKILL.md' },
-    @{ Source='skills/speckit-implement/SKILL.md'; Destination='.github/skills/speckit-implement/SKILL.md' }
+    @{ Source='skills/speckit-implement/SKILL.md'; Destination='.github/skills/speckit-implement/SKILL.md' },
+    @{ Source='skills/speckit-scope/SKILL.md'; Destination='.github/skills/speckit-scope/SKILL.md' },
+    @{ Source='skills/speckit-quick/SKILL.md'; Destination='.github/skills/speckit-quick/SKILL.md' },
+    @{ Source='instructions/scope-handoffs.instructions.md'; Destination='.github/instructions/scope-handoffs.instructions.md' }
 )
 if ($InstallConstitution) { $files += @{ Source='constitution/constitution.md'; Destination='.specify/memory/constitution.md' } }
 foreach ($item in $files) {
@@ -185,6 +188,33 @@ if ($PSCmdlet.ShouldProcess($marker, 'Write Better Spec Kit installation metadat
     New-Item -ItemType Directory -Path (Split-Path $marker -Parent) -Force | Out-Null
     [ordered]@{ name='better-spec-kit'; version=$Version; constitutionInstalled=[bool]$InstallConstitution; upgradedExistingSpecKit=[bool]($standardUpgrades.Count -gt 0); installedAt=(Get-Date).ToString('o') } |
         ConvertTo-Json | Set-Content -LiteralPath $marker -Encoding UTF8
+}
+if (-not $WhatIfPreference -and $specKit) {
+    if (-not (Get-Command specify -ErrorAction SilentlyContinue)) {
+        Write-Warning 'Bug provisioning partial-success: specify is not available; install GitHub Spec Kit, then run Better Spec Kit update.'
+    } elseif (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        Write-Warning 'Bug provisioning partial-success: Node.js is not available to verify the upstream extension; Better Spec Kit remains installed.'
+    } else {
+        $yamlPackage = Join-Path $RepoRoot 'node_modules/yaml/package.json'
+        if (-not (Test-Path -LiteralPath $yamlPackage -PathType Leaf)) {
+            if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+                Write-Warning 'Bug provisioning partial-success: npm is not available to load the manifest parser; Better Spec Kit remains installed.'
+            } else {
+                try {
+                    Invoke-Checked 'npm' @('install','--prefix',$RepoRoot,'--no-save','--package-lock=false','--ignore-scripts','--no-audit','--no-fund') $RepoRoot
+                } catch {
+                    Write-Warning "Bug provisioning partial-success: could not prepare the manifest parser: $_"
+                }
+            }
+        }
+        if (Test-Path -LiteralPath $yamlPackage -PathType Leaf) {
+            try {
+                Invoke-Checked 'node' @((Join-Path $RepoRoot 'bin/provision-bug.js'),$TargetRoot) $RepoRoot
+            } catch {
+                Write-Warning "Bug provisioning partial-success: $_; Better Spec Kit remains installed."
+            }
+        }
+    }
 }
 Write-Host "`nBetter Spec Kit v$Version installed." -ForegroundColor Green
 if ($backupRoot) { Write-Host "Backups: $backupRoot" }

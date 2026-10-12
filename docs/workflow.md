@@ -6,6 +6,14 @@ The recommended Better Spec Kit workflow is:
 
 Analyze is the normal final pre-implementation gate. It checks that applicable artifacts form coherent instructions and challenges whether material decisions are justified and proportionate. It writes findings to the active feature's `analysis.md` and does not modify upstream artifacts. When blocking findings remain, use their remediation stages and rerun Analyze before implementation normally proceeds. Straightforward features should pass quickly without invented findings.
 
+## Optional Scope and Quick entry
+
+Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE. It remains optional; direct expert entry is supported.
+
+Scope writes sanitized, ID-addressable handoffs under `specs/.scope/` for Bug, Quick, and Initiative records. A Feature Brief lives in its normal numbered feature directory. Quick continues a contained handoff through Understand → Implement → Validate and stops when material product, architecture, persistence, permission, or cross-cutting decisions need an owner.
+
+Feature Brief creation and Specify's fresh-session ID resolution are separate behaviors. Do not claim `/speckit.specify F###` consumed a brief unless that receiver behavior has passed its supported-agent acceptance check. Likewise, provisioning Bug does not prove a fresh session can pass a `B###` handoff to Bug Assess.
+
 ## Analyze outcomes
 
 - When Analyze returns **PASS**, continue to `/speckit-implement`.

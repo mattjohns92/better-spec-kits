@@ -2,6 +2,14 @@
 
 Better Spec Kit does not redistribute or automatically install third-party tools. They are optional, independently maintained, and may be installed in the agent environment.
 
+## GitHub Spec Kit Bug extension
+
+The official Bug extension is an upstream Spec Kit integration, not a Better Spec Kit implementation. On standard install/update, Better Spec Kit uses `specify extension add bug` without `--force` when the extension is absent and prerequisites permit. Spec Kit validates compatibility and registers its declared Assess, Fix, and Test commands for the active agent integration.
+
+An existing extension is left unchanged: Better Spec Kit does not force-reinstall it, re-enable a disabled copy, or automatically update it. An unverified source, incompatible CLI, unavailable catalog/network, or registration failure is reported as partial success with recovery guidance; Better Spec Kit files remain installed and unrelated workflows remain usable.
+
+Provisioning and command registration verify installation state only. Successful installation is not runtime handoff evidence: a separate fresh Copilot session must demonstrate that a sanitized `B###` record reaches the installed Bug Assess workflow before Bug-ID consumption is claimed. Failure or inability to run that check gates only the Bug receiver path.
+
 ## GitHub Spec Kit Analyze
 
 `/speckit.analyze` is an upstream GitHub Spec Kit capability. Better Spec Kit distributes an enhanced Analyze skill that preserves upstream consistency checks, challenges material decisions, and writes feature-local `analysis.md` findings. Run it after Tasks and before Implement. If an upstream or customized Analyze skill already occupies the installation path, review the proposed replacement; the installer requires explicit approval and creates a backup before replacing a differing managed file. Analyze itself remains non-mutating except for `analysis.md` and does not automate remediation.

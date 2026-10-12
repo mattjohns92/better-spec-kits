@@ -10,6 +10,7 @@
     "bin",
     "src",
     "skills",
+    "instructions",
     "constitution",
     "docs",
     "README.md",
@@ -40,5 +41,8 @@
   "homepage": "https://github.com/mattjohns92/better-spec-kits#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
   }
 }

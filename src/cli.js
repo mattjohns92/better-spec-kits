@@ -5,6 +5,7 @@ import { install } from "./installer.js";
 import { choose, yesNo } from "./prompt.js";
 import { integrationStatus } from "./integrations.js";
 import { read } from "./io.js";
+import { inspectBug, provisionBug } from "./bug-extension.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(here, "..");
@@ -27,6 +28,11 @@ function actionName(c) {
 function showPlan(plan) {
   console.log("\nInstallation preview\n");
   for (const item of plan) console.log(`  ${actionName(item.classification).padEnd(11)} ${item.destinationRel}`);
+}
+
+function managedState(plan, destinationRel) {
+  const classification = plan.find((item) => item.destinationRel === destinationRel)?.classification;
+  return classification === "new" ? "missing" : classification === "custom" ? "needs review" : "installed";
 }
 
 export async function run(args) {
@@ -55,9 +61,14 @@ export async function run(args) {
     const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
     const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
     const integrations = integrationStatus();
+    const bug = inspectBug({ project });
     console.log(`  Review skill: ${review?.classification === "new" ? "missing" : "installed"}`);
     console.log(`  Analyze skill: ${analyze?.classification === "new" ? "missing" : analyze?.classification === "custom" ? "needs review" : "installed"}`);
     console.log(`  Remediate skill: ${remediate?.classification === "new" ? "missing" : remediate?.classification === "custom" ? "needs review" : "installed"}`);
+    console.log(`  Scope skill: ${managedState(plan, ".github/skills/speckit-scope/SKILL.md")}`);
+    console.log(`  Quick skill: ${managedState(plan, ".github/skills/speckit-quick/SKILL.md")}`);
+    console.log(`  Scope handoff instruction: ${managedState(plan, ".github/instructions/scope-handoffs.instructions.md")}`);
+    console.log(`  Bug provisioning: ${bug.state} - ${bug.message}`);
     console.log(`\n  Copilot CLI: ${integrations.copilotCli ? "available" : "not detected"}`);
     console.log(`  npx: ${integrations.npx ? "available" : "not detected"}`);
     return;
@@ -73,6 +84,10 @@ export async function run(args) {
     const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
     const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
     const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
+    const scope = plan.find((item) => item.destinationRel === ".github/skills/speckit-scope/SKILL.md");
+    const quick = plan.find((item) => item.destinationRel === ".github/skills/speckit-quick/SKILL.md");
+    const handoff = plan.find((item) => item.destinationRel === ".github/instructions/scope-handoffs.instructions.md");
+    const bug = inspectBug({ project });
     if (detected.betterSpecKit && review?.classification === "new") {
       console.log("  ! Review skill is missing; run 'better-spec-kit update'.");
       problems++;
@@ -93,11 +108,24 @@ export async function run(args) {
       console.log("  ! Remediate skill needs manual review before replacement.");
       problems++;
     }
+    if (detected.betterSpecKit && scope?.classification === "new") {
+      console.log("  ! Scope skill is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
+    if (detected.betterSpecKit && quick?.classification === "new") {
+      console.log("  ! Quick skill is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
+    if (detected.betterSpecKit && handoff?.classification === "new") {
+      console.log("  ! Scope handoff instruction is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
     const custom = plan.filter((x) => x.classification === "custom");
     if (custom.length) {
       console.log(`  ! ${custom.length} managed file(s) need manual review.`);
       problems++;
     }
+    if (!bug.available) console.log(`  ! Bug provisioning ${bug.state}: ${bug.message}`);
     if (!problems) console.log("\n  ✔ No blocking Better Spec Kit issues detected.");
     return;
   }
@@ -140,7 +168,7 @@ export async function run(args) {
   console.log("\n  Optional integrations");
   console.log(`  ${integrations.copilotCli ? "✔" : "○"} Ponytail: ${integrations.copilotCli ? "Copilot CLI available (plugin status checked by Copilot)" : "Copilot CLI not detected"}`);
   console.log(`  ${integrations.npx ? "✔" : "○"} UI UX Pro Max setup capability: ${integrations.npx ? "available through npx" : "npx not detected"}`);
-  console.log("  Third-party integrations are not silently installed by Better Spec Kit.");
+  console.log("  Ponytail and UI UX Pro Max remain optional and are not installed automatically.");
 
   if (!unattended && !(await yesNo(`Proceed with ${selected}?`, true))) {
     console.log("\nCancelled.");
@@ -148,9 +176,11 @@ export async function run(args) {
   }
 
   const result = install({ project, packageRoot, plan, version, installConstitution, allowCustom });
+  const bug = provisionBug({ project });
   console.log(`\n✔ Better Spec Kit v${version} ${selected === "update" ? "updated" : "installed"}!`);
   console.log(`  ${result.changed} workflow skill(s) changed`);
   console.log(`  Constitution: ${installConstitution ? "neutral baseline installed" : "preserved"}`);
+  console.log(`  Bug provisioning: ${bug.available ? bug.state : `partial success (${bug.state})`} - ${bug.message}`);
   if (result.backupRoot) console.log(`  Backups: ${result.backupRoot}`);
   console.log("\n  Ready: specify → clarify → design → plan → tasks → analyze → implement → converge → review");
   console.log("  Analyze is the normal final pre-implementation check.\n");
