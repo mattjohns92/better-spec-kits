@@ -76,6 +76,20 @@ You **MUST** consider the user input before proceeding (if not empty).
      - If significant UI work appears to have skipped the design stage, STOP and instruct the user to run `/speckit-design` before `/speckit-plan`.
      - Backend-only features and features with no meaningful UI impact may proceed without `design.md`.
 
+### Initial Architecture Baseline
+
+During a project's initial architectural planning, establish and approve the initial project-specific baseline within this existing Plan workflow. Do not add a separate architecture stage or command.
+
+- Ground the recommendation in the project purpose, requirements, known technology choices, relevant constraints, and expected complexity using available repository evidence. For an existing project, inspect relevant existing architecture references, decision records, project rules, and representative repository structure before recommending changes.
+- If information that materially affects the recommendation is missing, identify what is missing and why it matters. Do not present unsupported choices as settled.
+- If one clear architecture authority exists, keep that existing authority as the source of truth and reference it rather than create a competing architecture document. If architecture sources conflict, stop and ask the user to identify the authority before treating a baseline as approved.
+- If no clear authority exists, draft a project-specific reference using the repository's established documentation convention. Use `docs/architecture.md` only when appropriate; do not impose it universally.
+- When applicable and supported by evidence, record project context and requirements, baseline status, architecture approach and rationale, high-level structure, major responsibilities, dependency boundaries and permitted directions, file-placement and naming conventions, testing conventions, feature-introduction guidance, justified exceptions, evidence sources, assumptions, and unresolved limitations.
+- Distinguish observed current structure from proposed recommendations and approved policy. Mark a newly drafted baseline **Proposed** and ask the user to explicitly approve it. If the user requests changes, revise and present the proposal again. Do not report an unapproved baseline as authoritative or established until the user explicitly approves it.
+- Propose changes to an existing architecture authority and require the user to explicitly approve changes before applying them. Do not move, rename, or rewrite application source files or directories while establishing the baseline.
+- Never include credentials, secrets, or sensitive values in architecture documentation.
+- This guidance covers initial baseline creation only. Keep subsequent feature-workflow maintenance and automated structural validation in their existing downstream workflow responsibilities.
+
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
    - Fill Constitution Check section from constitution

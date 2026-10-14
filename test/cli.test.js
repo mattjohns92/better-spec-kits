@@ -123,6 +123,66 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
   }
 });
 
+test("Plan skill establishes an initial architecture baseline with explicit approval", () => {
+  const plan = fs.readFileSync(path.join(packageRoot, "skills/speckit-plan/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "initial architecture baseline",
+    "project purpose, requirements, known technology choices, relevant constraints, and expected complexity",
+    "materially affects the recommendation",
+    "proposed",
+    "explicitly approves",
+    "do not report an unapproved baseline as authoritative",
+    "do not add a separate architecture stage or command",
+  ]) {
+    assert.ok(plan.includes(phrase), `Plan skill is missing initial baseline guidance: ${phrase}`);
+  }
+});
+
+test("Plan skill preserves existing architecture authority and avoids restructuring", () => {
+  const plan = fs.readFileSync(path.join(packageRoot, "skills/speckit-plan/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "inspect relevant existing architecture references",
+    "keep that existing authority as the source of truth",
+    "reference it rather than create a competing architecture document",
+    "if architecture sources conflict",
+    "stop and ask the user to identify the authority",
+    "distinguish observed current structure from proposed recommendations",
+    "require the user to explicitly approve changes before applying them",
+    "do not move, rename, or rewrite application source files or directories",
+  ]) {
+    assert.ok(plan.includes(phrase), `Plan skill is missing existing-project authority guidance: ${phrase}`);
+  }
+});
+
+test("Plan skill documents one approved architecture reference and stays in scope", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-plan/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-plan/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Plan dogfood skill must match the canonical skill");
+
+  const plan = canonical.toLowerCase();
+  for (const phrase of [
+    "repository's established documentation convention",
+    "architecture approach and rationale",
+    "high-level structure, major responsibilities",
+    "dependency boundaries and permitted directions",
+    "file-placement and naming conventions",
+    "testing conventions",
+    "feature-introduction guidance",
+    "justified exceptions",
+    "evidence sources, assumptions, and unresolved limitations",
+    "never include credentials, secrets, or sensitive values",
+    "subsequent feature-workflow maintenance",
+    "automated structural validation",
+  ]) {
+    assert.ok(plan.includes(phrase), `Plan skill is missing architecture-reference guidance: ${phrase}`);
+  }
+});
+
 test("Scope skill classifies evidence-first and writes safe, durable handoffs", () => {
   const scopePath = path.join(packageRoot, "skills/speckit-scope/SKILL.md");
   const scope = fs.readFileSync(scopePath, "utf8").toLowerCase();
