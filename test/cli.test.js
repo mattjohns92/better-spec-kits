@@ -400,6 +400,85 @@ test("Analyze skill preserves consistency checks and challenges material decisio
   }
 });
 
+test("Analyze skill traces original intent and investigates broad change surfaces", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "scope feature brief",
+    "original user request",
+    "confirmed scope-owned intent",
+    "later artifacts repeating a requirement do not, by repetition alone, establish its origin or user approval",
+    "inspect relevant current project behavior",
+    "minimum-solution",
+    "change-surface",
+    "existing mechanism was insufficient",
+    "feature-local",
+    "breadth is evidence to investigate, not proof of over-engineering",
+    "do not use file, line, task, service, component, or complexity-score thresholds",
+    "size alone must not prevent pass",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing intent/change-surface guidance: ${phrase}`);
+  }
+});
+
+test("Analyze distinguishes necessary complexity from optional expansion requiring a decision", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "necessary complexity",
+    "unnecessary complexity",
+    "potentially valuable but optional expansion",
+    "keep it and record concise evidence in analysis context",
+    "**material decisions retained:**",
+    "**decision required:** yes",
+    "**category:** scope expansion",
+    "**original intent:**",
+    "**proposed expansion:**",
+    "**challenge:**",
+    "**simpler alternative:**",
+    "**benefit:**",
+    "**cost/complexity:**",
+    "**decision requested:**",
+    "keep the improvement, simplify to the agreed outcome, or defer it",
+    "an unresolved material user decision is blocking",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing earned-complexity guidance: ${phrase}`);
+  }
+});
+
+test("Analyze recognizes settled decisions and returns Scope-boundary changes safely", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "recognize explicit, applicable decisions already recorded in authoritative artifacts",
+    "do not repeat the same challenge",
+    "do not generalize an approval to materially different work",
+    "if the choice changes a scope-owned boundary",
+    "use the existing `clarify` route for the scope/intent uncertainty",
+    "resolution direction",
+    "stop before downstream edits and return the decision to scope",
+    "do not change the scope record or add a `scope` route",
+    "only this analyze run may move an open finding to resolved",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing decision-ownership guidance: ${phrase}`);
+  }
+});
+
+test("Analyze proportionality preserves finding ownership and runtime evidence boundaries", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "do not create a parallel finding ledger",
+    "a new workflow stage",
+    "only file created or changed by analyze is the active feature's `analysis.md`",
+    "only this analyze run may move an open finding to resolved",
+    "static contract assertions cover repository-owned behavior only",
+    "they do not prove external agent behavior",
+  ]) {
+    assert.ok(skill.includes(phrase), `Analyze skill is missing existing ownership/runtime safeguards: ${phrase}`);
+  }
+});
+
 test("Analyze skill persists stable findings and exclusively owns analysis.md", () => {
   const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
 

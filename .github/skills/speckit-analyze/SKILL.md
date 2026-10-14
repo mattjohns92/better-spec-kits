@@ -36,6 +36,7 @@ Analyze challenges and records findings. It does not remediate them.
 - **Analyze is read-only except for its own artifact.** Create or update only `analysis.md` in the active feature directory. Do not edit `spec.md`, clarification decisions, `design.md`, `plan.md`, `tasks.md`, constitution, implementation files, tests, or any other file.
 - **Analyze owns `analysis.md` and its findings.** Other workflows must not resolve, delete, renumber, or rewrite an Analyze finding or claim that Analyze accepted remediation.
 - GitHub Spec Kit continues to own its upstream Analyze capability. Preserve useful upstream consistency checks while applying this enhanced contract.
+- This proportionality challenge extends the existing Analyze stage; do not create a parallel finding ledger, a general architecture-review framework, or a new workflow stage.
 - The constitution, approved requirements, design decisions, and discovered project constraints remain authoritative.
 - Analyze is technology-agnostic. Do not assume a language, framework, database, deployment platform, repository layout, or application type.
 - Do not implement a finding, invoke Clarify/Design/Plan/Tasks automatically, or run an automatic Analyze-remediate-Analyze loop. Feature 006 remediation orchestration is out of scope.
@@ -92,20 +93,30 @@ Do not invent a missing-artifact problem when an optional artifact is not releva
 
 #### B. Requirement and decision traceability
 
-For each material planned decision or work item, determine whether it traces to a requirement, constraint, approved design decision, project convention, or demonstrated technical need. Ask:
+Before comparing downstream artifacts, establish the earliest reliable source of user intent. Prefer an applicable Scope Feature Brief's preserved original user request, confirmed scope-owned intent, decisions, boundaries, exclusions, and downstream questions. If no brief exists, use the earliest reliable user intent available in the feature artifacts and note material evidence limitations. Consider explicit clarification or approval, existing application constraints, and demonstrated technical necessity as distinct evidence sources.
 
-- What current requirement or constraint caused this work?
+For each material requirement, behavior, abstraction, and planned work item, determine whether it traces to that intent, an explicit user decision, a relevant project constraint, or a demonstrable technical need. Later artifacts repeating a requirement do not, by repetition alone, establish its origin or user approval. Ask:
+
+- What current requirement or constraint caused this work, and where did it originate?
 - Is it needed for this feature and solving a demonstrated problem?
 - Is it speculative preparation for hypothetical future work?
 - Does the project already provide a suitable capability that could be extended?
-- Has work appeared in Plan or Tasks that the feature did not request?
-- Does each material requirement have a credible planned implementation path?
+- Has work appeared in Plan or Tasks that the user did not request or explicitly approve?
+- Does each material requirement have a credible implementation path?
 
 Do not require every trivial implementation detail to map to a functional requirement.
 
-#### C. Decision and complexity challenge
+#### C. Decision, minimum-solution, and change-surface challenge
 
 Challenge material product, architecture, technology, and operational choices for proportionality. Consider whether the feature introduces unjustified dependencies, frameworks, services, databases, caches, queues, workers, repositories, managers, coordinators, adapters, wrappers, abstraction layers, configuration systems, compatibility layers, event systems, infrastructure, deployment changes, persistence mechanisms, custom implementations, or speculative extensibility.
+
+Before judging whether a smaller solution is adequate, inspect relevant current project behavior, existing mechanisms, and established patterns where practical. Compare the apparent locality of the requested outcome with the proposal's change-surface. For broad changes, ask:
+
+- Why must shared infrastructure, global state, shared APIs, or adjacent features change?
+- What existing mechanism was insufficient, and what evidence shows feature-local work is inadequate?
+- Which changes directly satisfy acceptance, which are supporting improvements, and which could be removed while preserving the agreed outcome?
+
+Do not use file, line, task, service, component, or complexity-score thresholds. Breadth is evidence to investigate, not proof of over-engineering; a large change can be correct. Size alone MUST NOT prevent PASS or cause a finding. Existing architecture is the default, not unquestionable: challenge it only with concrete feature-specific evidence of a limitation or requirement mismatch.
 
 For material decisions, consider:
 
@@ -120,6 +131,31 @@ For material decisions, consider:
 9. Is custom functionality duplicating an adequate project, platform, or established dependency capability?
 10. Is the benefit sufficient to justify the added complexity?
 
+Classify material complexity by its current evidence:
+
+- **Necessary complexity** is required by the agreed outcome or demonstrated system constraints. Keep it and record concise evidence in Analysis Context: the originating requirement or decision, the relevant constraint or project evidence, and why a simpler approach would not satisfy the outcome.
+- **Unnecessary complexity** can be removed while still meeting the agreed outcome without an unacceptable trade-off. Raise an actionable finding recommending simplification at the earliest authoritative stage.
+- **Potentially valuable but optional expansion** is not needed for the agreed outcome but has a legitimate current benefit. Do not silently approve or remove a materially consequential expansion when both the simpler and expanded approaches are reasonable and no applicable user decision is recorded.
+
+When user judgement is required, use the existing Axxx finding and clearly mark the decision as required. Include the original intent, proposed expansion, why it is challenged, the simpler alternative, the benefit, the added cost/complexity, and the specific decision. Use the following conditional details within the existing finding; do not create a separate finding system or status:
+
+```markdown
+**Decision required:** YES
+**Category:** Scope Expansion
+**Original intent:** <agreed outcome>
+**Proposed expansion:** <additional behavior or work>
+**Challenge:** <why the addition is not required and what evidence was inspected>
+**Simpler alternative:** <smallest viable way to meet the agreed outcome>
+**Benefit:** <legitimate benefit of the expansion>
+**Cost/complexity:** <concrete scope, UX, architecture, or maintenance cost>
+**Decision requested:** Keep the improvement, simplify to the agreed outcome, or defer it.
+```
+
+An unresolved material user decision is blocking and MUST remain OPEN until a later Analyze run verifies that an applicable decision has been recorded and the current proposal reflects it. Use the existing severity and blocking rules; do not create a new severity or status.
+Before raising a user-decision finding, recognize explicit, applicable decisions already recorded in authoritative artifacts. Do not repeat the same challenge when the user has already settled that trade-off, and do not generalize an approval to materially different work.
+
+If the choice changes a Scope-owned boundary, use the existing `CLARIFY` route for the scope/intent uncertainty. The resolution direction MUST tell Remediate/Clarify to stop before downstream edits and return the decision to Scope. Do not change the Scope record or add a `SCOPE` route. After Scope reassesses the boundary, only reconcile downstream artifacts that the decision actually affects.
+
 Existing architecture is the default, not unquestionable. Do not recommend replacing an established technology merely because an alternative exists. Challenge an established choice only with concrete feature-specific evidence of a limitation, risk, incompatibility, maintainability, security, performance, operational cost, or requirement mismatch. Use a higher evidence threshold for established project decisions than for new complexity introduced by the current plan.
 
 Statements such as “generic for future use” are not justification when the future need is outside the current requirements. Respect separation of responsibility when it solves a demonstrated problem; do not endorse layers for symmetry or theoretical purity.
@@ -133,6 +169,8 @@ Identify material unnecessary steps, repeated data entry, navigation/modal trans
 #### E. Testing and execution boundary
 
 Use the strongest practical evidence at the actual execution boundary. Do not require substantial infrastructure solely to test behavior owned by an external runtime unless that infrastructure is independently justified. This is not an excuse to omit automated tests for behavior the repository owns and can execute. Distinguish repository-owned packaging/contracts from behavior executed by an external agent; do not claim a static skill-text test proves agent behavior.
+
+Static contract assertions cover repository-owned behavior only; they do not prove external agent behavior. Keep supported-agent acceptance separate and do not add a heavyweight evaluation harness solely to simulate the external runtime.
 
 ### 5. Record findings and remediation routes
 
@@ -186,6 +224,7 @@ Use this structure and stable labels:
 
 **Analyzed:** <feature and relevant artifact state>
 **Evidence limitations:** <limitations or None identified>
+**Material decisions retained:** <material complexity kept, its origin, and supporting evidence; or None identified>
 
 ## Current Findings
 
