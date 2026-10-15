@@ -117,7 +117,8 @@ Use `INCOMPLETE REVIEW` only when a material limitation prevents a trustworthy a
 
 Before the final outcome, give one concise, outcome-aware handoff:
 
-- **Review PASS**: state that the Better Spec Kit feature workflow is complete. Recommend no additional workflow command.
+- Summary is handed off only after Review `PASS`. For non-PASS or incomplete outcomes, do not recommend or claim a final completed Summary; preserve the applicable remediation or evidence-gathering route.
+- **Review PASS**: after Review `PASS`, recommend `/speckit-summary` as the explicit handoff for the same feature. Provide the feature context needed for an independent Summary run. Do not claim that Summary was invoked or written unless it actually happened. Automatic invocation is allowed only after supported-agent acceptance demonstrates reliable dispatch after PASS and no dispatch for blocking findings; otherwise use the manual command.
 - **FINDINGS** with blocking findings: recommend `/speckit.implement` for implementation remediation, followed by Converge and another Review. Do not skip Converge or change Review finding status.
 - **FINDINGS** with only non-blocking observations: identify them as non-blocking and do not imply that the feature is blocked.
 - **INCOMPLETE REVIEW**: name the missing evidence and recommend the minimum action needed to obtain it.

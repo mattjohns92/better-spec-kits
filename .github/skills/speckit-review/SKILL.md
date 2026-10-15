@@ -107,15 +107,6 @@ Do not treat missing optional artifacts or Ponytail as findings by themselves. D
 
 Report the scope and comparison base used, evidence inspected, and validation commands actually run. Keep the report concise and specific to the changed behavior. Then summarize the four passes and list evidence-backed findings, grouped by severity. For each pass, state its conclusion and key evidence or limitation. Clearly distinguish completion-blocking findings from non-blocking improvements.
 
-Before the final overall outcome, give one concise, outcome-aware handoff:
-
-- **Review PASS**: state that the Better Spec Kit feature workflow is complete. Recommend no additional workflow command.
-- **FINDINGS** with blocking findings: recommend `/speckit.implement` for implementation remediation, followed by Converge and another Review. Do not skip Converge or change Review finding status.
-- **FINDINGS** with only non-blocking observations: identify them as non-blocking and do not imply that the feature is blocked.
-- **INCOMPLETE REVIEW**: name the missing evidence and recommend the minimum action needed to obtain it.
-
-Keep this handoff brief; the overall outcome remains the final label.
-
 Finish with exactly one overall outcome:
 
 - `PASS` - No material issues were found and the implementation can reasonably be considered complete.
@@ -123,3 +114,13 @@ Finish with exactly one overall outcome:
 - `INCOMPLETE REVIEW` - The evidence available was insufficient for a trustworthy determination. Name exactly what evidence or access was unavailable and why it prevents a reliable conclusion.
 
 Use `INCOMPLETE REVIEW` only when a material limitation prevents a trustworthy assessment; otherwise disclose limitations and choose `PASS` or `FINDINGS` based on the evidence that was available. The final overall outcome must be exactly one of the three labels above.
+
+Before the final outcome, give one concise, outcome-aware handoff:
+
+- Summary is handed off only after Review `PASS`. For non-PASS or incomplete outcomes, do not recommend or claim a final completed Summary; preserve the applicable remediation or evidence-gathering route.
+- **Review PASS**: after Review `PASS`, recommend `/speckit-summary` as the explicit handoff for the same feature. Provide the feature context needed for an independent Summary run. Do not claim that Summary was invoked or written unless it actually happened. Automatic invocation is allowed only after supported-agent acceptance demonstrates reliable dispatch after PASS and no dispatch for blocking findings; otherwise use the manual command.
+- **FINDINGS** with blocking findings: recommend `/speckit.implement` for implementation remediation, followed by Converge and another Review. Do not skip Converge or change Review finding status.
+- **FINDINGS** with only non-blocking observations: identify them as non-blocking and do not imply that the feature is blocked.
+- **INCOMPLETE REVIEW**: name the missing evidence and recommend the minimum action needed to obtain it.
+
+Keep this handoff brief; the overall outcome remains the final label.

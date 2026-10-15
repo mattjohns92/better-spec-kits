@@ -106,7 +106,7 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
   assert.ok(plan.includes("/speckit-tasks"), "Plan guidance is missing the Tasks handoff");
   assert.ok(tasks.includes("/speckit.analyze"), "Tasks guidance is missing the Analyze handoff");
   assert.ok(implement.includes("/speckit.converge"), "Implement guidance is missing the Converge handoff");
-  assert.ok(review.includes("review pass") && review.includes("feature workflow is complete"), "Review PASS must state completion");
+  assert.ok(review.includes("review pass") && review.includes("/speckit-summary"), "Review PASS must hand off to Summary");
   assert.ok(review.includes("blocking findings") && review.includes("converge"), "Review findings must return through Converge");
 
   for (const [name, phrase] of [
@@ -115,7 +115,7 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
     ["plan", "/speckit-tasks"],
     ["tasks", "/speckit.analyze"],
     ["implement", "/speckit.converge"],
-    ["review", "feature workflow is complete"],
+    ["review", "/speckit-summary"],
   ]) {
     const dogfoodPath = path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`);
     const dogfood = fs.readFileSync(dogfoodPath, "utf8").toLowerCase();
@@ -415,12 +415,17 @@ test("workflow documentation makes Analyze the normal pre-implementation gate", 
   }
   assert.match(workflow, /analyze is the normal final pre-implementation gate/);
   assert.match(workflow, /blocking findings/);
+  assert.match(workflow, /review `pass`[\s\S]*speckit-summary/);
+  assert.match(workflow, /copilot skill discovery does not guarantee automatic skill-to-skill invocation/);
   assert.match(readme, /speckit\.remediate/);
   assert.match(readme, /status.*analyze\/remediate\/review skills/);
   assert.match(workflow, /analyze returns \*{0,2}pass[\s\S]*implement/);
   assert.match(workflow, /blocking findings[\s\S]*remediate[\s\S]*analyze/);
   assert.match(installation, /canonical skills to `\.github\/skills\//);
   assert.match(installation, /speckit-remediate/);
+  assert.match(installation, /speckit-summary/);
+  assert.match(installation, /install\.ps1[\s\S]*install\.sh/);
+  assert.match(installation, /review returns a current `pass`[\s\S]*invoke `\/speckit-summary <feature-directory>` manually/);
   assert.match(installation, /backup/);
   assert.match(releasing, /skills\/speckit-analyze\/skill\.md/);
   assert.match(releasing, /skills\/speckit-remediate\/skill\.md/);
@@ -589,6 +594,67 @@ test("Analyze skill routes findings and applies severity and outcome rules", () 
   ]) {
     assert.ok(skill.includes(phrase), `Analyze skill is missing routing/outcome guidance: ${phrase}`);
   }
+});
+
+test("Summary skill is feature-local, evidence-grounded, and non-authoritative", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "if no unique feature can be identified",
+    "current, unambiguous review `pass`",
+    "inspect the delivered implementation",
+    "prefer evidence of delivered behavior over planned work",
+    "concise implementation overview",
+    "architectural meaning over file lists",
+    "material decisions",
+    "deviations",
+    "verification evidence",
+    "report uncertainty",
+    "omit empty or immaterial sections",
+    "fresh session",
+    "descriptive historical context",
+    "not an authority over current source code",
+  ]) {
+    assert.ok(skill.includes(phrase), `Summary skill is missing: ${phrase}`);
+  }
+});
+
+test("Review recommends Summary only after PASS and preserves remediation outcomes", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "after review `pass`",
+    "recommend `/speckit-summary` as the explicit handoff",
+    "do not claim that summary was invoked or written",
+    "blocking findings",
+    "recommend `/speckit.implement` for implementation remediation, followed by converge and another review",
+    "for non-pass or incomplete outcomes",
+    "do not recommend or claim a final completed summary",
+    "`incomplete review`",
+    "non-pass or incomplete outcomes",
+  ]) {
+    assert.ok(skill.includes(phrase), `Review handoff is missing: ${phrase}`);
+  }
+});
+
+test("Review dogfood skill matches the canonical Summary handoff", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-review/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-review/SKILL.md");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  const canonical = normalizeLineEndings(fs.readFileSync(canonicalPath, "utf8"));
+  const dogfood = normalizeLineEndings(fs.readFileSync(dogfoodPath, "utf8"));
+
+  assert.ok(canonical.includes("/speckit-summary"), "Canonical Review handoff must recommend Summary");
+  assert.equal(dogfood, canonical, "Review dogfood skill must match the canonical skill");
+});
+
+test("Summary dogfood skill matches the canonical skill", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-summary/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-summary/SKILL.md");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.ok(fs.existsSync(dogfoodPath), "Summary dogfood skill is missing");
+  assert.equal(normalizeLineEndings(fs.readFileSync(dogfoodPath, "utf8")), normalizeLineEndings(fs.readFileSync(canonicalPath, "utf8")), "Summary dogfood skill must match the canonical skill");
 });
 
 test("Review skill uses current convergence evidence and four quality passes", () => {
