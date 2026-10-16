@@ -1,6 +1,6 @@
 ---
 name: "speckit-summary"
-description: "Create a concise, evidence-grounded account of what a reviewed feature actually delivered."
+description: "Create a concise, evidence-grounded account of feature progress and delivered behavior at any workflow stage."
 compatibility: "Requires a Spec Kit feature and access to its implementation and Review evidence."
 ---
 
@@ -14,7 +14,7 @@ Consider the user's requested feature or focus, but do not let it override the f
 
 ## Purpose
 
-Create or update one feature-local `summary.md` that gives a fresh reader a concise account of delivered reality. Summary is a descriptive handoff, not another acceptance gate or source of requirements.
+Create or update one feature-local `summary.md` that gives a fresh reader a concise as-of account of delivered reality at any workflow stage. Summary is descriptive, not another acceptance gate or source of requirements.
 
 ## Resolve the Feature
 
@@ -24,19 +24,20 @@ Create or update one feature-local `summary.md` that gives a fresh reader a conc
 
 ## Review Gate
 
-A final completed Summary requires a current, unambiguous Review `PASS` for the selected feature.
+Summary is available at any workflow stage. A current, unambiguous Review `PASS` is required only for final completion or acceptance claims, not for a descriptive as-of account.
 
-- If Review is missing, incomplete, ambiguous, stale, or not `PASS`, do not create or describe a final completed Summary. Report what evidence is missing or contradictory.
-- If Review reports an open blocking finding, or its PASS conflicts with its finding status, do not claim completion. Preserve Review's finding IDs and ownership; do not copy or change its findings.
-- Inspect repository state for implementation changes that may postdate or invalidate Review. If current acceptance cannot be established, report uncertainty instead of treating an old PASS as current.
+- If Review is missing, incomplete, ambiguous, stale, or not `PASS`, continue producing a descriptive Summary and report the current Review status and any uncertainty. Do not make final completion or acceptance claims.
+- If Review reports an open blocking finding, or its PASS conflicts with its finding status, describe the current state without claiming completion. Preserve Review's finding IDs and ownership; do not copy or change its findings.
+- Inspect repository state for implementation changes that may postdate or invalidate Review. If current acceptance cannot be established, report that uncertainty instead of treating an old PASS as current; this does not prevent descriptive as-of reporting.
 - Do not invoke Review, resolve findings, or claim another workflow command ran.
 
 ## Evidence Rules
 
 - Inspect the delivered implementation and available completion evidence; prefer evidence of delivered behavior over planned work.
-- Treat the Brief and specification as intent, Plan and Tasks as intended work, Review as acceptance authority, and current source/tests as evidence of what exists. Do not infer implementation from a checked task or a planned artifact.
+- Treat the Brief and specification as intent, Plan and Tasks as intended work, Review as authority for final acceptance, and current source/tests as evidence of what exists. Do not infer implementation from a checked task or a planned artifact.
 - State a test, acceptance check, Converge result, or other verification only when current evidence shows that it ran and what result it produced.
 - If evidence conflicts or is unavailable, report uncertainty. Never invent behavior, rationale, test results, or completion status.
+- Report the current workflow stage and Review status so readers can distinguish an as-of account from a final completion handoff.
 - Summary is descriptive historical context, not an authority over current source code, tests, Review, later work, or earlier authoritative artifacts.
 
 ## Write `summary.md`
@@ -55,6 +56,6 @@ Omit empty or immaterial sections. Do not produce exhaustive file lists, task-by
 
 ## Final Check and Handoff
 
-Before writing, verify the selected feature, current Review PASS, and each factual claim against available evidence. Ensure the artifact describes delivered reality, preserves ownership, and makes no unsupported completion or verification claim.
+Before writing, verify the selected feature, current workflow and Review status, and each factual claim against available evidence. Ensure the artifact describes delivered reality, preserves ownership, and makes no unsupported completion or verification claim. Review PASS is required only before using final completion or acceptance language.
 
 After writing, report the `summary.md` path, the Review evidence used, material evidence limitations, and any validation actually inspected. Do not claim the feature is complete beyond what Review and current evidence establish.

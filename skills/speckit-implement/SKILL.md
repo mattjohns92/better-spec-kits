@@ -177,6 +177,53 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Task details**: ID, description, file paths, parallel markers [P]
    - **Execution flow**: Order and dependency requirements
 
+### Adaptive Execution Mode
+
+Before substantial implementation, inspect the approved `spec.md`, applicable `design.md`, `plan.md`, `tasks.md`, Analyze result in `analysis.md`, relevant existing project behavior, and current implementation state when work has already started.
+
+Determine whether meaningful intermediate validation boundaries exist by considering independently valuable outcomes, coupling, risk, dependencies, and validation value. These are evidence, not a scoring system. Do not use arbitrary numeric thresholds or a complexity score based only on task, story, file, or line counts.
+
+If an explicitly established active-feature mode or applicable preference exists, honor it without asking for it again. Otherwise, briefly recommend `CONTINUOUS` or `INCREMENTAL` with the relevant evidence and present both modes as valid choices. Accept the user's direct choice when it is safe and remains within approved intent.
+
+`CONTINUOUS` remains first-class: complete the approved work without artificial checkpoints when intermediate boundaries add little practical value.
+
+### Incremental Checkpoints
+
+`INCREMENTAL` mode uses meaningful task/outcome boundaries. Do not assume every user story is a separate increment; combine tightly coupled work, and split a story only when it contains a distinct valuable or testable outcome.
+
+Complete only the current agreed increment, then run focused validation appropriate to the increment. Report the actual commands and results. Do not begin later work that materially depends on an unresolved checkpoint.
+
+At each checkpoint, concisely state the delivered behavior, outcome satisfied, validation actually performed, any specific suggested user verification, remaining work, and expected next increment. Do not require manual user approval when automated evidence is sufficient; report the checkpoint and continue.
+
+Request user verification only when it materially reduces uncertainty or depends on the user's domain knowledge or environment. When that verification is needed before dependent work, state the specific check and pause; allow the user to approve, report a problem, request an in-scope adjustment, or continue without optional verification.
+
+### Durable Resume State
+
+When mode or checkpoint progress must survive a pause, maintain one Implement-owned `## Implement State` block in the active feature's `tasks.md`. It is current-state metadata, not another task ledger or checkpoint history; task checkboxes remain the sole task-completion truth.
+
+Record these fields without duplicating task descriptions:
+
+- **Mode**: `CONTINUOUS` or `INCREMENTAL`; leave unset until selected or already established.
+- **Current increment**: existing task/outcome references only.
+- **Last validated increment**: existing task/outcome references and concise validation command/result.
+- **Validation state**: `NOT RUN`, `PASS`, `FAIL`, `INCONCLUSIVE`, or `UNAVAILABLE`, with concise evidence.
+- **User-verification state/request**: `NOT NEEDED`, `PENDING`, `APPROVED`, `CONTINUE WITHOUT`, or `FAILED`, plus a specific request or `None`.
+- **Next action**: one concise action consistent with task and verification state.
+
+Update the block when a mode is selected and at checkpoint transitions. Remove or mark it complete when implementation completes and no verification is pending.
+
+On a fresh session, read the state block, task checkboxes, and current implementation to determine completed and validated work, pending verification, active work, remaining work, and the next action. Do not rely on conversation memory. If state is missing or conflicting, reconcile it against current artifacts; do not infer user approval. If the next safe action remains unclear, stop and ask.
+
+If Tasks regenerates the ledger, use the preserved state block as input to reconciliation, not as authority over changed task definitions. Resolve stale references against current tasks before resuming.
+
+### Feedback and Lifecycle Ownership
+
+Implementation corrections that fail approved behavior are fixed within the current increment and revalidated before dependent work proceeds. Minor in-scope adjustments remain within approved decisions and are validated without creating a new workflow or acceptance artifact.
+
+Material changes to requirements, design, plan, or task structure route to the appropriate existing stage before dependent implementation continues. Significant UI work may influence mode recommendations or suggested user inspection, but do not add the future dedicated interactive UI feedback workflow.
+
+Do not run Analyze, Converge, Review, or Summary as per-increment workflows or create per-increment Review/Summary artifacts. After all approved work is complete, retain feature-level Converge, independent Review, and the existing post-Review Summary handoff.
+
 6. Execute implementation following the task plan:
    - **Phase-by-phase execution**: Complete each phase before moving to the next
    - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together

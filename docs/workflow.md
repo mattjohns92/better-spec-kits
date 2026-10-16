@@ -42,6 +42,8 @@ Checks applicable requirements, clarification decisions, design, plan, tasks, co
 
 Re-inspects relevant code before each task, preserves authoritative design decisions, implements the smallest maintainable change, and validates behavior.
 
+Adaptive execution happens inside Implement. It may use continuous work for cohesive changes or meaningful increments with focused validation and concise checkpoints; checkpoints do not replace feature-level Converge, Review, or Summary.
+
 ## Converge (Upstream)
 
 GitHub Spec Kit owns `/speckit.converge`; Better Spec Kit does not duplicate, bundle, or replace it. Run Converge after implementation. If it appends remaining tasks, repeat `converge → implement → converge` until no work remains. If Converge is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit); do not install an unverified replacement.
@@ -52,4 +54,4 @@ Runs after convergence as an independent, read-only implementation-quality gate.
 
 ## Summary
 
-After a current Review `PASS`, run `/speckit-summary <feature-directory>` as the explicit manual handoff. Summary creates or updates a feature-local `summary.md` from delivered implementation and completion evidence; it describes completed reality and does not replace Review or authoritative requirements. Blocking findings, incomplete Review, or uncertain acceptance do not produce a final completed Summary. Copilot skill discovery does not guarantee automatic skill-to-skill invocation, so Review must not claim Summary ran unless the supported runtime actually demonstrates it.
+Summary is available at any workflow stage as a descriptive as-of account. Review `PASS` is required only for final completion or acceptance claims. When Review is missing, stale, incomplete, non-PASS, or has blocking findings, Summary still describes the current state and labels Review status; it does not claim completion. After Review returns a current `PASS`, invoke `/speckit-summary <feature-directory>` as the explicit manual final-completion handoff. Summary creates or updates a feature-local `summary.md` from delivered implementation and available evidence; it does not replace Review or authoritative requirements. Copilot skill discovery does not guarantee automatic skill-to-skill invocation, so Review must not claim Summary ran unless the supported runtime actually demonstrates it.

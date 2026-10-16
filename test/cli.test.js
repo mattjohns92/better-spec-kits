@@ -416,6 +416,8 @@ test("workflow documentation makes Analyze the normal pre-implementation gate", 
   assert.match(workflow, /analyze is the normal final pre-implementation gate/);
   assert.match(workflow, /blocking findings/);
   assert.match(workflow, /review `pass`[\s\S]*speckit-summary/);
+  assert.match(workflow, /summary is available at any workflow stage as a descriptive as-of account/);
+  assert.match(workflow, /review `pass` is required only for final completion or acceptance claims/);
   assert.match(workflow, /copilot skill discovery does not guarantee automatic skill-to-skill invocation/);
   assert.match(readme, /speckit\.remediate/);
   assert.match(readme, /status.*analyze\/remediate\/review skills/);
@@ -424,6 +426,8 @@ test("workflow documentation makes Analyze the normal pre-implementation gate", 
   assert.match(installation, /canonical skills to `\.github\/skills\//);
   assert.match(installation, /speckit-remediate/);
   assert.match(installation, /speckit-summary/);
+  assert.match(installation, /summary is available at any workflow stage as a descriptive as-of account/);
+  assert.match(installation, /review `pass` is required only for final completion or acceptance claims/);
   assert.match(installation, /install\.ps1[\s\S]*install\.sh/);
   assert.match(installation, /review returns a current `pass`[\s\S]*invoke `\/speckit-summary <feature-directory>` manually/);
   assert.match(installation, /backup/);
@@ -602,6 +606,12 @@ test("Summary skill is feature-local, evidence-grounded, and non-authoritative",
   for (const phrase of [
     "if no unique feature can be identified",
     "current, unambiguous review `pass`",
+    "summary is available at any workflow stage",
+    "descriptive as-of account",
+    "review `pass` is required only for final completion or acceptance claims",
+    "missing, incomplete, ambiguous, stale, or not `pass`",
+    "continue producing a descriptive summary",
+    "report the current workflow stage and review status",
     "inspect the delivered implementation",
     "prefer evidence of delivered behavior over planned work",
     "concise implementation overview",
@@ -619,10 +629,13 @@ test("Summary skill is feature-local, evidence-grounded, and non-authoritative",
   }
 });
 
-test("Review recommends Summary only after PASS and preserves remediation outcomes", () => {
+test("Review permits descriptive Summary at any stage and preserves remediation outcomes", () => {
   const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
 
   for (const phrase of [
+    "summary is available at any workflow stage",
+    "only the final completion handoff is pass-gated",
+    "descriptive as-of account",
     "after review `pass`",
     "recommend `/speckit-summary` as the explicit handoff",
     "do not claim that summary was invoked or written",
@@ -774,4 +787,134 @@ test("Implement preserves task attribution across multiple open findings", () =>
       assert.ok(skill.includes(phrase), `${skillPath} is missing multi-finding attribution rule: ${phrase}`);
     }
   }
+});
+
+test("Implement assesses execution mode from approved evidence and preserves continuous choice", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-implement/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const skill = canonical.toLowerCase();
+
+  for (const phrase of [
+    "before substantial implementation",
+    "approved `spec.md`, applicable `design.md`, `plan.md`, `tasks.md`",
+    "analyze result in `analysis.md`",
+    "meaningful intermediate validation boundaries",
+    "independently valuable outcomes, coupling, risk, dependencies, and validation value",
+    "do not use arbitrary numeric thresholds",
+    "task, story, file, or line counts",
+    "recommend `continuous` or `incremental`",
+    "present both modes as valid choices",
+    "explicitly established active-feature mode",
+    "honor it without asking for it again",
+    "remains first-class",
+    "without artificial checkpoints",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement mode guidance is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
+});
+
+test("Implement validates meaningful increments and reports concise checkpoints", () => {
+  const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const dogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md"), "utf8");
+
+  for (const phrase of [
+    "meaningful task/outcome boundaries",
+    "do not assume every user story is a separate increment",
+    "complete only the current agreed increment",
+    "focused validation appropriate to the increment",
+    "do not begin later work that materially depends on an unresolved checkpoint",
+    "delivered behavior",
+    "outcome satisfied",
+    "validation actually performed",
+    "suggested user verification",
+    "remaining work",
+    "expected next increment",
+    "do not require manual user approval when automated evidence is sufficient",
+  ]) {
+    assert.ok(canonical.includes(phrase), `Implement checkpoint guidance is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(
+    normalizeLineEndings(dogfood),
+    normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")),
+    "Implement dogfood skill must match the canonical skill",
+  );
+});
+
+test("Implement resumes from durable task state and Tasks preserves its ownership", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const implementDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md"), "utf8");
+  const tasks = fs.readFileSync(path.join(packageRoot, "skills/speckit-tasks/SKILL.md"), "utf8").toLowerCase();
+  const tasksDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-tasks/SKILL.md"), "utf8");
+
+  for (const phrase of [
+    "one implement-owned `## implement state` block",
+    "current increment",
+    "last validated increment",
+    "validation state",
+    "user-verification state/request",
+    "next action",
+    "task checkboxes remain the sole task-completion truth",
+    "on a fresh session",
+    "conversation memory",
+    "state is missing or conflicting",
+    "do not infer user approval",
+    "remove or mark it complete when implementation completes",
+  ]) {
+    assert.ok(implement.includes(phrase), `Implement resume guidance is missing: ${phrase}`);
+  }
+
+  for (const phrase of ["preserve the implement-owned `## implement state` block unchanged", "flag it for reconciliation", "tasks does not interpret, update, or silently discard that state"]) {
+    assert.ok(tasks.includes(phrase), `Tasks regeneration guidance is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(
+    normalizeLineEndings(implementDogfood),
+    normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")),
+    "Implement dogfood skill must match the canonical skill",
+  );
+  assert.equal(
+    normalizeLineEndings(tasksDogfood),
+    normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-tasks/SKILL.md"), "utf8")),
+    "Tasks dogfood skill must match the canonical skill",
+  );
+});
+
+test("Implement routes feedback by materiality and preserves lifecycle ownership", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const implementDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md"), "utf8");
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "implementation corrections that fail approved behavior are fixed within the current increment",
+    "minor in-scope adjustments",
+    "material changes to requirements, design, plan, or task structure",
+    "route to the appropriate existing stage",
+    "significant ui work may influence mode recommendations",
+    "future dedicated interactive ui feedback workflow",
+    "do not run analyze, converge, review, or summary as per-increment workflows",
+    "feature-level converge",
+    "independent review",
+    "summary",
+  ]) {
+    assert.ok(implement.includes(phrase), `Implement ownership guidance is missing: ${phrase}`);
+  }
+
+  for (const phrase of ["adaptive execution happens inside implement", "checkpoints do not replace feature-level converge, review, or summary"]) {
+    assert.ok(workflow.includes(phrase), `Workflow lifecycle guidance is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(
+    normalizeLineEndings(implementDogfood),
+    normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")),
+    "Implement dogfood skill must match the canonical skill",
+  );
 });
