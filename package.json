@@ -1,6 +1,6 @@
 {
   "name": "better-spec-kit",
-  "version": "0.5.11",
+  "version": "0.5.12",
   "description": "Technology-agnostic enhancements for GitHub Spec Kit: design, simplicity, reuse and stronger implementation workflows.",
   "type": "module",
   "bin": {
