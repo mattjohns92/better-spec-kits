@@ -14,7 +14,7 @@ specify → clarify → design → plan → tasks → analyze → implement → 
 
 Analyze is the normal final pre-implementation check after Tasks. It checks artifact consistency and challenges material decisions, then records its outcome and any findings in the feature's `analysis.md`. Analyze does not modify upstream artifacts. Address blocking findings through their routed upstream stage and rerun Analyze before implementation normally proceeds.
 
-If Analyze returns PASS, continue to `/speckit-implement`. If OPEN blocking findings remain, run `/speckit.remediate` and then run Analyze again; do not implement while blocking findings remain. If analysis is incomplete, obtain the missing evidence or prerequisite before proceeding.
+After Analyze returns PASS, follow its next-step recommendation. Analyze may recommend `/speckit.preview` when a human-readable overview would materially improve understanding; for straightforward proposals, it may recommend `/speckit-implement` directly. Preview remains optional. If OPEN blocking findings remain, run `/speckit.remediate` and then run Analyze again; do not implement while blocking findings remain. If analysis is incomplete, obtain the missing evidence or prerequisite before proceeding.
 
 GitHub Spec Kit provides `/speckit.converge` to check for work still missing after implementation. If it appends tasks, repeat `converge → implement → converge` until no work remains, then run Review. Better Spec Kit does not bundle or replace Converge. If the command is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit) and verify the command is available before continuing.
 

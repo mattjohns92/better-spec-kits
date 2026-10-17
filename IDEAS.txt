@@ -1,3 +1,0 @@
-- Summarize step which can return in plain english, and probably in a md doc what was actually done in the bug/feature etc
-- Challenge/clarify, I feel like once the spec is done, it needs to challenge why we're making something in a certain way, is there a better way of doing it
-- I think analyze needs to be better. It needs really challenge why we did something a certain way, would it be better to be done another way and really force the user to clarifiy and reason

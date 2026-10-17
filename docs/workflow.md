@@ -16,7 +16,7 @@ Feature Brief creation and Specify's fresh-session ID resolution are separate be
 
 ## Analyze outcomes
 
-- When Analyze returns **PASS**, continue to `/speckit-implement`.
+- When Analyze returns **PASS**, follow its context-sensitive next-step recommendation. It may recommend `/speckit.preview` when a human-readable overview would materially improve understanding, or `/speckit-implement` directly for straightforward proposals. Preview remains optional.
 - When Analyze returns **FINDINGS** with OPEN blocking findings, run `/speckit.remediate`, then run Analyze again. Do not implement while blocking findings remain.
 - When Analyze returns **INCOMPLETE ANALYSIS**, obtain the missing evidence or prerequisite; do not recommend implementation yet.
 

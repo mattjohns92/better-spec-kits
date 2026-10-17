@@ -284,7 +284,7 @@ Report the outcome, blocking findings count, `analysis.md` path, a concise summa
 
 Give one concise, outcome-aware next step:
 
-- **PASS**: recommend `/speckit.implement` because no OPEN blocking findings remain.
+- **PASS**: recommend the most useful next step based on the nature of the approved work. Where a human-readable overview would materially help the user understand substantial scope, several meaningful outcomes, significant supporting work, important technical or UI decisions, or detail that is difficult to understand from Tasks alone, recommend `/speckit.preview` and leave `/speckit.implement` available. Where the feature is sufficiently simple and closely matches the understood request, recommend `/speckit.implement` directly. Preview remains optional. These are reasoning considerations, not a score; do not use arbitrary thresholds based on task, story, file, or line counts.
 - **FINDINGS** with OPEN blocking findings: recommend `/speckit.remediate` because upstream artifacts need reconciliation before implementation.
 - **INCOMPLETE ANALYSIS**: name the missing evidence or prerequisite and its recovery action. Do not recommend implementation.
 

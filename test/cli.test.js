@@ -600,6 +600,75 @@ test("Analyze skill routes findings and applies severity and outcome rules", () 
   }
 });
 
+test("Preview skill explains a derived proposal separately from intent and delivered reality", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit.preview",
+    "original goal",
+    "current proposed implementation",
+    "plain english",
+    "significant supporting work",
+    "do not reproduce the tasks ledger",
+    "derived and non-authoritative",
+    "re-read the current applicable",
+    "must not modify its source artifacts",
+    "if satisfied, run `/speckit.implement`",
+    "if a change is wanted, tell better spec kit what should change",
+    "do not assume what the user dislikes",
+    "do not offer a routing catalogue",
+  ]) {
+    assert.ok(skill.includes(phrase), `Preview skill contract is missing: ${phrase}`);
+  }
+  assert.match(skill, /separate feature-local `implementation-preview\.md`/);
+  assert.doesNotMatch(skill, /append .*implementation-preview.*`brief\.md`/);
+  assert.doesNotMatch(skill, /merge .*implementation-preview.*`summary\.md`/);
+});
+
+test("Preview resolves existing features and regenerates from current sources", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "use an explicitly provided feature directory",
+    "existing spec kit active-feature context",
+    "if no unique feature can be identified, ask",
+    "do not guess from title, recency, or branch name",
+    "do not require `tasks.md`",
+    "re-read the current applicable sources on every invocation",
+    "a saved preview is not evidence that it remains current",
+    "regenerate it from the current sources when invoked",
+    "do not add hashes, version tracking, dependency graphs, or cache invalidation",
+    "materially contradictory",
+    "identify that limitation in plain language",
+  ]) {
+    assert.ok(skill.includes(phrase), `Preview resolution/freshness contract is missing: ${phrase}`);
+  }
+});
+
+test("Analyze recommends optional Preview when useful and preserves direct Implement", () => {
+  const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+  const dogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-analyze/SKILL.md"), "utf8");
+  const readme = fs.readFileSync(path.join(packageRoot, "README.md"), "utf8").toLowerCase();
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const phrase of [
+    "where a human-readable overview would materially help",
+    "`/speckit.preview`",
+    "where the feature is sufficiently simple",
+    "`/speckit.implement`",
+    "preview remains optional",
+    "do not use arbitrary thresholds",
+    "/speckit.remediate",
+    "incomplete analysis",
+  ]) {
+    assert.ok(canonical.includes(phrase), `Analyze Preview handoff is missing: ${phrase}`);
+  }
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8")));
+  assert.ok(readme.includes("analyze may recommend `/speckit.preview`"), "README must describe the optional Preview recommendation");
+  assert.ok(readme.includes("preview remains optional"), "README must keep Preview optional");
+  assert.ok(readme.includes("straightforward proposals"), "README must preserve the direct Implement path for straightforward work");
+});
+
 test("Summary skill is feature-local, evidence-grounded, and non-authoritative", () => {
   const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8").toLowerCase();
 
