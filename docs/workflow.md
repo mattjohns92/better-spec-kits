@@ -6,6 +6,10 @@ The recommended Better Spec Kit workflow is:
 
 Analyze is the normal final pre-implementation gate. It checks that applicable artifacts form coherent instructions and challenges whether material decisions are justified and proportionate. It writes findings to the active feature's `analysis.md` and does not modify upstream artifacts. When blocking findings remain, use their remediation stages and rerun Analyze before implementation normally proceeds. Straightforward features should pass quickly without invented findings.
 
+## Project Status
+
+The independent `/speckit.status` skill gives a read-only project-level overview from existing Feature Briefs, Initiative maps, and lifecycle artifacts. It prioritizes attention, reports evidence and uncertainty, and recommends a next action without invoking it or changing project state. This is separate from `better-spec-kit status`, which reports installation and integration diagnostics.
+
 ## Optional Scope and Quick entry
 
 Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE. It remains optional; direct expert entry is supported.

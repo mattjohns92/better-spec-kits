@@ -11,6 +11,7 @@ export const managedFiles = [
   ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
   ["skills/speckit-summary/SKILL.md", ".github/skills/speckit-summary/SKILL.md"],
   ["skills/speckit-preview/SKILL.md", ".github/skills/speckit-preview/SKILL.md"],
+  ["skills/speckit-status/SKILL.md", ".github/skills/speckit-status/SKILL.md"],
   ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
   ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
   ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],

@@ -645,6 +645,99 @@ test("Preview resolves existing features and regenerates from current sources", 
   }
 });
 
+test("Project Status summarizes Initiatives and resolves focused targets exactly", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "a focused view is optional",
+    "exact feature or initiative id",
+    "resolves uniquely",
+    "never resolve by title, recency, partial id, branch name, or directory order",
+    "read initiative child maps",
+    "include planned child features even when no feature directory exists yet",
+    "initiative records own their existing decomposition and parent-map status",
+    "report a completion count or next child only when the mapped child set and its evidence support that conclusion",
+    "do not create a new dependency plan",
+    "focused view is optional",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Status Initiative/focus contract is missing: ${phrase}`);
+  }
+});
+
+test("Project Status surfaces blockers and uncertainty without changing source artifacts", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "label current completion blockers only where an authoritative artifact says they are required",
+    "explicitly deferred future work is not a current blocker",
+    "do not scan arbitrary implementation files for todo comments",
+    "report duplicate ids and path conflicts",
+    "report parent/child conflicts without changing either source",
+    "do not assume an old directory is abandoned or superseded based on age or inactivity",
+    "unknown or contradictory work",
+    "required manual or supported-agent acceptance is pending, failed, missing, or unverifiable",
+    "do not resolve or reinterpret them",
+    "status reads existing project evidence and returns a report only",
+    "does not create, modify, check off, resolve, repair, or delete project artifacts",
+    "status registry, cache, database, task ledger, or saved report",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Status blocker/uncertainty contract is missing: ${phrase}`);
+  }
+});
+
+test("Project Status skill respects stage outcomes and recommends evidence-based next actions", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "read the explicit outcome and current finding statuses in `analysis.md`",
+    "`findings` with open blocking findings requires the established analyze remediation route",
+    "incomplete analysis",
+    "checked tasks do not prove review pass or completion",
+    "summary is a descriptive as-of account",
+    "existing `review.md` is not proof of pass",
+    "report complete only when current, unambiguous review pass",
+    "required manual or supported-agent acceptance is pending",
+    "if analyze pass is current and implementation is not evidenced, recommend implementation",
+    "if review has open blocking findings, recommend the established review remediation workflow",
+    "recommend a slash-command spelling only when the active integration exposes",
+    "status must not execute the recommended workflow",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Status evidence/recommendation contract is missing: ${phrase}`);
+  }
+});
+
+test("Project Status skill is project-first, evidence-based, and read-only", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit.status",
+    "project-level overview",
+    "without requiring a feature or initiative id",
+    "specs/nnn-<slug>/",
+    "specs/.scope/",
+    "needs attention",
+    "in progress / ready",
+    "planned",
+    "complete",
+    "evidence reference",
+    "no relevant work was found",
+    "read-only invariant",
+    "do not scan arbitrary implementation files for todo comments",
+    "must not execute the recommended workflow",
+    "better-spec-kit status",
+    "installation and integration diagnostics",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Status contract is missing: ${phrase}`);
+  }
+});
+
+test("CLI status remains installation diagnostics rather than project lifecycle status", async () => {
+  const output = await capture(["status", project()]);
+  assert.match(output, /Review skill:/);
+  assert.match(output, /Bug provisioning:/);
+  assert.doesNotMatch(output, /PROJECT STATUS|Feature 0\d\d|Needs Attention/);
+});
+
 test("Analyze recommends optional Preview when useful and preserves direct Implement", () => {
   const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
   const dogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-analyze/SKILL.md"), "utf8");
@@ -964,8 +1057,8 @@ test("Implement routes feedback by materiality and preserves lifecycle ownership
   for (const phrase of [
     "implementation corrections that fail approved behavior are fixed within the current increment",
     "minor in-scope adjustments",
-    "material changes to requirements, design, plan, or task structure",
-    "route to the appropriate existing stage",
+    "when feedback materially changes authoritative requirements, approved design, plan, tasks, architecture, or feature boundary",
+    "identify the existing decision owner only when such feedback actually occurs",
     "significant ui work may influence mode recommendations",
     "future dedicated interactive ui feedback workflow",
     "do not run analyze, converge, review, or summary as per-increment workflows",
@@ -986,4 +1079,128 @@ test("Implement routes feedback by materiality and preserves lifecycle ownership
     normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")),
     "Implement dogfood skill must match the canonical skill",
   );
+});
+
+test("Implement considers UI impact selectively for human feedback checkpoints", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-implement/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const skill = canonical.toLowerCase();
+
+  for (const phrase of [
+    "### significant ui feedback checkpoints",
+    "ui impact `none`",
+    "ui impact `minor`",
+    "ui impact `significant`",
+    "actively consider",
+    "meaningful human-judgement point",
+    "coherent, usable experience",
+    "could reasonably change substantial dependent ui work",
+    "do not use arbitrary numeric thresholds",
+    "file, component, task, line, or story counts",
+    "do not automatically pause after every user story",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement UI checkpoint selection is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
+});
+
+test("Implement presents validated UI checkpoints before dependent work", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-implement/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const skill = canonical.toLowerCase();
+
+  for (const phrase of [
+    "run applicable safe automated validation",
+    "before presenting a ui checkpoint",
+    "report each relevant check as passed, failed, not run, or unavailable",
+    "never claim a check passed unless it actually ran and passed",
+    "do not present a known failing result as successfully validated",
+    "ui checkpoint",
+    "implemented:",
+    "validation:",
+    "if you're happy, tell me to continue.",
+    "if you'd like anything changed, tell me what you'd like changed.",
+    "do not predict what the user may dislike",
+    "pause before substantial ui work that materially depends on the experience under review",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement UI checkpoint contract is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
+});
+
+test("Implement addresses ordinary UI feedback within approved intent", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-implement/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const skill = canonical.toLowerCase();
+
+  for (const phrase of [
+    "accept ordinary visual and interaction feedback in natural language",
+    "remains consistent with approved requirements and design",
+    "smallest suitable adjustment",
+    "run applicable validation",
+    "present the experience again only when another human judgement is useful",
+    "do not create a new formal artifact or trivial task solely to record ordinary ui feedback",
+    "do not route every subjective implementation adjustment back through the complete workflow",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement UI feedback guidance is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
+});
+
+test("Implement routes material UI feedback to existing decision owners", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-implement/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const skill = canonical.toLowerCase();
+
+  for (const phrase of [
+    "feedback materially changes authoritative requirements, approved design, plan, tasks, architecture, or feature boundary",
+    "do not silently absorb it",
+    "stop dependent work",
+    "identify the existing decision owner only when such feedback actually occurs",
+    "approved design remains authoritative",
+    "does not authorize a silent redesign",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement material-feedback ownership is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
+});
+
+test("Implement reuses verification state for UI feedback without inferring approval", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-implement/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const skill = canonical.toLowerCase();
+
+  for (const phrase of [
+    "keep validation state distinct from user-verification state/request",
+    "`continue without` only when the user explicitly chooses to proceed without optional review",
+    "`failed` while a requested correction is outstanding",
+    "after a requested in-scope adjustment is validated",
+    "otherwise use `not needed` and continue",
+    "do not infer user approval",
+    "on a fresh session, reconcile a ui checkpoint against authoritative feature artifacts, tasks, and repository state",
+    "a review response does not change automated validation, task completion, converge, review, or feature-completion status",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement UI resume-state contract is missing: ${phrase}`);
+  }
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
 });

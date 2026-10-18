@@ -18,10 +18,11 @@ function project() {
 test("fresh install preserves constitution and writes metadata", () => {
   const p = project();
   const result = install({ project: p, packageRoot, plan: buildPlan(p, packageRoot), version: "0.4.0" });
-  assert.equal(result.changed, 12);
+  assert.equal(result.changed, 13);
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-review/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-summary/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-preview/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8"));
+  assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-status/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-analyze/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-remediate/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-remediate/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-scope/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8"));
@@ -64,19 +65,22 @@ test("upgrading a pre-Review installation adds the Review skill", () => {
   const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
   const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
   const preview = plan.find((item) => item.destinationRel === ".github/skills/speckit-preview/SKILL.md");
+  const status = plan.find((item) => item.destinationRel === ".github/skills/speckit-status/SKILL.md");
   assert.equal(review.classification, "new");
   assert.equal(summary.classification, "new");
   assert.equal(analyze.classification, "new");
   assert.equal(remediate.classification, "new");
   assert.equal(preview.classification, "new");
+  assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.5.0" });
 
-  assert.equal(result.changed, 8);
+  assert.equal(result.changed, 9);
   assert.equal(fs.readFileSync(path.join(p, review.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, review.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, summary.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, summary.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, analyze.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
+  assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));
   for (const [source, destination] of [
     ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
     ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
@@ -105,6 +109,18 @@ test("upstream Analyze skill requires approval and is backed up before replaceme
   assert.equal(fs.readFileSync(destination, "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
 });
 
+test("Project Status dogfood copy matches the packaged canonical skill", () => {
+  const canonical = path.join(packageRoot, "skills/speckit-status/SKILL.md");
+  const dogfood = path.join(packageRoot, ".github/skills/speckit-status/SKILL.md");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+
+  assert.equal(normalizeLineEndings(fs.readFileSync(dogfood, "utf8")), normalizeLineEndings(fs.readFileSync(canonical, "utf8")));
+  assert.ok(packageFiles.includes("skills"));
+  assert.ok(!packageFiles.includes(".github"));
+  assert.ok(fs.existsSync(canonical));
+});
+
 test("PowerShell and shell installers distribute the canonical Analyze skill", () => {
   const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
   const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
@@ -116,11 +132,13 @@ test("PowerShell and shell installers distribute the canonical Analyze skill", (
   assert.ok(powershellInstaller.includes("Source='skills/speckit-review/SKILL.md'; Destination='.github/skills/speckit-review/SKILL.md'"));
   assert.ok(powershellInstaller.includes("Source='skills/speckit-summary/SKILL.md'; Destination='.github/skills/speckit-summary/SKILL.md'"));
   assert.ok(powershellInstaller.includes("Source='skills/speckit-preview/SKILL.md'; Destination='.github/skills/speckit-preview/SKILL.md'"));
+  assert.ok(powershellInstaller.includes("Source='skills/speckit-status/SKILL.md'; Destination='.github/skills/speckit-status/SKILL.md'"));
   assert.ok(shellInstaller.includes('".github/skills/speckit-analyze/SKILL.md"'));
   assert.ok(shellInstaller.includes('".github/skills/speckit-remediate/SKILL.md"'));
   assert.ok(shellInstaller.includes('".github/skills/speckit-review/SKILL.md"'));
   assert.ok(shellInstaller.includes('".github/skills/speckit-summary/SKILL.md"'));
   assert.ok(shellInstaller.includes('".github/skills/speckit-preview/SKILL.md"'));
+  assert.ok(shellInstaller.includes('".github/skills/speckit-status/SKILL.md"'));
   assert.ok(powershellInstaller.includes("$customConflicts.Count -gt 0 -and -not $Force"));
   assert.ok(shellInstaller.includes('"$FORCE" != "1"'));
   assert.ok(powershellInstaller.includes("(Get-Content (Join-Path $RepoRoot 'VERSION') -Raw).Trim()"));
@@ -135,7 +153,20 @@ test("PowerShell and shell installers distribute the canonical Analyze skill", (
   assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-review/SKILL.md")));
   assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md")));
   assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md")));
+  assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-status/SKILL.md")));
   assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-remediate/SKILL.md")));
+});
+
+test("Implement remains in standalone installer and npm package distribution", () => {
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+
+  assert.ok(powershellInstaller.includes("Source='skills/speckit-implement/SKILL.md'; Destination='.github/skills/speckit-implement/SKILL.md'"));
+  assert.ok(shellInstaller.includes('".github/skills/speckit-implement/SKILL.md"'));
+  assert.ok(packageFiles.includes("skills"));
+  assert.ok(!packageFiles.includes(".github"));
+  assert.ok(fs.existsSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md")));
 });
 
 test("standalone installers call the shared Bug provisioner best-effort", () => {
@@ -189,13 +220,16 @@ test("updating an installed project detects the new Remediate skill", () => {
   const plan = buildPlan(p, packageRoot);
   const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
   const preview = plan.find((item) => item.destinationRel === ".github/skills/speckit-preview/SKILL.md");
+  const status = plan.find((item) => item.destinationRel === ".github/skills/speckit-status/SKILL.md");
   assert.equal(remediate.classification, "new");
   assert.equal(preview.classification, "new");
+  assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.6.0" });
 
-  assert.equal(result.changed, 6);
+  assert.equal(result.changed, 7);
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
+  assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));
   assert.equal(fs.existsSync(path.join(p, ".github/skills/speckit-scope/SKILL.md")), true);
   assert.equal(fs.existsSync(path.join(p, ".github/skills/speckit-quick/SKILL.md")), true);
   assert.equal(fs.existsSync(path.join(p, ".github/instructions/scope-handoffs.instructions.md")), true);
@@ -261,6 +295,25 @@ test("customized Preview skill requires approval and is backed up", () => {
   assert.ok(result.backupRoot);
   assert.equal(fs.readFileSync(path.join(result.backupRoot, ".github/skills/speckit-preview/SKILL.md"), "utf8"), customized);
   assert.equal(fs.readFileSync(destination, "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8"));
+});
+
+test("customized Project Status skill requires approval and is backed up", () => {
+  const p = project();
+  const destination = path.join(p, ".github/skills/speckit-status/SKILL.md");
+  const customized = "Local Project Status workflow";
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.writeFileSync(destination, customized);
+
+  const plan = buildPlan(p, packageRoot);
+  const status = plan.find((item) => item.destinationRel === ".github/skills/speckit-status/SKILL.md");
+  assert.equal(status.classification, "custom");
+  assert.throws(() => install({ project: p, packageRoot, plan, version: "0.5.13" }), /approval/);
+  assert.equal(fs.readFileSync(destination, "utf8"), customized);
+
+  const result = install({ project: p, packageRoot, plan, version: "0.5.13", allowCustom: true });
+  assert.ok(result.backupRoot);
+  assert.equal(fs.readFileSync(path.join(result.backupRoot, ".github/skills/speckit-status/SKILL.md"), "utf8"), customized);
+  assert.equal(fs.readFileSync(destination, "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8"));
 });
 
 test("customized Summary skill requires approval and is backed up", () => {

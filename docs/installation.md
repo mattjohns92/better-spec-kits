@@ -40,6 +40,8 @@ better-spec-kit
 
 The CLI previews managed-file changes, including the Analyze and Remediate skills as `ADD` for projects that do not have them. Fresh installs and updates distribute the canonical skills to `.github/skills/` through the existing managed-skill process; Remediate is installed at `.github/skills/speckit-remediate/SKILL.md`. Bootstrap PowerShell and shell installers include Remediate as well. `status` distinguishes missing, installed, or differing Analyze and Remediate skills, and `doctor` flags a missing skill or one that needs review.
 
+The independent Project Status skill is distributed through the same managed and standalone skill installation paths. It reports feature and Initiative lifecycle evidence; `better-spec-kit status` remains limited to installation, integration, and provisioning diagnostics.
+
 The installer preserves the existing constitution by default, backs up replaced files outside the target repository, and requires explicit approval for customized or unknown managed files. An existing upstream Analyze skill at the shared path is treated as a conflict; review the preview and approve replacement explicitly to retain its backup.
 
 ## Upstream Bug extension

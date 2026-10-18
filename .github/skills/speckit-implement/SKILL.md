@@ -197,6 +197,39 @@ At each checkpoint, concisely state the delivered behavior, outcome satisfied, v
 
 Request user verification only when it materially reduces uncertainty or depends on the user's domain knowledge or environment. When that verification is needed before dependent work, state the specific check and pause; allow the user to approve, report a problem, request an in-scope adjustment, or continue without optional verification.
 
+### Significant UI Feedback Checkpoints
+
+Use the existing UI impact classification as context, not as a deterministic checkpoint rule:
+
+- UI impact `NONE`: do not introduce UI checkpoint behavior.
+- UI impact `MINOR`: normally continue autonomously unless the actual implementation creates a meaningful human-judgement point that could change substantial dependent UI work.
+- UI impact `SIGNIFICANT`: actively consider a checkpoint after a coherent, usable experience is available when feedback could reasonably change substantial dependent UI work. Do not pause automatically.
+
+Use the fewest checkpoints that provide meaningful value. Do not use arbitrary numeric thresholds based on file, component, task, line, or story counts, and do not equate a user story with a checkpoint. A completed file or component alone is not a reviewable experience. Do not automatically pause after every user story or solely because the feature is classified SIGNIFICANT.
+
+Before presenting a UI checkpoint, run applicable safe automated validation for the current outcome where practical. Report each relevant check as passed, failed, not run, or unavailable based on actual evidence. Never claim a check passed unless it actually ran and passed. Do not present a known failing result as successfully validated; correct and revalidate where practical, or report the blocker. A checkpoint with an unavailable or unrun check is appropriate only when the experience remains safe and meaningful to inspect, and the limitation is explicit.
+
+Keep the checkpoint concise and describe the coherent experience rather than files or task IDs:
+
+```text
+UI CHECKPOINT
+
+Implemented:
+- <coherent usable experience or outcome>
+
+Validation:
+- <check and actual result, including any limitation>
+
+This is a useful point to review the implemented experience before I continue.
+
+If you're happy, tell me to continue.
+If you'd like anything changed, tell me what you'd like changed.
+```
+
+Do not predict what the user may dislike, list speculative feedback, explain the entire workflow, require formal approval language, or ask the user to identify which artifact owns feedback. Pause before substantial UI work that materially depends on the experience under review.
+
+Accept ordinary visual and interaction feedback in natural language. When it remains consistent with approved requirements and Design, make the smallest suitable adjustment, run applicable validation, and report the actual result. Present the experience again only when another human judgement is useful; otherwise continue without an artificial approval gate. Do not create a new formal artifact or trivial task solely to record ordinary UI feedback, and do not route every subjective implementation adjustment back through the complete workflow.
+
 ### Durable Resume State
 
 When mode or checkpoint progress must survive a pause, maintain one Implement-owned `## Implement State` block in the active feature's `tasks.md`. It is current-state metadata, not another task ledger or checkpoint history; task checkboxes remain the sole task-completion truth.
@@ -216,11 +249,15 @@ On a fresh session, read the state block, task checkboxes, and current implement
 
 If Tasks regenerates the ledger, use the preserved state block as input to reconciliation, not as authority over changed task definitions. Resolve stale references against current tasks before resuming.
 
+For UI feedback, keep validation state distinct from user-verification state/request. Use `PENDING` while awaiting the user's review, `APPROVED` when the user is satisfied, `FAILED` while a requested correction is outstanding, and `CONTINUE WITHOUT` only when the user explicitly chooses to proceed without optional review. After a requested in-scope adjustment is validated, use `PENDING` if another human judgement is useful; otherwise use `NOT NEEDED` and continue. The agent's decision not to add another checkpoint is not a user opt-out.
+
+On a fresh session, reconcile a UI checkpoint against authoritative feature artifacts, tasks, and repository state. Do not infer user approval from missing conversation context. A review response does not change automated validation, task completion, Converge, Review, or feature-completion status.
+
 ### Feedback and Lifecycle Ownership
 
 Implementation corrections that fail approved behavior are fixed within the current increment and revalidated before dependent work proceeds. Minor in-scope adjustments remain within approved decisions and are validated without creating a new workflow or acceptance artifact.
 
-Material changes to requirements, design, plan, or task structure route to the appropriate existing stage before dependent implementation continues. Significant UI work may influence mode recommendations or suggested user inspection, but do not add the future dedicated interactive UI feedback workflow.
+When feedback materially changes authoritative requirements, approved Design, Plan, Tasks, architecture, or feature boundary, do not silently absorb it or begin dependent work. Stop dependent work and identify the existing decision owner only when such feedback actually occurs. Approved Design remains authoritative for the intended experience; implementation feedback does not authorize a silent redesign. Significant UI work may influence mode recommendations or suggested user inspection, but do not add the future dedicated interactive UI feedback workflow.
 
 Do not run Analyze, Converge, Review, or Summary as per-increment workflows or create per-increment Review/Summary artifacts. After all approved work is complete, retain feature-level Converge, independent Review, and the existing post-Review Summary handoff.
 
