@@ -193,9 +193,11 @@ If an explicitly established active-feature mode or applicable preference exists
 
 Complete only the current agreed increment, then run focused validation appropriate to the increment. Report the actual commands and results. Do not begin later work that materially depends on an unresolved checkpoint.
 
-At each checkpoint, concisely state the delivered behavior, outcome satisfied, validation actually performed, any specific suggested user verification, remaining work, and expected next increment. Do not require manual user approval when automated evidence is sufficient; report the checkpoint and continue.
+At each checkpoint, concisely state the delivered behavior, outcome satisfied, validation actually performed, any specific suggested user verification, remaining work, and expected next increment.
 
-Request user verification only when it materially reduces uncertainty or depends on the user's domain knowledge or environment. When that verification is needed before dependent work, state the specific check and pause; allow the user to approve, report a problem, request an in-scope adjustment, or continue without optional verification.
+Every `INCREMENTAL` checkpoint pauses, even when automated evidence is sufficient: the user's choice of `INCREMENTAL` is their request to review each increment. After reporting the checkpoint, set user verification to `PENDING` in `## Implement State`, then end your response. Do not start the next increment, or any later task, in the same response. A UI checkpoint never removes an increment pause.
+
+Suggest a specific user verification only when it materially reduces uncertainty or depends on the user's domain knowledge or environment. Close every checkpoint by telling the user they can continue, report a problem, request an in-scope adjustment, continue without the suggested verification, or switch the remaining work to `CONTINUOUS`. On "continue", record `APPROVED` (or `CONTINUE WITHOUT` when they skip a suggested check) and start the next increment. On a switch, record `CONTINUOUS` and finish the remaining work without further checkpoints.
 
 ### Significant UI Feedback Checkpoints
 
@@ -262,7 +264,7 @@ When feedback materially changes authoritative requirements, approved Design, Pl
 Do not run Analyze, Converge, Review, or Summary as per-increment workflows or create per-increment Review/Summary artifacts. After all approved work is complete, retain feature-level Converge, independent Review, and the existing post-Review Summary handoff.
 
 6. Execute implementation following the task plan:
-   - **Phase-by-phase execution**: Complete each phase before moving to the next
+   - **Phase-by-phase execution**: Complete each phase before moving to the next; in `INCREMENTAL` mode, stop at each increment checkpoint and wait for the user's reply
    - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
@@ -383,7 +385,7 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Report final status with summary of completed work. When all implementation tasks and required validation succeed, recommend `/speckit.converge` and explain that Converge checks implementation completeness against the feature artifacts. If work remains blocked or incomplete, report the remaining task and next implementation action instead; do not describe the feature as complete.
+Report final status with summary of completed work. When paused at an `INCREMENTAL` checkpoint, the checkpoint is the report: skip post-execution hooks and do not describe the feature as complete. When all implementation tasks and required validation succeed, recommend `/speckit.converge` and explain that Converge checks implementation completeness against the feature artifacts. If work remains blocked or incomplete, report the remaining task and next implementation action instead; do not describe the feature as complete.
 
 ## Done When
 

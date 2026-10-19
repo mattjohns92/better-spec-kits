@@ -46,7 +46,7 @@ Checks applicable requirements, clarification decisions, design, plan, tasks, co
 
 Re-inspects relevant code before each task, preserves authoritative design decisions, implements the smallest maintainable change, and validates behavior.
 
-Adaptive execution happens inside Implement. It may use continuous work for cohesive changes or meaningful increments with focused validation and concise checkpoints; checkpoints do not replace feature-level Converge, Review, or Summary.
+Adaptive execution happens inside Implement. It may use continuous work for cohesive changes or meaningful increments with focused validation and concise checkpoints that pause for the user's response; checkpoints do not replace feature-level Converge, Review, or Summary.
 
 ## Converge (Upstream)
 

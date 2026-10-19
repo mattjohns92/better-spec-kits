@@ -996,10 +996,15 @@ test("Implement validates meaningful increments and reports concise checkpoints"
     "suggested user verification",
     "remaining work",
     "expected next increment",
-    "do not require manual user approval when automated evidence is sufficient",
+    "every `incremental` checkpoint pauses",
+    "end your response",
+    "even when automated evidence is sufficient",
+    "switch the remaining work to `continuous`",
   ]) {
     assert.ok(canonical.includes(phrase), `Implement checkpoint guidance is missing: ${phrase}`);
   }
+
+  assert.ok(!canonical.includes("report the checkpoint and continue"), "INCREMENTAL checkpoints must not auto-continue");
 
   const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
   assert.equal(
