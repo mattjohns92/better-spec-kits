@@ -340,7 +340,6 @@ test("Clarify canonical and dogfood skills match", () => {
 test("Clarify keeps deferred recommendations out of scope and discovers them contextually", () => {
   const clarify = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8").toLowerCase();
   const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
-  const dataModel = fs.readFileSync(path.join(packageRoot, "specs/019-scope-preservation-decision-driven-clarification/data-model.md"), "utf8").toLowerCase();
 
   for (const phrase of [
     "recommendation becomes approved scope only after explicit acceptance",
@@ -353,11 +352,11 @@ test("Clarify keeps deferred recommendations out of scope and discovers them con
   for (const phrase of ["deferred-recommendations.md", "relevant", "active", "never auto-add"]) {
     assert.ok(scope.includes(phrase), `Scope deferred recommendation discovery is missing: ${phrase}`);
   }
-  for (const phrase of ["title", "area", "discovered in", "recommendation", "why valuable", "deferred because", "no longer relevant"]) {
-    assert.ok(dataModel.includes(phrase), `Deferred recommendation record field is missing: ${phrase}`);
+  for (const phrase of ["short title", "area", "originating feature/context", "recommendation", "why valuable", "why deferred", "no longer relevant"]) {
+    assert.ok(clarify.includes(phrase), `Deferred recommendation record field is missing from the packaged Clarify contract: ${phrase}`);
   }
-  for (const phrase of ["priority", "estimate", "deadline", "sprint", "roadmap"]) {
-    assert.ok(dataModel.includes(phrase), `Deferred recommendation model must explicitly exclude: ${phrase}`);
+  for (const phrase of ["do not add priorities, estimates, owners, deadlines, schedules, scores, or implementation tasks"]) {
+    assert.ok(clarify.includes(phrase), `Deferred recommendation contract must explicitly exclude: ${phrase}`);
   }
 });
 
