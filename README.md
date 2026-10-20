@@ -60,6 +60,8 @@ better-spec-kit status ../my-project
 
 The independent Project Status skill provides a read-only, project-level view of feature and Initiative work from existing artifacts, including evidence gaps, blockers, and recommended next actions. It does not execute workflows or change lifecycle state. It is separate from the `better-spec-kit status` CLI command, which reports installation, integration, and provisioning state.
 
+Project Query (`/speckit.query <question>`) is a separate read-only project utility for answering specific natural-language questions from current repository evidence. It responds in chat and does not change project files or lifecycle state.
+
 ## Safety
 
 Better Spec Kit is designed to upgrade an existing Spec Kit project in place.

@@ -90,6 +90,7 @@ $files = @(
     @{ Source='skills/speckit-summary/SKILL.md'; Destination='.github/skills/speckit-summary/SKILL.md' },
     @{ Source='skills/speckit-preview/SKILL.md'; Destination='.github/skills/speckit-preview/SKILL.md' },
     @{ Source='skills/speckit-status/SKILL.md'; Destination='.github/skills/speckit-status/SKILL.md' },
+    @{ Source='skills/speckit-query/SKILL.md'; Destination='.github/skills/speckit-query/SKILL.md' },
     @{ Source='skills/speckit-scope/SKILL.md'; Destination='.github/skills/speckit-scope/SKILL.md' },
     @{ Source='skills/speckit-quick/SKILL.md'; Destination='.github/skills/speckit-quick/SKILL.md' },
     @{ Source='instructions/scope-handoffs.instructions.md'; Destination='.github/instructions/scope-handoffs.instructions.md' }

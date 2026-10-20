@@ -10,6 +10,10 @@ Analyze is the normal final pre-implementation gate. It checks that applicable a
 
 The independent `/speckit.status` skill gives a read-only project-level overview from existing Feature Briefs, Initiative maps, and lifecycle artifacts. It prioritizes attention, reports evidence and uncertainty, and recommends a next action without invoking it or changing project state. This is separate from `better-spec-kit status`, which reports installation and integration diagnostics.
 
+## Project Query
+
+The independent `/speckit.query <question>` utility answers a specific natural-language question by inspecting current project evidence. It responds in chat without changing project state. Query is question-focused; Project Status remains the lifecycle-focused overview of feature and Initiative progress.
+
 ## Optional Scope and Quick entry
 
 Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE. It remains optional; direct expert entry is supported.

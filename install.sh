@@ -7,7 +7,7 @@ INSTALL_CONSTITUTION="${INSTALL_CONSTITUTION:-0}"
 SPECKIT_INITIALIZED=0
 [[ -d "$TARGET/.specify" ]] && SPECKIT_INITIALIZED=1
 [[ -d "$TARGET" ]] || { echo "Target project does not exist: $TARGET" >&2; exit 1; }
-files=(".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-analyze/SKILL.md" ".github/skills/speckit-remediate/SKILL.md" ".github/skills/speckit-implement/SKILL.md" ".github/skills/speckit-review/SKILL.md" ".github/skills/speckit-summary/SKILL.md" ".github/skills/speckit-preview/SKILL.md" ".github/skills/speckit-status/SKILL.md" ".github/skills/speckit-scope/SKILL.md" ".github/skills/speckit-quick/SKILL.md" ".github/instructions/scope-handoffs.instructions.md")
+files=(".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-analyze/SKILL.md" ".github/skills/speckit-remediate/SKILL.md" ".github/skills/speckit-implement/SKILL.md" ".github/skills/speckit-review/SKILL.md" ".github/skills/speckit-summary/SKILL.md" ".github/skills/speckit-preview/SKILL.md" ".github/skills/speckit-status/SKILL.md" ".github/skills/speckit-query/SKILL.md" ".github/skills/speckit-scope/SKILL.md" ".github/skills/speckit-quick/SKILL.md" ".github/instructions/scope-handoffs.instructions.md")
 if [[ "$INSTALL_CONSTITUTION" == "1" ]]; then files+=(".specify/memory/constitution.md"); fi
 source_for_destination() {
   case "$1" in

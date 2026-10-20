@@ -131,6 +131,24 @@ For material decisions, consider:
 9. Is custom functionality duplicating an adequate project, platform, or established dependency capability?
 10. Is the benefit sufficient to justify the added complexity?
 
+#### Material Change Areas and Causal Cascades
+
+Before concluding that a proposal is proportionate, identify the material change areas when needed to reason about its breadth. Examples include feature-local behavior, shared infrastructure, persistence, existing consumers, or deployment configuration. These are examples, not a mandatory subsystem matrix or inventory of every file.
+
+Establish why each material area needs to change using the agreed outcome, an explicit requirement or decision, an existing project constraint, relevant repository evidence, or a demonstrated technical need. Do not require every supporting task to be directly named in the original request.
+
+When several planned changes appear to follow from an earlier architectural, shared-infrastructure, or implementation choice, trace the material cascade to its originating decision. Do not treat downstream work as independently necessary merely because it follows from that decision. Ask:
+
+- What decision caused this implementation breadth?
+- Is that originating decision itself necessary to achieve the agreed outcome?
+- If it were replaced with a simpler or more local approach, could the outcome remain satisfied while removing meaningful consequential work?
+
+This qualitative **cascade-collapse test** is a reasoning aid, not a score. If a simpler or more local approach could preserve the outcome and remove meaningful consequential work, investigate the originating decision using the existing classifications and finding routes. Prefer challenging the earliest questionable decision over creating separate findings for each dependent symptom; report downstream issues separately when they are independently material.
+
+If repository evidence demonstrates that replacing the decision would not satisfy the outcome or a relevant constraint, retain the broader work as necessary complexity and record concise supporting evidence. Do not favor the smallest change surface when broader work is justified.
+
+Material change areas are an analysis aid, not a mandatory report. Do not require a complete material-change inventory in routine output; surface only the evidence needed to explain a finding, justify retained complexity, support a user decision, or communicate a meaningful outcome.
+
 Classify material complexity by its current evidence:
 
 - **Necessary complexity** is required by the agreed outcome or demonstrated system constraints. Keep it and record concise evidence in Analysis Context: the originating requirement or decision, the relevant constraint or project evidence, and why a simpler approach would not satisfy the outcome.

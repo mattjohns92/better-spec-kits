@@ -88,6 +88,70 @@ test("Remediate dogfood skill matches the canonical skill", () => {
   assert.equal(normalizeLineEndings(fs.readFileSync(dogfoodPath, "utf8")), normalizeLineEndings(fs.readFileSync(canonicalPath, "utf8")));
 });
 
+test("Project Query skill investigates natural-language questions and cites evidence", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-query/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit.query <question>",
+    "ordinary natural language",
+    "inspect the current project before answering",
+    "follow relevant evidence far enough",
+    "synthesize evidence into an answer",
+    "concise references",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Query skill is missing: ${phrase}`);
+  }
+});
+
+test("Project Query distinguishes evidence types and reports uncertainty", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-query/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "documentation",
+    "authoritative project contract",
+    "implementation evidence",
+    "test exists",
+    "do not claim a test currently passes",
+    "supported-agent runtime acceptance",
+    "contradict",
+    "partially",
+    "not established",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Query evidence guidance is missing: ${phrase}`);
+  }
+});
+
+test("Project Query answers in chat without changing project state or starting workflows", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-query/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "return the answer in chat only",
+    "must not create or modify any project file",
+    "persistent state",
+    "must not fix discovered problems",
+    "must not create remediation work",
+    "must not automatically invoke",
+    "scope, analyze, review, status",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Query read-only guidance is missing: ${phrase}`);
+  }
+});
+
+test("Project Query supports contextual follow-ups and proportionate clarification", () => {
+  const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-query/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "follow-up questions",
+    "conversation context",
+    "inspect the project before asking for clarification",
+    "smallest useful clarification",
+    "proportional to the question",
+    "large fixed response template",
+  ]) {
+    assert.ok(skill.includes(phrase), `Project Query conversation guidance is missing: ${phrase}`);
+  }
+});
+
 test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
   const skill = (name) => fs.readFileSync(path.join(packageRoot, `skills/speckit-${name}/SKILL.md`), "utf8").toLowerCase();
   const analyze = skill("analyze");
@@ -120,6 +184,34 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
     const dogfoodPath = path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`);
     const dogfood = fs.readFileSync(dogfoodPath, "utf8").toLowerCase();
     assert.ok(dogfood.includes(phrase), `Dogfood ${name} skill is missing: ${phrase}`);
+  }
+});
+
+test("Analyze proportionality accounts for material areas and traces change cascades", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-analyze/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-analyze/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Analyze dogfood skill must match the canonical skill");
+
+  const analyze = canonical.toLowerCase();
+  for (const phrase of [
+    "material change areas",
+    "why each material area needs to change",
+    "originating decision",
+    "what decision caused this implementation breadth?",
+    "cascade-collapse test",
+    "removing meaningful consequential work",
+    "earliest questionable decision",
+    "do not require a complete material-change inventory",
+    "do not use file, line, task, service, component, or complexity-score thresholds",
+    "pass",
+    "findings",
+    "incomplete analysis",
+    "analysis.md",
+  ]) {
+    assert.ok(analyze.includes(phrase), `Analyze proportionality guidance is missing: ${phrase}`);
   }
 });
 
@@ -351,6 +443,11 @@ test("doctor reports missing Scope and Quick managed assets", async () => {
   assert.match(output, /Scope skill is missing/);
   assert.match(output, /Quick skill is missing/);
   assert.match(output, /Scope handoff instruction is missing/);
+});
+
+test("Query remains separate from CLI status and doctor diagnostics", async () => {
+  const output = `${await capture(["status", project()])}\n${await capture(["doctor", project()])}`;
+  assert.doesNotMatch(output, /speckit-query|Query skill|Project Query/i);
 });
 
 test("workflow and installation docs explain Scope entry and upstream Bug provisioning", () => {
