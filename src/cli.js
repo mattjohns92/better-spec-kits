@@ -60,11 +60,13 @@ export async function run(args) {
     const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
     const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
     const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
+    const clarify = plan.find((item) => item.destinationRel === ".github/skills/speckit-clarify/SKILL.md");
     const integrations = integrationStatus();
     const bug = inspectBug({ project });
     console.log(`  Review skill: ${review?.classification === "new" ? "missing" : "installed"}`);
     console.log(`  Analyze skill: ${analyze?.classification === "new" ? "missing" : analyze?.classification === "custom" ? "needs review" : "installed"}`);
     console.log(`  Remediate skill: ${remediate?.classification === "new" ? "missing" : remediate?.classification === "custom" ? "needs review" : "installed"}`);
+    console.log(`  Clarify skill: ${managedState(plan, ".github/skills/speckit-clarify/SKILL.md")}`);
     console.log(`  Scope skill: ${managedState(plan, ".github/skills/speckit-scope/SKILL.md")}`);
     console.log(`  Quick skill: ${managedState(plan, ".github/skills/speckit-quick/SKILL.md")}`);
     console.log(`  Scope handoff instruction: ${managedState(plan, ".github/instructions/scope-handoffs.instructions.md")}`);
@@ -84,6 +86,7 @@ export async function run(args) {
     const review = plan.find((item) => item.destinationRel === ".github/skills/speckit-review/SKILL.md");
     const analyze = plan.find((item) => item.destinationRel === ".github/skills/speckit-analyze/SKILL.md");
     const remediate = plan.find((item) => item.destinationRel === ".github/skills/speckit-remediate/SKILL.md");
+    const clarify = plan.find((item) => item.destinationRel === ".github/skills/speckit-clarify/SKILL.md");
     const scope = plan.find((item) => item.destinationRel === ".github/skills/speckit-scope/SKILL.md");
     const quick = plan.find((item) => item.destinationRel === ".github/skills/speckit-quick/SKILL.md");
     const handoff = plan.find((item) => item.destinationRel === ".github/instructions/scope-handoffs.instructions.md");
@@ -106,6 +109,14 @@ export async function run(args) {
     }
     if (detected.betterSpecKit && remediate?.classification === "custom") {
       console.log("  ! Remediate skill needs manual review before replacement.");
+      problems++;
+    }
+    if (detected.betterSpecKit && clarify?.classification === "new") {
+      console.log("  ! Clarify skill is missing; run 'better-spec-kit update'.");
+      problems++;
+    }
+    if (detected.betterSpecKit && clarify?.classification === "custom") {
+      console.log("  ! Clarify skill needs manual review before replacement.");
       problems++;
     }
     if (detected.betterSpecKit && scope?.classification === "new") {

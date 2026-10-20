@@ -80,6 +80,14 @@ If it is successfully used, report:
 
 The project constitution and feature specification take precedence over generic UI/UX recommendations.
 
+Design may resolve interaction details within the approved outcome, but it
+MUST NOT introduce material product behavior or broaden the user workflow
+beyond the original request, explicit decisions, or necessary consequences.
+Do not treat a requirement's presence in `spec.md` alone as proof that its
+scope was approved. If a proposed design needs an unsupported material behavior,
+stop and return it to Specify/Clarify rather than recording it as a settled
+design decision.
+
 ## Step 1 — Determine UI Impact
 
 Classify the feature:

@@ -18,7 +18,7 @@ function project() {
 test("fresh install preserves constitution and writes metadata", () => {
   const p = project();
   const result = install({ project: p, packageRoot, plan: buildPlan(p, packageRoot), version: "0.4.0" });
-  assert.equal(result.changed, 14);
+  assert.equal(result.changed, 16);
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-review/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-summary/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-preview/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8"));
@@ -33,6 +33,124 @@ test("fresh install preserves constitution and writes metadata", () => {
   );
   assert.equal(fs.readFileSync(path.join(p, ".specify/memory/constitution.md"), "utf8"), "custom constitution");
   assert.equal(JSON.parse(fs.readFileSync(path.join(p, ".specify/better-spec-kit.json"), "utf8")).version, "0.4.0");
+});
+
+test("Clarify install distinguishes absent, current, upstream, and customized files", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-clarify/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const destinationRel = ".github/skills/speckit-clarify/SKILL.md";
+  const freshProject = project();
+  const freshEntry = buildPlan(freshProject, packageRoot).find((item) => item.destinationRel === destinationRel);
+
+  assert.equal(freshEntry?.sourceRel, "skills/speckit-clarify/SKILL.md");
+  assert.equal(freshEntry?.classification, "new");
+  install({ project: freshProject, packageRoot, plan: buildPlan(freshProject, packageRoot), version: "0.5.17" });
+  assert.equal(fs.readFileSync(path.join(freshProject, destinationRel), "utf8"), canonical);
+  assert.equal(buildPlan(freshProject, packageRoot).find((item) => item.destinationRel === destinationRel)?.classification, "current");
+
+  const upstreamProject = project();
+  const upstreamDestination = path.join(upstreamProject, destinationRel);
+  const upstreamDefault = "Upstream Spec Kit Clarify\nFixed question limit; Better Spec Kit compatibility note.";
+  fs.mkdirSync(path.dirname(upstreamDestination), { recursive: true });
+  fs.writeFileSync(upstreamDestination, upstreamDefault);
+  const upstreamEntry = buildPlan(upstreamProject, packageRoot).find((item) => item.destinationRel === destinationRel);
+  assert.equal(upstreamEntry?.classification, "custom");
+  assert.throws(() => install({ project: upstreamProject, packageRoot, plan: buildPlan(upstreamProject, packageRoot), version: "0.5.17" }), /approval/);
+  assert.equal(fs.readFileSync(upstreamDestination, "utf8"), upstreamDefault);
+  const upstreamResult = install({ project: upstreamProject, packageRoot, plan: buildPlan(upstreamProject, packageRoot), version: "0.5.17", allowCustom: true });
+  assert.ok(upstreamResult.backupRoot);
+  assert.equal(fs.readFileSync(path.join(upstreamResult.backupRoot, destinationRel), "utf8"), upstreamDefault);
+
+  const customizedProject = project();
+  const customizedDestination = path.join(customizedProject, destinationRel);
+  const customized = `${canonical}\nLocal Clarify customization`;
+  fs.mkdirSync(path.dirname(customizedDestination), { recursive: true });
+  fs.writeFileSync(customizedDestination, customized);
+  assert.equal(buildPlan(customizedProject, packageRoot).find((item) => item.destinationRel === destinationRel)?.classification, "custom");
+  assert.throws(() => install({ project: customizedProject, packageRoot, plan: buildPlan(customizedProject, packageRoot), version: "0.5.17" }), /approval/);
+  const customizedResult = install({ project: customizedProject, packageRoot, plan: buildPlan(customizedProject, packageRoot), version: "0.5.17", allowCustom: true });
+  assert.ok(customizedResult.backupRoot);
+  assert.equal(fs.readFileSync(path.join(customizedResult.backupRoot, destinationRel), "utf8"), customized);
+  assert.equal(fs.readFileSync(customizedDestination, "utf8"), canonical);
+
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+  assert.ok(packageFiles.includes("skills"));
+  assert.ok(!packageFiles.includes(".github"));
+  assert.ok(powershellInstaller.includes("Source='skills/speckit-clarify/SKILL.md'; Destination='.github/skills/speckit-clarify/SKILL.md'"));
+  assert.ok(shellInstaller.includes('".github/skills/speckit-clarify/SKILL.md"'));
+  assert.equal(fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-clarify/SKILL.md"), "utf8"), canonical);
+});
+
+test("Specify scope instruction is managed, packaged, and protected when customized", () => {
+  const sourceRel = "instructions/speckit-specify-scope.instructions.md";
+  const destinationRel = ".github/instructions/speckit-specify-scope.instructions.md";
+  const source = path.join(packageRoot, sourceRel);
+  const canonical = fs.readFileSync(source, "utf8");
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+
+  const freshProject = project();
+  const freshEntry = buildPlan(freshProject, packageRoot).find((item) => item.destinationRel === destinationRel);
+  assert.equal(freshEntry?.sourceRel, sourceRel);
+  assert.equal(freshEntry?.classification, "new");
+  install({ project: freshProject, packageRoot, plan: buildPlan(freshProject, packageRoot), version: "0.5.17" });
+  assert.equal(fs.readFileSync(path.join(freshProject, destinationRel), "utf8"), canonical);
+
+  const customizedProject = project();
+  const customizedDestination = path.join(customizedProject, destinationRel);
+  const upstream = "Upstream instruction mentioning Better Spec Kit compatibility.";
+  fs.mkdirSync(path.dirname(customizedDestination), { recursive: true });
+  fs.writeFileSync(customizedDestination, upstream);
+  assert.equal(buildPlan(customizedProject, packageRoot).find((item) => item.destinationRel === destinationRel)?.classification, "custom");
+  assert.throws(() => install({ project: customizedProject, packageRoot, plan: buildPlan(customizedProject, packageRoot), version: "0.5.17" }), /approval/);
+  assert.equal(fs.readFileSync(customizedDestination, "utf8"), upstream);
+  const result = install({ project: customizedProject, packageRoot, plan: buildPlan(customizedProject, packageRoot), version: "0.5.17", allowCustom: true });
+  assert.ok(result.backupRoot);
+  assert.equal(fs.readFileSync(path.join(result.backupRoot, destinationRel), "utf8"), upstream);
+  assert.equal(fs.readFileSync(customizedDestination, "utf8"), canonical);
+
+  assert.ok(packageFiles.includes("instructions"));
+  assert.ok(!packageFiles.includes(".github"));
+  assert.ok(powershellInstaller.includes("Source='instructions/speckit-specify-scope.instructions.md'; Destination='.github/instructions/speckit-specify-scope.instructions.md'"));
+  assert.ok(shellInstaller.includes('".github/instructions/speckit-specify-scope.instructions.md"'));
+});
+
+test("PowerShell installer treats upstream Specify instruction with Better Spec Kit wording as custom", { skip: process.platform !== "win32" }, () => {
+  const p = project();
+  const localAppData = fs.mkdtempSync(path.join(os.tmpdir(), "bsk-localappdata-"));
+  const destination = path.join(p, ".github/instructions/speckit-specify-scope.instructions.md");
+  const upstream = "Upstream project instruction mentioning Better Spec Kit conventions.";
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.writeFileSync(destination, upstream);
+
+  const invokeInstaller = (args) =>
+    spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", path.join(packageRoot, "install.ps1"), "-TargetPath", p, "-NonInteractive", ...args], {
+      encoding: "utf8",
+      env: { ...process.env, LOCALAPPDATA: localAppData },
+    });
+
+  try {
+    const denied = invokeInstaller([]);
+    assert.notEqual(denied.status, 0, `${denied.stdout}\n${denied.stderr}`);
+    assert.match(`${denied.stdout}\n${denied.stderr}`, /Customised\/unknown files would change/);
+    assert.equal(fs.readFileSync(destination, "utf8"), upstream);
+
+    const approved = invokeInstaller(["-Force"]);
+    assert.equal(approved.status, 0, `${approved.stdout}\n${approved.stderr}`);
+    const canonical = fs.readFileSync(path.join(packageRoot, "instructions/speckit-specify-scope.instructions.md"), "utf8");
+    assert.equal(fs.readFileSync(destination, "utf8"), canonical);
+
+    const backupBase = path.join(localAppData, "BetterSpecKit", "backups", path.basename(p));
+    const [backupStamp] = fs.readdirSync(backupBase);
+    const backupPath = path.join(backupBase, backupStamp, ".github", "instructions", "speckit-specify-scope.instructions.md");
+    assert.equal(fs.readFileSync(backupPath, "utf8"), upstream);
+  } finally {
+    fs.rmSync(p, { recursive: true, force: true });
+    fs.rmSync(localAppData, { recursive: true, force: true });
+  }
 });
 
 test("install leaves the upstream Converge skill unmanaged and unchanged", () => {
@@ -74,7 +192,7 @@ test("upgrading a pre-Review installation adds the Review skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.5.0" });
 
-  assert.equal(result.changed, 10);
+  assert.equal(result.changed, 12);
   assert.equal(fs.readFileSync(path.join(p, review.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, review.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, summary.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, summary.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, analyze.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
@@ -261,7 +379,7 @@ test("updating an installed project detects the new Remediate skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.6.0" });
 
-  assert.equal(result.changed, 8);
+  assert.equal(result.changed, 10);
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));
@@ -300,6 +418,41 @@ test("PowerShell installer requires approval for a customized Analyze skill with
     const [backupStamp] = fs.readdirSync(backupBase);
     const backupPath = path.join(backupBase, backupStamp, ".github", "skills", "speckit-analyze", "SKILL.md");
     assert.equal(fs.readFileSync(backupPath, "utf8"), customized);
+  } finally {
+    fs.rmSync(p, { recursive: true, force: true });
+    fs.rmSync(localAppData, { recursive: true, force: true });
+  }
+});
+
+test("PowerShell installer treats upstream Clarify with Better Spec Kit wording as custom", { skip: process.platform !== "win32" }, () => {
+  const p = project();
+  const localAppData = fs.mkdtempSync(path.join(os.tmpdir(), "bsk-localappdata-"));
+  const destination = path.join(p, ".github/skills/speckit-clarify/SKILL.md");
+  const upstream = "Upstream Spec Kit Clarify\nThis skill mentions Better Spec Kit compatibility.";
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.writeFileSync(destination, upstream);
+
+  const invokeInstaller = (args) =>
+    spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", path.join(packageRoot, "install.ps1"), "-TargetPath", p, "-NonInteractive", ...args], {
+      encoding: "utf8",
+      env: { ...process.env, LOCALAPPDATA: localAppData },
+    });
+
+  try {
+    const denied = invokeInstaller([]);
+    assert.notEqual(denied.status, 0, `${denied.stdout}\n${denied.stderr}`);
+    assert.match(`${denied.stdout}\n${denied.stderr}`, /Customised\/unknown files would change/);
+    assert.equal(fs.readFileSync(destination, "utf8"), upstream);
+
+    const approved = invokeInstaller(["-Force"]);
+    assert.equal(approved.status, 0, `${approved.stdout}\n${approved.stderr}`);
+    const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8");
+    assert.equal(fs.readFileSync(destination, "utf8"), canonical);
+
+    const backupBase = path.join(localAppData, "BetterSpecKit", "backups", path.basename(p));
+    const [backupStamp] = fs.readdirSync(backupBase);
+    const backupPath = path.join(backupBase, backupStamp, ".github", "skills", "speckit-clarify", "SKILL.md");
+    assert.equal(fs.readFileSync(backupPath, "utf8"), upstream);
   } finally {
     fs.rmSync(p, { recursive: true, force: true });
     fs.rmSync(localAppData, { recursive: true, force: true });

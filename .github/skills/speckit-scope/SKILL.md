@@ -20,7 +20,7 @@ Inspect enough relevant project evidence to classify work responsibly, ask only 
 
 ## Workflow
 
-1. Inspect the project and relevant feature artifacts before asking questions the repository can answer. Keep inspection proportional. Distinguish observed facts from assumptions and user intent.
+1. Inspect the project and relevant feature artifacts before asking questions the repository can answer. Keep inspection proportional. Distinguish observed facts from assumptions and user intent. If `specs/.scope/deferred-recommendations.md` exists, inspect only active entries that repository evidence makes relevant to this request. Present matches as unapproved recommendations and let the user choose whether to reconsider them; never auto-add or dump unrelated entries into the handoff.
 2. Ask concise questions only for missing purpose, expected outcome, constraints, or boundaries that affect classification or decomposition. If material scope remains unresolved, report an incomplete result and write no artifact that implies a decision was made.
 3. Classify from the nature of the request and available evidence:
    - **BUG**: established behavior is failing or regressed.

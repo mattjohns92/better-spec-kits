@@ -76,6 +76,19 @@ You **MUST** consider the user input before proceeding (if not empty).
      - If significant UI work appears to have skipped the design stage, STOP and instruct the user to run `/speckit-design` before `/speckit-plan`.
      - Backend-only features and features with no meaningful UI impact may proceed without `design.md`.
 
+### Approved Scope Preservation
+
+Before planning material requirements, trace them to the earliest reliable
+user intent, explicit clarification or approval, an accepted recommendation,
+or a demonstrated project constraint or necessary consequence. A requirement's
+presence or repetition in `spec.md`, `design.md`, or another downstream artifact
+does not by itself establish approval. Do not plan work that conflicts with a
+recorded rejection or deferral. If a material requirement lacks authorized
+provenance or presents an unresolved product choice, stop and return it to
+Specify/Clarify; do not treat it as settled scope. Keep technical choices within
+the approved outcome Plan-owned, and explain material necessary supporting
+work with its evidence.
+
 ### Initial Architecture Baseline
 
 During a project's initial architectural planning, establish and approve the initial project-specific baseline within this existing Plan workflow. Do not add a separate architecture stage or command.

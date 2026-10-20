@@ -3,6 +3,7 @@ import os from "node:os";
 
 export const managedFiles = [
   ["skills/speckit-design/SKILL.md", ".github/skills/speckit-design/SKILL.md"],
+  ["skills/speckit-clarify/SKILL.md", ".github/skills/speckit-clarify/SKILL.md"],
   ["skills/speckit-plan/SKILL.md", ".github/skills/speckit-plan/SKILL.md"],
   ["skills/speckit-tasks/SKILL.md", ".github/skills/speckit-tasks/SKILL.md"],
   ["skills/speckit-analyze/SKILL.md", ".github/skills/speckit-analyze/SKILL.md"],
@@ -16,6 +17,7 @@ export const managedFiles = [
   ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
   ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
   ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],
+  ["instructions/speckit-specify-scope.instructions.md", ".github/instructions/speckit-specify-scope.instructions.md"],
 ];
 
 export function metadataPath(project) {

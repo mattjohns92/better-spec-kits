@@ -107,6 +107,14 @@ Tasks creates the original implementation plan in the feature's `tasks.md`. It d
 
 When creating or regenerating `tasks.md`, preserve the Implement-owned `## Implement State` block unchanged. If task or outcome references may have changed, flag it for reconciliation by Implement. Tasks does not interpret, update, or silently discard that state.
 
+Tasks translates approved requirements and Plan decisions; it MUST NOT expand
+feature scope. For material work, verify that its source traces to approved
+intent, an explicit user decision, an accepted recommendation, or evidenced
+necessary supporting work. The presence or repetition of work in `plan.md`
+alone does not authorize it. Do not create tasks for rejected, deferred, or
+unresolved material behavior. If the plan contains such an expansion, stop and
+return it to Plan or Specify/Clarify for resolution before generating tasks.
+
 ## Mandatory Post-Execution Hooks
 
 **You MUST complete this section before reporting completion to the user.**

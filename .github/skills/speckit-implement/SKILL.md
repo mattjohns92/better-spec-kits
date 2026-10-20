@@ -181,6 +181,15 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Before substantial implementation, inspect the approved `spec.md`, applicable `design.md`, `plan.md`, `tasks.md`, Analyze result in `analysis.md`, relevant existing project behavior, and current implementation state when work has already started.
 
+The presence of a task in `tasks.md` does not by itself establish approval.
+Before executing material work, verify that it traces to approved intent, an
+explicit user decision, an accepted recommendation, or evidenced necessary
+supporting work. Do not implement rejected, deferred, or unresolved material
+behavior. If a task expands scope or conflicts with a recorded decision, stop
+that work and return it to Tasks, Plan, or Specify/Clarify as appropriate;
+continue only with independent in-scope tasks. Normal technical implementation
+choices that do not materially change the approved outcome remain agent-owned.
+
 Determine whether meaningful intermediate validation boundaries exist by considering independently valuable outcomes, coupling, risk, dependencies, and validation value. These are evidence, not a scoring system. Do not use arbitrary numeric thresholds or a complexity score based only on task, story, file, or line counts.
 
 If an explicitly established active-feature mode or applicable preference exists, honor it without asking for it again. Otherwise, briefly recommend `CONTINUOUS` or `INCREMENTAL` with the relevant evidence and present both modes as valid choices. Accept the user's direct choice when it is safe and remains within approved intent.

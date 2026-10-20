@@ -187,6 +187,25 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
   }
 });
 
+test("Design, Plan, Tasks, and Implement preserve approved feature scope", () => {
+  for (const [name, phrases] of [
+    ["design", ["must not introduce material product behavior", "return it to specify/clarify"]],
+    ["plan", ["presence or repetition in `spec.md`", "recorded rejection or deferral", "requirement lacks authorized"]],
+    ["tasks", ["tasks translates approved requirements", "does not authorize it", "do not create tasks for rejected, deferred"]],
+    ["implement", ["presence of a task in `tasks.md` does not by itself establish approval", "do not implement rejected, deferred"]],
+  ]) {
+    const canonicalPath = path.join(packageRoot, `skills/speckit-${name}/SKILL.md`);
+    const dogfoodPath = path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`);
+    const canonical = fs.readFileSync(canonicalPath, "utf8");
+    const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+    const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+    assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), `${name} dogfood skill must match the canonical skill`);
+    for (const phrase of phrases) {
+      assert.ok(canonical.toLowerCase().includes(phrase), `${name} skill is missing approved-scope guidance: ${phrase}`);
+    }
+  }
+});
+
 test("Analyze proportionality accounts for material areas and traces change cascades", () => {
   const canonicalPath = path.join(packageRoot, "skills/speckit-analyze/SKILL.md");
   const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-analyze/SKILL.md");
@@ -275,6 +294,93 @@ test("Plan skill documents one approved architecture reference and stays in scop
   }
 });
 
+test("Clarify checks material requirements against approved intent", () => {
+  const clarifyPath = path.join(packageRoot, "skills/speckit-clarify/SKILL.md");
+  const clarify = fs.readFileSync(clarifyPath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "approved scope",
+    "necessary consequence",
+    "accepted recommendation",
+    "presence in `spec.md` does not establish approval",
+    "material decision",
+    "do not treat the specification as ready for planning",
+  ]) {
+    assert.ok(clarify.includes(phrase), `Clarify scope contract is missing: ${phrase}`);
+  }
+});
+
+test("Clarify resolves material decisions interactively without fixed small limits", () => {
+  const clarify = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "inspect repository facts first",
+    "ask exactly one coherent question at a time",
+    "consequence-aware",
+    "resolve prerequisite choices first",
+    "remove questions that only concern an eliminated branch",
+    "continue in further turns until all material decisions",
+    "do not impose an arbitrary small total question or marker cap",
+    "after each accepted answer",
+    "stop while waiting for a required decision",
+    "a missing answer is never approval",
+  ]) {
+    assert.ok(clarify.includes(phrase), `Clarify interaction contract is missing: ${phrase}`);
+  }
+});
+
+test("Clarify canonical and dogfood skills match", () => {
+  const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8");
+  const dogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-clarify/SKILL.md"), "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Clarify dogfood skill must match the canonical skill");
+});
+
+test("Clarify keeps deferred recommendations out of scope and discovers them contextually", () => {
+  const clarify = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8").toLowerCase();
+  const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
+  const dataModel = fs.readFileSync(path.join(packageRoot, "specs/019-scope-preservation-decision-driven-clarification/data-model.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "recommendation becomes approved scope only after explicit acceptance",
+    "if the user chooses a deferral",
+    "specs/.scope/deferred-recommendations.md",
+    "deferral is not approval",
+  ]) {
+    assert.ok(clarify.includes(phrase), `Clarify recommendation disposition is missing: ${phrase}`);
+  }
+  for (const phrase of ["deferred-recommendations.md", "relevant", "active", "never auto-add"]) {
+    assert.ok(scope.includes(phrase), `Scope deferred recommendation discovery is missing: ${phrase}`);
+  }
+  for (const phrase of ["title", "area", "discovered in", "recommendation", "why valuable", "deferred because", "no longer relevant"]) {
+    assert.ok(dataModel.includes(phrase), `Deferred recommendation record field is missing: ${phrase}`);
+  }
+  for (const phrase of ["priority", "estimate", "deadline", "sprint", "roadmap"]) {
+    assert.ok(dataModel.includes(phrase), `Deferred recommendation model must explicitly exclude: ${phrase}`);
+  }
+});
+
+test("Specify scope instruction targets feature specs and preserves unresolved decisions", () => {
+  const instruction = fs.readFileSync(path.join(packageRoot, "instructions/speckit-specify-scope.instructions.md"), "utf8").toLowerCase();
+  const dogfood = fs.readFileSync(path.join(packageRoot, ".github/instructions/speckit-specify-scope.instructions.md"), "utf8");
+  const canonical = fs.readFileSync(path.join(packageRoot, "instructions/speckit-specify-scope.instructions.md"), "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.match(instruction, /^---\s*\r?\napplyto:\s*["']?specs\/\*\*\/spec\.md/m);
+  for (const phrase of [
+    "approved intent",
+    "necessary consequence",
+    "unresolved material decision",
+    "do not write it as a settled requirement",
+    "preserve it for clarify",
+    "instruction presence alone does not prove runtime application",
+  ]) {
+    assert.ok(instruction.includes(phrase), `Specify scope instruction is missing: ${phrase}`);
+  }
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Specify scope instruction dogfood copy must match the canonical instruction");
+});
+
 test("Scope skill classifies evidence-first and writes safe, durable handoffs", () => {
   const scopePath = path.join(packageRoot, "skills/speckit-scope/SKILL.md");
   const scope = fs.readFileSync(scopePath, "utf8").toLowerCase();
@@ -330,9 +436,10 @@ test("Scope owns stable Initiative evolution and feature-map status", () => {
   }
 });
 
-test("Scope and Quick dogfood copies match canonical files", () => {
+test("Scope, Clarify, and Quick dogfood copies match canonical files", () => {
   const files = [
     ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
+    ["skills/speckit-clarify/SKILL.md", ".github/skills/speckit-clarify/SKILL.md"],
     ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
     ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],
   ];
@@ -436,6 +543,26 @@ test("status reports Scope, Quick, handoff instruction, and Bug provisioning sta
 
   fs.writeFileSync(path.join(installedProject, ".github/instructions/scope-handoffs.instructions.md"), "custom instruction");
   assert.match(await capture(["status", installedProject]), /Scope handoff instruction: needs review/);
+});
+
+test("status and doctor report Clarify managed skill state", async () => {
+  const missingProject = project();
+  assert.match(await capture(["status", missingProject]), /Clarify skill: missing/);
+  assert.match(await capture(["doctor", missingProject]), /Clarify skill is missing/);
+
+  const installedProject = project();
+  const canonical = path.join(packageRoot, "skills/speckit-clarify/SKILL.md");
+  const destination = path.join(installedProject, ".github/skills/speckit-clarify/SKILL.md");
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(canonical, destination);
+  assert.match(await capture(["status", installedProject]), /Clarify skill: installed/);
+
+  const conflictingProject = project();
+  const conflictingDestination = path.join(conflictingProject, ".github/skills/speckit-clarify/SKILL.md");
+  fs.mkdirSync(path.dirname(conflictingDestination), { recursive: true });
+  fs.writeFileSync(conflictingDestination, "Local Better Spec Kit Clarify customization");
+  assert.match(await capture(["status", conflictingProject]), /Clarify skill: needs review/);
+  assert.match(await capture(["doctor", conflictingProject]), /managed file\(s\) need manual review/);
 });
 
 test("doctor reports missing Scope and Quick managed assets", async () => {
