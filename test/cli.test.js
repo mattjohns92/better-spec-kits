@@ -329,12 +329,93 @@ test("Clarify resolves material decisions interactively without fixed small limi
   }
 });
 
+test("Clarify reuses established visual patterns before asking about routine details", () => {
+  const clarify = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "routine visual or interaction details",
+    "established application patterns",
+    "preserves the requested outcome",
+    "materially change required behavior",
+  ]) {
+    assert.ok(clarify.includes(phrase), `Clarify visual decision contract is missing: ${phrase}`);
+  }
+});
+
 test("Clarify canonical and dogfood skills match", () => {
   const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8");
   const dogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-clarify/SKILL.md"), "utf8");
   const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
 
   assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Clarify dogfood skill must match the canonical skill");
+});
+
+test("Design presents useful visual alternatives and preserves the selected direction", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-design/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-design/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const design = canonical.toLowerCase();
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Design dogfood skill must match the canonical skill");
+
+  for (const phrase of [
+    "none",
+    "minor",
+    "significant",
+    "meaningfully different approaches",
+    "current session",
+    "disposable",
+    "non-rendered representation",
+    "select, combine, revise, or reject",
+    "material choice is awaiting a response",
+    "selected/current direction",
+    "return it to clarify",
+    "responsive",
+    "accessibility",
+  ]) {
+    assert.ok(design.includes(phrase), `Design visual decision contract is missing: ${phrase}`);
+  }
+});
+
+test("Workflow documentation explains visual alternatives and the Plan decision gate", () => {
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "pattern-first",
+    "visual alternatives",
+    "rendering is unavailable",
+    "material choice is pending",
+    "plan must wait",
+  ]) {
+    assert.ok(workflow.includes(phrase), `Workflow guide is missing: ${phrase}`);
+  }
+});
+
+test("Plan waits for material design decisions and preserves the selected direction", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-plan/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-plan/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const plan = canonical.toLowerCase();
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Plan dogfood skill must match the canonical skill");
+
+  for (const phrase of [
+    "significant ui",
+    "design.md",
+    "material open ux question",
+    "selection awaiting the user",
+    "stop",
+    "return to `/speckit-design`",
+    "no material choice remains",
+    "selected/current direction",
+    "rejected or abandoned alternatives",
+  ]) {
+    assert.ok(plan.includes(phrase), `Plan visual decision contract is missing: ${phrase}`);
+  }
 });
 
 test("Clarify keeps deferred recommendations out of scope and discovers them contextually", () => {

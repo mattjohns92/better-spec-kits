@@ -32,11 +32,11 @@ After Analyze passes, continue through Implement, Converge, and Review. Remediat
 
 ## Design
 
-Classifies UI impact as NONE, MINOR, or SIGNIFICANT. MINOR and SIGNIFICANT changes produce `design.md`. Significant work explores materially different approaches rather than merely restyling the first idea.
+Uses a pattern-first approach: inspect the existing application, reuse established patterns for routine changes, and avoid manufacturing alternatives. When materially different visual approaches would help the user's decision, present visual alternatives before selecting a direction and render disposable concepts when practical with tools available in the current session. The user can select, combine, revise, or reject them. If rendering is unavailable or impractical, explain the limitation and provide a useful non-rendered representation. Do not proceed while a material choice is pending.
 
 ## Plan
 
-Discovers the project's actual technology, architecture, conventions, dependencies, and relevant implementation before choosing an approach. Planning favours the smallest maintainable solution that preserves the approved specification and design.
+Classifies UI impact as NONE, MINOR, or SIGNIFICANT and uses `design.md` as the selected/current direction. Plan must wait while a material design choice is pending; it does not resolve the choice or promote abandoned alternatives into requirements. It otherwise discovers the project's actual technology, architecture, conventions, dependencies, and relevant implementation before choosing an approach, favouring the smallest maintainable solution that preserves the approved specification and design.
 
 ## Tasks
 

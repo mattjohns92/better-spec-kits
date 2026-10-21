@@ -209,6 +209,19 @@ Existing application patterns are the default.
 
 Do NOT introduce a new pattern simply because another design may look better in isolation.
 
+### Visual Alternatives and User Selection
+
+After approved product behavior and existing patterns are understood:
+
+- For a routine change answered by an established pattern, reuse it without manufacturing alternatives or requiring ceremonial approval. Show the proposed result only when that materially improves understanding.
+- When multiple credible, meaningfully different approaches exist and seeing them would materially help the user's decision, present visual alternatives before choosing a direction. Differences may include hierarchy, interaction model, layout, navigation, progressive disclosure, action placement, selection model, or responsive behavior; superficial styling alone is not enough. Do not impose a fixed number of alternatives.
+- Inspect tools available in the current session before relying on rendering. When practical, use the target application's technology and patterns or a lightweight, disposable prototype. Do not add production dependencies, architecture, or infrastructure solely to render concepts.
+- If rendering is unavailable or impractical, provide the strongest useful non-rendered representation, state the limitation, and do not claim that a prototype was rendered.
+- Label alternatives clearly and explain their differences in text as well as visually. The user may select, combine, revise, or reject them; incorporate the response and show a revision when useful.
+- If a material choice is awaiting a response, remain paused. Do not treat silence as approval or describe the feature as ready for `/speckit-plan`.
+- After the user responds, record the selected/current direction in `design.md`. Include rejected alternatives only when needed to prevent downstream drift.
+- If a visual direction requires a material product behavior that has not been approved, stop and return it to Clarify instead of deciding it in Design.
+
 ## Step 4 — Apply UI/UX Design Guidance
 
 For MINOR or SIGNIFICANT UI impact, invoke the installed UI UX Pro Max
@@ -405,7 +418,7 @@ New components should be reusable where appropriate.
 
 ## Design Decisions
 
-Record significant UX decisions and why they were made.
+Record the selected/current direction after the user responds, significant UX decisions, and why they were made. Keep this concise; include rejected alternatives only when needed to prevent downstream drift.
 
 Examples:
 
@@ -427,6 +440,7 @@ Before completing the design stage verify:
 - the primary user task is obvious
 - common actions are easy to reach
 - existing patterns were reused where appropriate
+- no material visual or interaction choice is still awaiting the user
 - information hierarchy is clear
 - unnecessary interactions were removed
 - desktop behaviour is defined

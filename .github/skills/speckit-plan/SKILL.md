@@ -75,6 +75,8 @@ You **MUST** consider the user input before proceeding (if not empty).
      - Determine from FEATURE_SPEC whether the feature contains meaningful user-facing UI changes.
      - If significant UI work appears to have skipped the design stage, STOP and instruct the user to run `/speckit-design` before `/speckit-plan`.
      - Backend-only features and features with no meaningful UI impact may proceed without `design.md`.
+   - Before planning significant UI work, inspect `design.md` for a material open UX question or a selection awaiting the user. If either remains, STOP and return to `/speckit-design`; do not plan around an unresolved choice.
+   - When no material choice remains, proceed using the recorded selected/current direction. Do not promote rejected or abandoned alternatives into requirements or implementation tasks.
 
 ### Approved Scope Preservation
 

@@ -46,6 +46,8 @@ Assess the active feature for material ambiguity across:
 
 Do not ask questions merely because a taxonomy category is incomplete. Ask only when an answer could materially change what the user receives, the authorized scope, risk, compatibility, operations, or meaningful implementation breadth. Implementation trivia and facts available in the repository belong to the agent, not the user.
 
+For UI-related decisions, inspect relevant product behavior and established application patterns before asking. Do not ask the user to choose routine visual or interaction details when following an established pattern preserves the requested outcome. Ask only when different answers could materially change required behavior, scope, risk, or implementation breadth. Clarify resolves what behavior is required; Design determines its visual presentation.
+
 For discovered work, distinguish:
 
 - **Necessary consequence**: evidence shows it is needed to correctly and safely deliver approved behavior or preserve required existing behavior. Include it when justified; explain material consequences.
