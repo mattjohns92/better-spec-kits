@@ -239,6 +239,29 @@ test("Project Status dogfood copy matches the packaged canonical skill", () => {
   assert.ok(fs.existsSync(canonical));
 });
 
+test("Graphify-aware workflow skills remain synchronized with managed dogfood copies", () => {
+  const pairs = [
+    ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
+    ["skills/speckit-clarify/SKILL.md", ".github/skills/speckit-clarify/SKILL.md"],
+    ["skills/speckit-design/SKILL.md", ".github/skills/speckit-design/SKILL.md"],
+    ["skills/speckit-plan/SKILL.md", ".github/skills/speckit-plan/SKILL.md"],
+    ["skills/speckit-analyze/SKILL.md", ".github/skills/speckit-analyze/SKILL.md"],
+    ["skills/speckit-implement/SKILL.md", ".github/skills/speckit-implement/SKILL.md"],
+    ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
+    ["skills/speckit-query/SKILL.md", ".github/skills/speckit-query/SKILL.md"],
+    ["instructions/speckit-specify-scope.instructions.md", ".github/instructions/speckit-specify-scope.instructions.md"],
+  ];
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const [canonicalPath, dogfoodPath] of pairs) {
+    assert.equal(
+      normalizeLineEndings(fs.readFileSync(path.join(packageRoot, dogfoodPath), "utf8")),
+      normalizeLineEndings(fs.readFileSync(path.join(packageRoot, canonicalPath), "utf8")),
+      `${dogfoodPath} must match ${canonicalPath}`,
+    );
+  }
+});
+
 test("Project Query is included in managed, standalone, and npm skill distribution", () => {
   const canonicalPath = path.join(packageRoot, "skills/speckit-query/SKILL.md");
   const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-query/SKILL.md");

@@ -14,6 +14,14 @@ The independent `/speckit.status` skill gives a read-only project-level overview
 
 The independent `/speckit.query <question>` utility answers a specific natural-language question by inspecting current project evidence. It responds in chat without changing project state. Query is question-focused; Project Status remains the lifecycle-focused overview of feature and Initiative progress.
 
+## Optional Graphify Repository Intelligence
+
+Graphify is optional. When it is already available through the active agent surface and a relevant graph can reduce discovery, existing stages may query it to locate likely code, dependencies, consumers, or related UI. Graph evidence is a map, not proof: source code and runtime behavior remain authoritative, and graph discovery does not create requirements or expand approved scope. If Graphify or useful graph evidence is unavailable, unsupported, stale, or failing, fall back to existing repository investigation and state limitations when relevant. Do not use a CLI availability check as proof of agent access or graph currentness.
+
+Graph use is proportional. Scope, Specify, Clarify, Design, Plan, Analyze, Implement, and Review may benefit; Tasks, Preview, Converge, and Summary should not repeat discovery that authoritative upstream artifacts already provide. Graphify remains external and optional. Better Spec Kit does not install it, require Cloud, or maintain a second graph or freshness store.
+
+Implementation can make a graph stale. Do not refresh it at every stage or intermediate checkpoint. When Review will rely on a local graph after source changes, use Graphify's documented update behavior at the final implementation or remediation boundary. If the active Graphify surface cannot establish currentness, Review falls back to source inspection and must not call the graph current. After Review passes, an unchanged graph may be reused by the next feature.
+
 ## Optional Scope and Quick entry
 
 Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE. It remains optional; direct expert entry is supported.

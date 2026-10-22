@@ -21,6 +21,12 @@ Clarify identifies and resolves material decisions that an agent is not authoriz
 
 Clarify does not ask about immaterial details, replace repository investigation, create a new workflow stage, or treat silence, agent preference, best practice, or repetition in artifacts as approval.
 
+### Optional Graphify Repository Discovery
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
+Use Graphify to answer repository facts before asking the user; it does not decide consequential trade-offs.
+
 ## Pre-Execution Hooks
 
 Check `.specify/extensions.yml` for `hooks.before_clarify`. If absent or no hooks are registered, continue silently. Skip hooks explicitly disabled and do not evaluate non-empty conditions. Optional hooks are reported with their command and prompt. Mandatory hooks must be invoked and completed before proceeding. If the YAML is invalid or unreadable, report the error and that hooks were not checked, then continue normally.

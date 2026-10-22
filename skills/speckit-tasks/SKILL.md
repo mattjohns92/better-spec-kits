@@ -115,6 +115,32 @@ alone does not authorize it. Do not create tasks for rejected, deferred, or
 unresolved material behavior. If the plan contains such an expansion, stop and
 return it to Plan or Specify/Clarify for resolution before generating tasks.
 
+### Optional Ponytail Task-Surface Challenge
+
+Before finalizing `tasks.md`, inspect whether meaningful complexity in the
+proposed task surface could plausibly be unnecessary. Use Ponytail only when
+the active host exposes a callable skill safely scoped to this Tasks stage;
+do not infer callability from CLI availability, plugin installation, or
+instruction-only rules. Do not switch or persist a session-wide Ponytail mode
+just to run this challenge. If Ponytail cannot be safely invoked for this
+stage, use Better Spec Kit's built-in challenge and do not claim Ponytail ran.
+
+Every material task must trace to approved intent, necessary supporting
+behavior, preserving required existing behavior, appropriate testing,
+compatibility, migration, or justified implementation quality. Do not treat the
+plan alone as authorization. Remove or revise work
+that has no justified contribution; retain necessary validation and supporting
+work even when fewer tasks might be possible. Do not use arbitrary numeric
+thresholds or optimize for task count.
+
+This challenge may simplify the task surface, but it must not change
+architecture or decisions owned by Plan, reduce approved outcomes, or override
+selected Design or system constraints. If task-level investigation shows that
+tasks exist only because the Plan is unnecessarily complex, return the issue to
+Plan instead of silently rewriting its architecture. The parent Tasks stage
+owns the final decision; bounded research does not delegate a feature-wide
+challenge. Do not create a separate findings artifact or approval ledger.
+
 ## Mandatory Post-Execution Hooks
 
 **You MUST complete this section before reporting completion to the user.**

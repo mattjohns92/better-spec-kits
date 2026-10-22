@@ -6,6 +6,12 @@ applyTo: "specs/**/spec.md"
 
 When creating or updating a feature specification, treat the original request and any applicable Scope Feature Brief as user intent, not as approval for every behavior discovered while elaborating it. Inspect relevant repository evidence before asking the user for facts the project can establish.
 
+### Optional Graphify Repository Evidence
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
+Graph evidence does not establish requirement approval or broaden approved scope. Requirements must remain traceable to approved intent, project constraints, or evidenced necessary consequences.
+
 Before writing a material behavior as an authoritative requirement, classify its provenance:
 
 - **Supported by approved intent**: directly traceable to the original request, Scope-owned intended outcome/boundary, or an explicit user clarification or approval. It may be written as a testable requirement.

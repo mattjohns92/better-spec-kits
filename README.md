@@ -84,9 +84,9 @@ Its rule is simple: **discover first, then decide**.
 Better Spec Kit can take advantage of specialist tools such as:
 
 - **UI UX Pro Max** during design
-- **Ponytail** during planning, task generation, implementation, and Review's simplicity/reuse pass
+- **Ponytail** as an optional, evidence-adaptive challenge during Plan and Tasks, with a lightweight reuse guard during implementation
 
-Ponytail and UI UX Pro Max are separate projects and remain optional; Better Spec Kit does not silently install them. The official Spec Kit Bug extension is different: standard install/update attempts native upstream provisioning when the project and prerequisites permit. Existing Bug installations are never force-reinstalled, re-enabled, or automatically updated. Provisioning failure is reported as partial success and does not roll back Better Spec Kit files or block other workflows. Successful installation is not evidence that a fresh Copilot session can consume a Bug handoff; that runtime check is separate.
+Ponytail and UI UX Pro Max are separate projects and remain optional. Better Spec Kit does not vendor or copy Ponytail and does not automatically install Ponytail. Ponytail challenges are used only when meaningful implementation complexity exists and the active host exposes a safely stage-scoped capability; otherwise Better Spec Kit's built-in simplicity and reuse guidance applies. The official Spec Kit Bug extension is different: standard install/update attempts native upstream provisioning when the project and prerequisites permit. Existing Bug installations are never force-reinstalled, re-enabled, or automatically updated. Provisioning failure is reported as partial success and does not roll back Better Spec Kit files or block other workflows. Successful installation is not evidence that a fresh Copilot session can consume a Bug handoff; that runtime check is separate.
 
 ## Development
 

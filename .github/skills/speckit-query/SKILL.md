@@ -7,6 +7,10 @@ description: Answer natural-language questions about the current project using r
 
 Answer the user's natural-language question about the current repository. Query is an independent project utility; invoke it directly with `/speckit.query <question>`. The user may ask in ordinary natural language and does not need to know repository paths, symbols, technologies, or workflow names.
 
+### Optional Graphify Repository Discovery
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
 ## Investigate Before Answering
 
 1. Inspect the current project before answering and identify the evidence most relevant to the actual question. Do not treat earlier conversation claims as proof of current repository behavior.

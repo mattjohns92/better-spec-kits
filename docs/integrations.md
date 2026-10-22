@@ -22,7 +22,7 @@ Provisioning and command registration verify installation state only. Successful
 
 `/speckit.converge` is an upstream GitHub Spec Kit capability, not a Better Spec Kit integration. Better Spec Kit does not bundle or replace it. If it is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit). After implementation, repeat `converge → implement → converge` while it reports outstanding tasks, then proceed to Review.
 
-## Ponytail — GitHub Copilot CLI
+## Ponytail — optional Plan and Tasks challenge
 
 Official project: https://github.com/DietrichGebert/ponytail
 
@@ -31,7 +31,13 @@ copilot plugin marketplace add DietrichGebert/ponytail
 copilot plugin install ponytail@ponytail
 ```
 
-In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. `/speckit-review` invokes Ponytail's installed review capability as additional simplicity/reuse evidence when available. Without it, Better Spec Kit still performs all four built-in implementation-quality checks.
+In Copilot interactive mode, use `/plugin marketplace add ...` and `/plugin install ...` instead. These are the documented Copilot CLI plugin setup commands; Better Spec Kit does not vendor or copy Ponytail and does not automatically install Ponytail.
+
+Plan and Tasks may use Ponytail only when the feature has meaningful proposed complexity and the active host exposes a callable skill that can be safely scoped to that stage. If unavailable, they continue with Better Spec Kit's built-in simplicity and reuse guidance. Do not change a session-wide Ponytail mode merely to run a stage-local challenge, and do not claim an invocation occurred when the capability was not callable.
+
+Ponytail's upstream setup distinguishes Copilot CLI from Copilot Chat in VS Code and other IDEs: the Copilot Chat adapter is rules-only and does not provide the CLI's plugin commands. Copilot CLI availability does not prove Ponytail is installed or callable in the active agent stage.
+
+Review does not invoke Ponytail; it retains its independent built-in implementation-quality checks, including simplicity and reuse.
 
 ## UI UX Pro Max
 
@@ -47,3 +53,13 @@ uipro init --ai copilot
 The CLI setup is project-scoped; a globally installed CLI does not by itself mean the skill is available globally to Copilot. Better Spec Kit uses the skill when the agent can discover it, otherwise follows its built-in design guidance.
 
 The installer never silently runs these commands. Review the upstream instructions and install optional tools separately.
+
+## Graphify — optional repository intelligence
+
+Official project: [Graphify](https://github.com/Graphify-Labs/graphify). The local package is `graphifyy` and the command is `graphify`; local use is free and requires no paid Graphify Cloud plan. Current local setup requires Python 3.10 or later and uv or pipx. Consult Graphify's [installation guide](https://docs.graphify.com/installation) for current requirements and registration steps.
+
+Graphify documents separate local setup for [Copilot CLI and VS Code](https://docs.graphify.com/integrations/copilot), plus a separately configured [local MCP server](https://docs.graphify.com/mcp/overview). These surfaces are not interchangeable: a `graphify` executable on `PATH` does not prove the active assistant can query a graph. Cloud MCP is a separate hosted service; Better Spec Kit does not require a paid plan.
+
+Graphify documents Windows, macOS, and Linux support, but parser and repository coverage varies by language and construct and may require optional extras. Check its current [supported inputs](https://docs.graphify.com/concepts/supported-inputs) rather than assuming complete coverage.
+
+Graphify is optional. Better Spec Kit does not vendor Graphify and does not automatically install, enable, update, or configure it. When its active surface is available and a graph materially helps discovery, use Graphify as a navigation aid and verify consequential conclusions against source. If the tool, graph, or useful evidence is unavailable, fall back to the existing repository investigation. Local code parsing is distinct from optional semantic processing of documents/media; BSK respects Graphify's configured backend and privacy settings and does not initiate unconfigured external processing. Graph artifacts may contain source-derived information and should receive appropriate repository access controls.

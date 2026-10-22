@@ -208,6 +208,12 @@ Every `INCREMENTAL` checkpoint pauses, even when automated evidence is sufficien
 
 Suggest a specific user verification only when it materially reduces uncertainty or depends on the user's domain knowledge or environment. Close every checkpoint by telling the user they can continue, report a problem, request an in-scope adjustment, continue without the suggested verification, or switch the remaining work to `CONTINUOUS`. On "continue", record `APPROVED` (or `CONTINUE WITHOUT` when they skip a suggested check) and start the next increment. On a switch, record `CONTINUOUS` and finish the remaining work without further checkpoints.
 
+### Optional Graphify During Implementation
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and a bounded query helps locate existing code or extension points. Graph results are navigation evidence; source code remains authoritative. Continue with source inspection when graph evidence is unavailable or stale.
+
+Implementation changes source and may make a graph stale. Do not refresh Graphify after each task or checkpoint. If a later increment genuinely needs relationship information about changed source, use Graphify's documented update through the active supported surface; otherwise leave the final review-boundary decision to Review. Do not install Graphify hooks or trigger automatic updates from BSK.
+
 ### Significant UI Feedback Checkpoints
 
 Use the existing UI impact classification as context, not as a deterministic checkpoint rule:
@@ -290,6 +296,12 @@ Do not run Analyze, Converge, Review, or Summary as per-increment workflows or c
      - Before implementing each task, inspect the relevant existing code and
        determine whether the requirement can be satisfied by extending what
        already exists.
+     - Before introducing a material architectural element not established by
+       `plan.md`, check whether the approved Plan or an existing mechanism
+       satisfies the need.
+     - If a material departure is genuinely necessary, follow existing
+       authority and routing rules rather than silently changing the Plan. Do
+       not repeatedly invoke Ponytail or relitigate the approved Plan.
      - Prefer, in order:
        1. No new code when existing behaviour already satisfies the requirement.
        2. Modifying or extending existing functionality.

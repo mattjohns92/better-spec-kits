@@ -18,6 +18,12 @@ Consider any user-provided focus when analyzing, but do not let it override the 
 
 Check whether `.specify/extensions.yml` exists. If it does, inspect `hooks.before_analyze` using the extension hook rules established by the project. Do not evaluate non-empty `condition` expressions. Skip hooks explicitly disabled. A mandatory hook must be invoked and completed before analysis; report optional hooks for the user to invoke. If the file is absent or no hook is registered, continue without a hook notice. If the YAML is invalid or unreadable, report the parser/read error and that no hooks, including mandatory hooks, were checked, then continue normally.
 
+### Optional Graphify Repository Discovery
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
+Graph results may help locate impact surfaces but do not replace Analyze's independent reasoning or evidence requirements.
+
 ## Goal
 
 Perform the normal final pre-implementation quality gate:

@@ -294,6 +294,205 @@ test("Plan skill documents one approved architecture reference and stays in scop
   }
 });
 
+test("Plan challenges meaningful complexity without changing approved outcomes", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-plan/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-plan/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Plan dogfood skill must match the canonical skill");
+  const challengeHeadings = (content) => (content.match(/^### Optional Ponytail Solution Challenge$/gm) ?? []).length;
+  assert.equal(challengeHeadings(canonical), 1, "Plan must have exactly one Ponytail challenge heading");
+  assert.equal(challengeHeadings(dogfood), 1, "Plan dogfood must have exactly one Ponytail challenge heading");
+
+  const plan = canonical.toLowerCase().replace(/\s+/g, " ");
+  assert.doesNotMatch(plan, /before finalizing the proposed implementation approach, complete the relevant ### optional ponytail solution challenge/);
+  for (const phrase of [
+    "meaningful complexity that could plausibly be unnecessary",
+    "before finalizing the proposed implementation approach",
+    "approved requirements, explicit user decisions, constraints, and selected design remain authoritative",
+    "plan owns the final decision",
+    "do not use arbitrary numeric thresholds",
+    "safely scoped to this plan stage",
+    "do not switch or persist a session-wide ponytail mode",
+    "fall back to better spec kit's built-in challenge",
+    "retain necessary complexity with brief evidence",
+    "do not create a separate ponytail findings artifact or approval ledger",
+    "bounded research does not delegate feature-wide challenge authority",
+  ]) {
+    assert.ok(plan.includes(phrase), `Plan simplicity challenge is missing: ${phrase}`);
+  }
+});
+
+test("Tasks challenges unsupported work without changing Plan decisions", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-tasks/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-tasks/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Tasks dogfood skill must match the canonical skill");
+
+  const tasks = canonical.toLowerCase().replace(/\s+/g, " ");
+  for (const phrase of [
+    "before finalizing `tasks.md`",
+    "every material task must trace to approved intent",
+    "necessary supporting behavior",
+    "do not treat the plan alone as authorization",
+    "must not change architecture or decisions owned by plan",
+    "return the issue to plan",
+    "meaningful complexity in the proposed task surface could plausibly be unnecessary",
+    "safely scoped to this tasks stage",
+    "use better spec kit's built-in challenge and do not claim ponytail ran",
+    "do not switch or persist a session-wide ponytail mode",
+    "do not create a separate findings artifact",
+  ]) {
+    assert.ok(tasks.includes(phrase), `Tasks complexity challenge is missing: ${phrase}`);
+  }
+});
+
+test("Ponytail documentation describes optional stage-scoped use accurately", () => {
+  const readme = fs.readFileSync(path.join(packageRoot, "README.md"), "utf8").toLowerCase();
+  const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
+  const combined = `${readme}\n${integrations}`;
+
+  for (const phrase of [
+    "ponytail and ui ux pro max are separate projects and remain optional",
+    "plan and tasks",
+    "does not vendor or copy ponytail",
+    "does not automatically install ponytail",
+    "copilot cli",
+    "copilot chat",
+    "rules-only",
+    "cli availability does not prove ponytail is installed or callable",
+    "built-in simplicity and reuse guidance",
+  ]) {
+    assert.ok(combined.includes(phrase), `Ponytail integration documentation is missing: ${phrase}`);
+  }
+
+  assert.match(combined, /copilot plugin marketplace add dietrichgebert\/ponytail/);
+  assert.doesNotMatch(combined, /ponytail-review|review invokes ponytail/);
+});
+
+test("Implement and Review preserve stage authority without repeating Ponytail analysis", () => {
+  const implementPaths = ["skills/speckit-implement/SKILL.md", ".github/skills/speckit-implement/SKILL.md"];
+  for (const skillPath of implementPaths) {
+    const implement = fs.readFileSync(path.join(packageRoot, skillPath), "utf8").toLowerCase().replace(/\s+/g, " ");
+    for (const phrase of [
+      "before introducing a material architectural element not established by `plan.md`",
+      "check whether the approved plan or an existing mechanism satisfies the need",
+      "do not repeatedly invoke ponytail or relitigate the approved plan",
+      "follow existing authority and routing rules",
+    ]) {
+      assert.ok(implement.includes(phrase), `${skillPath} is missing the Plan-alignment guard: ${phrase}`);
+    }
+  }
+
+  const reviewPaths = ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"];
+  for (const skillPath of reviewPaths) {
+    const review = fs.readFileSync(path.join(packageRoot, skillPath), "utf8").toLowerCase();
+    assert.doesNotMatch(review, /ponytail-review/, `${skillPath} must not invoke Ponytail`);
+    for (const pass of ["### 1. correctness and regression risk", "### 2. design compliance", "### 3. test quality", "### 4. simplicity, reuse, and maintainability"]) {
+      assert.ok(review.includes(pass), `${skillPath} must retain its built-in check: ${pass}`);
+    }
+  }
+
+  const analyze = fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8").toLowerCase();
+  assert.ok(analyze.includes("do not require ponytail"), "Analyze must remain independent of Ponytail availability");
+});
+
+test("Ponytail workflow skills stay synchronized with dogfood copies", () => {
+  const pairs = [
+    ["skills/speckit-plan/SKILL.md", ".github/skills/speckit-plan/SKILL.md"],
+    ["skills/speckit-tasks/SKILL.md", ".github/skills/speckit-tasks/SKILL.md"],
+    ["skills/speckit-implement/SKILL.md", ".github/skills/speckit-implement/SKILL.md"],
+    ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
+  ];
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const [canonicalPath, dogfoodPath] of pairs) {
+    const canonical = fs.readFileSync(path.join(packageRoot, canonicalPath), "utf8");
+    const dogfood = fs.readFileSync(path.join(packageRoot, dogfoodPath), "utf8");
+    assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), `${dogfoodPath} must match ${canonicalPath}`);
+  }
+
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8");
+  assert.doesNotMatch(review, /ponytail-review/);
+});
+
+test("Graphify guidance is optional, source-verified, and preserves approved scope", () => {
+  const paths = [
+    "skills/speckit-scope/SKILL.md",
+    "instructions/speckit-specify-scope.instructions.md",
+    "skills/speckit-clarify/SKILL.md",
+    "skills/speckit-design/SKILL.md",
+    "skills/speckit-plan/SKILL.md",
+    "skills/speckit-analyze/SKILL.md",
+    "skills/speckit-query/SKILL.md",
+  ];
+
+  for (const relativePath of paths) {
+    const content = fs.readFileSync(path.join(packageRoot, relativePath), "utf8").toLowerCase();
+    assert.ok(content.includes("graphify is optional"), `${relativePath} must keep Graphify optional`);
+    assert.ok(content.includes("verify material conclusions against authoritative source"), `${relativePath} must preserve source authority`);
+    assert.ok(content.includes("continue with existing repository investigation"), `${relativePath} must define fallback`);
+  }
+
+  for (const relativePath of ["skills/speckit-scope/SKILL.md", "instructions/speckit-specify-scope.instructions.md"]) {
+    const content = fs.readFileSync(path.join(packageRoot, relativePath), "utf8").toLowerCase();
+    assert.ok(content.includes("graph evidence does not establish requirement approval"), `${relativePath} must preserve approved scope`);
+  }
+});
+
+test("Implement avoids checkpoint refreshes and Review refreshes graph-informed evidence at final boundaries", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["do not refresh graphify after each task or checkpoint", "source code remains authoritative", "continue with source inspection when graph evidence is unavailable or stale"]) {
+    assert.ok(implement.includes(phrase), `Implement Graphify lifecycle guidance is missing: ${phrase}`);
+  }
+
+  for (const phrase of [
+    "before graph-informed review after implementation or remediation",
+    "graphify update .",
+    "if graph currentness cannot be established",
+    "do not claim the graph is current",
+    "fall back to source inspection",
+  ]) {
+    assert.ok(review.includes(phrase), `Review Graphify lifecycle guidance is missing: ${phrase}`);
+  }
+});
+
+test("Graphify documentation states optional setup, verified coverage limits, and fallback", () => {
+  const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+  const quickstart = fs.readFileSync(path.join(packageRoot, "specs/021-optional-graphify-repository-intelligence/quickstart.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "graphify is optional",
+    "no paid",
+    "python 3.10",
+    "uv or pipx",
+    "copilot cli",
+    "vs code",
+    "mcp",
+    "supported inputs",
+    "parser",
+    "privacy",
+    "fall back",
+    "not automatically install",
+  ]) {
+    assert.ok(integrations.includes(phrase), `Graphify integration documentation is missing: ${phrase}`);
+  }
+
+  for (const phrase of ["graphify is optional", "source code and runtime behavior remain authoritative", "fall back", "checkpoint", "review"]) {
+    assert.ok(workflow.includes(phrase), `Workflow guide Graphify contract is missing: ${phrase}`);
+  }
+
+  for (const phrase of ["python 3.10", "windows, macos, and linux", "varies by language and construct", "supported inputs", "supported-agent acceptance"]) {
+    assert.ok(quickstart.includes(phrase), `Graphify quickstart coverage is missing: ${phrase}`);
+  }
+});
+
 test("Clarify checks material requirements against approved intent", () => {
   const clarifyPath = path.join(packageRoot, "skills/speckit-clarify/SKILL.md");
   const clarify = fs.readFileSync(clarifyPath, "utf8").toLowerCase();
@@ -332,12 +531,7 @@ test("Clarify resolves material decisions interactively without fixed small limi
 test("Clarify reuses established visual patterns before asking about routine details", () => {
   const clarify = fs.readFileSync(path.join(packageRoot, "skills/speckit-clarify/SKILL.md"), "utf8").toLowerCase();
 
-  for (const phrase of [
-    "routine visual or interaction details",
-    "established application patterns",
-    "preserves the requested outcome",
-    "materially change required behavior",
-  ]) {
+  for (const phrase of ["routine visual or interaction details", "established application patterns", "preserves the requested outcome", "materially change required behavior"]) {
     assert.ok(clarify.includes(phrase), `Clarify visual decision contract is missing: ${phrase}`);
   }
 });
@@ -382,13 +576,7 @@ test("Design presents useful visual alternatives and preserves the selected dire
 test("Workflow documentation explains visual alternatives and the Plan decision gate", () => {
   const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
 
-  for (const phrase of [
-    "pattern-first",
-    "visual alternatives",
-    "rendering is unavailable",
-    "material choice is pending",
-    "plan must wait",
-  ]) {
+  for (const phrase of ["pattern-first", "visual alternatives", "rendering is unavailable", "material choice is pending", "plan must wait"]) {
     assert.ok(workflow.includes(phrase), `Workflow guide is missing: ${phrase}`);
   }
 });
@@ -1138,6 +1326,7 @@ test("Summary dogfood skill matches the canonical skill", () => {
 
 test("Review skill uses current convergence evidence and four quality passes", () => {
   const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8");
+  assert.doesNotMatch(skill, /ponytail-review/);
 
   for (const phrase of [
     "Current successful Converge evidence",
@@ -1154,7 +1343,6 @@ test("Review skill uses current convergence evidence and four quality passes", (
     "stable ID",
     "only a subsequent Review reassessment may change status to `RESOLVED`",
     "Review is the only authority for changing finding status",
-    "cannot actually be invoked",
     "distinguish completion-blocking findings from non-blocking improvements",
     "Keep the report concise",
     "`PASS` - No material issues",

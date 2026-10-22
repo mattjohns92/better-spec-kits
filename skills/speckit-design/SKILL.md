@@ -88,6 +88,12 @@ scope was approved. If a proposed design needs an unsupported material behavior,
 stop and return it to Specify/Clarify rather than recording it as a settled
 design decision.
 
+### Optional Graphify Repository Discovery
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
+For UI work, Graphify may locate existing pages and components; it does not select or approve a design direction.
+
 ## Step 1 — Determine UI Impact
 
 Classify the feature:

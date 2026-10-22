@@ -51,6 +51,12 @@ For a Spec Kit feature, determine whether a Converge result is available and app
 
 An unchecked task marker alone is not proof that work remains if completion is demonstrated; likewise, checked tasks or a previous convergence claim do not override observed missing work.
 
+### Optional Graphify Review Evidence
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and materially help investigate the completed implementation. Before graph-informed Review after implementation or remediation, refresh a local graph with Graphify's documented incremental update (currently `graphify update .`) when source changed and that interface is available.
+
+If graph currentness cannot be established, do not claim the graph is current; fall back to source inspection. Treat graph relationships as leads only and verify material findings against source and applicable tests or runtime evidence. Do not install Graphify, add hooks, or make Graphify availability a Review prerequisite.
+
 ## Review Passes
 
 Perform and report each applicable pass independently. Record a concise conclusion and key evidence. A pass with no applicable UI or design requirement may be marked not applicable with a reason; do not invent requirements.
@@ -72,12 +78,6 @@ Discover relevant validation commands and run them when practical and safe. Do n
 ### 4. Simplicity, Reuse, and Maintainability
 
 Assess demonstrated duplication, missed opportunities to reuse existing code, unnecessary abstractions, wrappers or layers, speculative configuration, unnecessary dependencies, premature generalization, and avoidable complexity. Report concrete problems, not style preferences or hypothetical concerns.
-
-#### Ponytail Integration
-
-If the installed skill/plugin capability `ponytail-review` is available in the current agent environment, invoke that actual capability on this feature's changes as additional simplicity, reuse, and maintainability evidence. Prefer the installed skill/plugin invocation mechanism; do not search only inside the target repository. Do not substitute reading Ponytail guidance or a generic self-review for invoking the available review capability.
-
-Assess every Ponytail observation against the same evidence standard as other findings. Ponytail cannot override the project constitution, feature specification, approved design, or explicit project requirements. If Ponytail is unavailable or cannot actually be invoked, continue the Better Spec Kit review and disclose that limitation; its absence alone does not make the review incomplete.
 
 ## Evidence and Findings
 

@@ -18,6 +18,12 @@ Entry: `/speckit.scope <ordinary-language request>`.
 
 Inspect enough relevant project evidence to classify work responsibly, ask only for missing scope decisions, and report one safe next action. Scope owns classification, handoff records, Initiative decomposition, and Feature Briefs. It does not replace Specify, Clarify, Design, Plan, Tasks, Bug Assess, or Quick implementation.
 
+### Optional Graphify Repository Discovery
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
+Use graph results to locate current behavior, consumers, and existing patterns before classifying. Graph evidence does not establish requirement approval or broaden approved scope.
+
 ## Workflow
 
 1. Inspect the project and relevant feature artifacts before asking questions the repository can answer. Keep inspection proportional. Distinguish observed facts from assumptions and user intent. If `specs/.scope/deferred-recommendations.md` exists, inspect only active entries that repository evidence makes relevant to this request. Present matches as unapproved recommendations and let the user choose whether to reconsider them; never auto-add or dump unrelated entries into the handoff.

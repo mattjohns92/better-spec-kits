@@ -57,6 +57,12 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 - If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
 
+### Optional Graphify Repository Discovery
+
+Graphify is optional repository intelligence. Use it only when a relevant graph and query surface are already available and can materially reduce discovery. Treat graph output as a map, not proof: verify material conclusions against authoritative source. If Graphify or a useful graph/query surface is unavailable or unhelpful, continue with existing repository investigation.
+
+Use Graphify to locate architecture, dependencies, extension points, and consumers; inspect authoritative source before settling material implementation decisions.
+
 ## Outline
 
 1. **Setup**: Run `.specify/scripts/powershell/setup-plan.ps1 -Json` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, FEATURE_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
@@ -90,6 +96,35 @@ provenance or presents an unresolved product choice, stop and return it to
 Specify/Clarify; do not treat it as settled scope. Keep technical choices within
 the approved outcome Plan-owned, and explain material necessary supporting
 work with its evidence.
+
+### Optional Ponytail Solution Challenge
+
+Before finalizing the proposed implementation approach, complete the relevant
+repository investigation and identify the existing mechanisms and constraints
+that could satisfy the approved outcome. Consider a Ponytail challenge only
+when the proposal contains meaningful complexity that could plausibly be
+unnecessary and the active host exposes a callable Ponytail skill that can be
+safely scoped to this Plan stage. Do not infer callability from Copilot CLI
+availability, plugin installation, instruction-only rules, or a repository
+file. Do not switch or persist a session-wide Ponytail mode just to run this
+stage's challenge. If a safe, stage-scoped invocation is unavailable, fall back
+to Better Spec Kit's built-in challenge and do not claim Ponytail ran.
+
+Ask whether existing mechanisms can be extended and whether each material
+proposed abstraction, wrapper, dependency, service, model, state mechanism,
+infrastructure change, or future-facing extension is needed for this outcome.
+Use implementation shape and repository evidence to decide whether a challenge
+is useful; do not use arbitrary numeric thresholds or optimize for fewer files
+or lines.
+
+Approved requirements, explicit user decisions, constraints, and selected
+Design remain authoritative. Ponytail's recommendations are evidence, not
+architecture authority. Plan owns the final decision: adopt a simpler approach
+only when it completely satisfies the approved outcome; retain necessary
+complexity with brief evidence when simplification would fail a requirement or
+constraint. Do not create a separate Ponytail findings artifact or approval
+ledger. Bounded research does not delegate feature-wide challenge authority;
+the parent Plan stage evaluates the evidence and decides.
 
 ### Initial Architecture Baseline
 
