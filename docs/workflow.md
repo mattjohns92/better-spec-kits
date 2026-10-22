@@ -24,9 +24,11 @@ Implementation can make a graph stale. Do not refresh it at every stage or inter
 
 ## Optional Scope and Quick entry
 
-Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE. It remains optional; direct expert entry is supported.
+Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE according to whether further specification would materially reduce uncertainty about the intended outcome or its important boundaries. It reassesses after relevant evidence and each user answer; implementation breadth or effort alone does not require FEATURE. Scope remains optional; direct expert entry is supported.
 
-Scope writes sanitized, ID-addressable handoffs under `specs/.scope/` for Bug, Quick, and Initiative records. A Feature Brief lives in its normal numbered feature directory. Quick continues a contained handoff through Understand → Implement → Validate and stops when material product, architecture, persistence, permission, or cross-cutting decisions need an owner.
+Scope writes sanitized, ID-addressable handoffs under `specs/.scope/` for Bug, Quick, and Initiative records. A Feature Brief lives in its normal numbered feature directory. Quick continues a contained handoff through Understand → Implement → Validate: it investigates relevant source, callers, patterns, tests, and regression boundaries; waits for a clear answer to a bounded consequential question; and preserves evidence when broader product, architecture, persistence, permission, or cross-cutting decisions need an owner. Quick is suitable for substantial implementation when the outcome and boundaries are understood.
+
+Scope classifies mixed requests item by item. It can create separate Quick handoffs and recommend one invocation with their exact Q IDs, while Feature and Bug items keep their existing routes. Quick preserves per-item boundaries, sequences dependent work, parallelizes only independent items when allowed, and performs parent-owned integrated validation for the grouped execution.
 
 Feature Brief creation and Specify's fresh-session ID resolution are separate behaviors. Do not claim `/speckit.specify F###` consumed a brief unless that receiver behavior has passed its supported-agent acceptance check. Likewise, provisioning Bug does not prove a fresh session can pass a `B###` handoff to Bug Assess.
 

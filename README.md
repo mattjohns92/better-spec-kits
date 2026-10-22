@@ -24,6 +24,12 @@ The feature's `tasks.md` remains the single implementation work ledger: Tasks cr
 
 ## Install
 
+### Optional Scope and Quick entry
+
+Use `/speckit.scope <request>` when the right workflow is uncertain. Scope investigates relevant project evidence and routes by whether further specification would materially reduce uncertainty about the outcome or its boundaries. It reassesses after new evidence and user answers; implementation breadth or effort alone does not require FEATURE.
+
+QUICK is for an understood outcome, not merely a trivial change. `/speckit.quick Q###` investigates relevant code, consumers, patterns, tests, and regression boundaries before editing. It can wait for a clear answer to a bounded consequential question and stops with evidence when broader definition is needed. Multiple independent Quick handoffs can be handled together by passing their exact Q IDs in one invocation; mixed Feature and Bug items remain on their existing routes. Dependencies are sequenced, and grouped work receives parent-owned integrated validation.
+
 Start in a project where GitHub Spec Kit is already initialised:
 
 ```bash

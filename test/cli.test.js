@@ -674,6 +674,20 @@ test("Scope skill classifies evidence-first and writes safe, durable handoffs", 
   }
 });
 
+test("Scope classifies from remaining uncertainty and reassesses after answers", () => {
+  const scopePath = path.join(packageRoot, "skills/speckit-scope/SKILL.md");
+  const scope = fs.readFileSync(scopePath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "whether further specification and planning are likely to materially reduce uncertainty",
+    "reassess after relevant evidence and each user answer",
+    "implementation effort or breadth alone must not require feature",
+    "for feature, name the consequential unresolved definition",
+  ]) {
+    assert.ok(scope.includes(phrase), `Scope classification guidance is missing: ${phrase}`);
+  }
+});
+
 test("Feature Brief contract carries stable IDs, parent context, and exact directory", () => {
   const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
 
@@ -688,6 +702,95 @@ test("Quick skill follows a bounded quality loop and escalates material decision
 
   for (const phrase of ["/speckit.quick q###", "understand", "implement", "validate", "relevant code", "established patterns", "smallest correct change", "tests", "truthful", "escalation"]) {
     assert.ok(quick.includes(phrase), `Quick skill is missing: ${phrase}`);
+  }
+});
+
+test("Quick investigates bounded work and waits or escalates safely", () => {
+  const quickPath = path.join(packageRoot, "skills/speckit-quick/SKILL.md");
+  const quick = fs.readFileSync(quickPath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "inspect relevant code and trace callers or consumers, established patterns, relevant tests, data/state/authorization behavior, and regression boundaries",
+    "identify a focused validation target",
+    "one consequential decision is bounded",
+    "wait for the user's clear answer",
+    "silence, an ambiguous answer, or a resumed interaction without the answer remains unresolved",
+    "preserve useful evidence and stop",
+    "broader unresolved product, architecture, persistence, permission, migration, security, or cross-cutting decisions",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick bounded-work guidance is missing: ${phrase}`);
+  }
+});
+
+test("Scope and Quick preserve item boundaries in grouped executions", () => {
+  const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "for a mixed request, classify each item independently",
+    "create one separate q handoff for each qualifying quick item",
+    "recommend one quick execution using the exact q ids",
+    "keep feature and bug items on their existing routes",
+    "do not impose a fixed batch-size limit",
+  ]) {
+    assert.ok(scope.includes(phrase), `Scope batch-routing guidance is missing: ${phrase}`);
+  }
+
+  for (const phrase of [
+    "accept one or more exact q ids in one invocation",
+    "resolve every q id to its unique record",
+    "preserve each selected item's stated outcome and boundary separately",
+    "sequence dependent items",
+    "parallelize only independent work",
+    "perform parent-owned integrated validation",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick batch-execution guidance is missing: ${phrase}`);
+  }
+});
+
+test("Quick validates integrated work and reviews proportionately", () => {
+  const quickPath = path.join(packageRoot, "skills/speckit-quick/SKILL.md");
+  const quick = fs.readFileSync(quickPath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "run appropriate item-level checks",
+    "perform parent-owned integrated validation across a grouped execution",
+    "review-quality inspection may be folded into this step when it materially improves confidence",
+    "creates no feature review artifact and does not require converge",
+    "not add a mandatory review stage solely because implementation is broad or batched",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick validation/review guidance is missing: ${phrase}`);
+  }
+});
+
+test("Quickstart separates deterministic pricing fixtures from agent acceptance", () => {
+  const quickstartPath = path.join(packageRoot, "specs/023-proportional-scope-quick-workflows/quickstart.md");
+  const quickstart = fs.readFileSync(quickstartPath, "utf8").replace(/\*\*/g, "").toLowerCase();
+  const publicGuidance = [fs.readFileSync(path.join(packageRoot, "README.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8")].join("\n").toLowerCase();
+
+  for (const phrase of [
+    "technology-neutral externally synchronized financial record",
+    "bounded question: may a linked record's pricing link be cleared or replaced after initial assignment?",
+    "user answer: no. once linked, the identifier cannot be cleared or replaced.",
+    "authorized financial roles may perform the initial assignment",
+    "expected classification: quick, provided repository evidence confirms no other material definition remains",
+    "feature counterexample: approval/request workflow",
+    "expected classification: feature",
+    "static contract checks are not supported-agent acceptance",
+    "do not infer agent behavior from test results",
+    "unverified",
+  ]) {
+    assert.ok(quickstart.includes(phrase), `Quickstart acceptance fixture is missing: ${phrase}`);
+  }
+
+  for (const phrase of [
+    "whether further specification would materially reduce uncertainty",
+    "implementation breadth or effort alone does not require feature",
+    "reassesses after",
+    "exact q ids",
+    "parent-owned integrated validation",
+  ]) {
+    assert.ok(publicGuidance.includes(phrase), `Public Scope/Quick guidance is missing: ${phrase}`);
   }
 });
 
