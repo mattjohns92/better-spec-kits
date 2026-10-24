@@ -224,6 +224,20 @@ test("Auto skill pauses for human decisions and preserves the manual-resume fall
   }
 });
 
+test("Auto skill does not treat absent development docs or aliases as same-turn blockers", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "docs/workflow.md` when present; its absence is not a blocker",
+    "same-turn instruction composition does not require a registered alias",
+    "a missing control record means `off`, not `stopped`",
+    "the feature acceptance quickstart is a development-only reference",
+    "continue deterministic stages within the current turn",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto runtime guidance is missing: ${phrase}`);
+  }
+});
+
 test("Auto skill reports status and safe stop/completion outcomes", () => {
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 

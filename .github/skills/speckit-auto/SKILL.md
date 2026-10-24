@@ -20,7 +20,7 @@ Auto changes workflow progression, not workflow behavior. Existing authoritative
 
 V1 support is limited to VS Code Copilot Chat. The expected registered skill alias is `/speckit-auto`; verify it in the active environment. Do not claim the conceptual dotted spelling `/speckit.auto` is registered unless runtime evidence proves it.
 
-Auto is not a background job. Hooks do not invoke workflow stages. A successful hook continuation only gives the active agent another turn; Auto must then use the owning stage's installed instructions. If actual stage composition, user-answer resumption, or a command alias is unavailable or unverified, stop and report the exact manual action. Never claim a stage ran when it was only recommended.
+Auto is not a background job. Hooks do not invoke workflow stages. A successful hook continuation only gives the active agent another turn; Auto must then use the owning stage's installed instructions. An unavailable or unverified command alias does not block same-turn instruction composition. Stop only when the owning stage's instructions cannot be found or followed, or when a real human or host boundary requires it. Never claim a stage ran when it was only recommended.
 
 ## Resolve One Work Item
 
@@ -49,11 +49,11 @@ The hook handler at `.github/hooks/speckit-auto.mjs` owns validated JSON parsing
 
 A Quick work item uses `{ "type": "quick", "id": "Q###" }`; an upstream Bug work item uses `{ "type": "bug", "id": "B###" }`. Use only exact repository records. Missing or invalid records fail safe to OFF/manual operation; do not repair them by guessing.
 
-Persist control state only for an accepted hook-driven continuation path. If supported-agent acceptance has not verified that path, do not promise persistence or unattended progression. Use the approved manual continuation fallback and report the limitation.
+Persist control state only for an accepted hook-driven continuation path. If supported-agent acceptance has not verified that path, do not promise persistence or unattended progression; continue deterministic stages within the current turn and report the limitation only when continuation across a turn boundary is needed. A missing control record means `OFF`, not `STOPPED`.
 
 ## `status`
 
-`status` is read-only. Read the control record if present and inspect only the selected work item's status-bearing artifacts needed to report current or last evidenced stage/result and next action. Do not invoke a stage or update control state.
+`status` is read-only. Read the control record if present and inspect only the selected work item's status-bearing artifacts needed to report current or last evidenced stage/result and next action. If the control record is absent, report `OFF`; absence alone is not a stopped run or a reason to halt same-turn work. Do not invoke a stage or update control state.
 
 Report concise labeled lines, state first:
 
@@ -76,10 +76,10 @@ On `stop`, record `STOP_REQUESTED` for the selected Auto run. Do not interrupt a
 ## Enable or Resume
 
 1. Resolve one work item and inspect the current repository state. A stopped run resumes by deriving the next stage from authoritative artifacts; never use a stored stage cursor.
-2. Set Auto `ON` only for that item when the host path is available. Do not claim a hook or stage is callable merely because it is installed or discoverable.
-3. Derive the current stage and next action from current artifacts and the normal adaptive workflow in `docs/workflow.md`. Inspect the selected work's stage outputs. Do not hard-code a fixed lifecycle sequence.
-4. Before a stage transition, identify and load that stage's currently installed authoritative instructions from `.github/skills/`; for upstream stages, use the installed upstream instruction. Follow those instructions for this stage. Same-session instruction composition is not a nested command invocation. If the instructions cannot be found or followed, stop and state the manual next action.
-5. Use the host's actual direct skill invocation only when it is demonstrably available. Otherwise continue solely by following the loaded authoritative stage instructions within the current agent turn. Never copy complete stage instructions into this skill or replace a stage with a summary of it.
+2. When hook-driven continuation is verified, set Auto `ON` for that item and persist the control record. Otherwise keep the run current-turn only; do not claim persisted or unattended Auto state. Do not claim a hook or stage is callable merely because it is installed or discoverable.
+3. Derive the current stage and next action from current artifacts and the normal adaptive workflow. Use `docs/workflow.md` when present; its absence is not a blocker. Inspect the selected work's stage outputs and installed stage instructions. Do not hard-code a fixed lifecycle sequence.
+4. Before a stage transition, identify and load that stage's currently installed authoritative instructions from `.github/skills/`; for upstream stages, use the installed upstream instruction. Follow those instructions for this stage. Same-turn instruction composition does not require a registered alias or nested command invocation. If the instructions cannot be found or followed, stop and state the manual next action.
+5. Use the host's actual direct skill invocation only when it is demonstrably available. Otherwise continue by following the loaded authoritative stage instructions within the current agent turn. Never copy complete stage instructions into this skill or replace a stage with a summary of it.
 6. After each stage, inspect its actual output and the changed authoritative artifacts. Only continue when the result establishes the same deterministic next action that Manual Mode would recommend and the active host can safely continue.
 7. If an authoritative stage requires a material decision, approval, clarification, design selection, implementation judgment, or hard checkpoint, do no dependent work. Preserve the owning stage's question verbatim where possible. Set `WAITING_FOR_USER` only if the active host can reliably resume; otherwise set `STOPPED` and give the manual continuation. Silence is never approval.
 8. If a user answers in a later turn, let the stage that owns the question consume the answer. Resume only when the Auto skill and selected work context are present and supported-agent acceptance has verified that behavior. Otherwise stop safely, do not claim Auto remains active across that boundary, and explain the required manual action.
@@ -112,7 +112,7 @@ Do not invent a universal attempt limit, compare hashes/timestamps as a proxy fo
 - The hook may continue an agent turn only when Auto is explicitly ON for the matching work/session. It may not choose a stage, inspect or compare finding snapshots, approve a tool, or decide whether evidence constitutes progress.
 - The hook must allow the turn to end for OFF, WAITING FOR USER, STOP REQUESTED, BLOCKED, STOPPED, DONE, mismatched session, malformed state, hook failure, or a host continuation guard.
 - `sessionStart` can add context only; it must not start work without a user turn.
-- Do not claim automatic progression, same-session answer resume, safe-stop behavior, or unattended execution unless the corresponding VS Code Copilot Chat acceptance scenario in `specs/024-auto-mode-workflow-progression/quickstart.md` passed.
+- The feature acceptance quickstart is a development-only reference, not a consumer-project prerequisite. Do not claim automatic progression, same-session answer resume, safe-stop behavior, or unattended execution unless the corresponding VS Code Copilot Chat acceptance scenario passed.
 
 ## Completion
 
