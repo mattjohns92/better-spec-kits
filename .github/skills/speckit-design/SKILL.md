@@ -220,12 +220,15 @@ Do NOT introduce a new pattern simply because another design may look better in 
 After approved product behavior and existing patterns are understood:
 
 - For a routine change answered by an established pattern, reuse it without manufacturing alternatives or requiring ceremonial approval. Show the proposed result only when that materially improves understanding.
-- When multiple credible, meaningfully different approaches exist and seeing them would materially help the user's decision, present visual alternatives before choosing a direction. Differences may include hierarchy, interaction model, layout, navigation, progressive disclosure, action placement, selection model, or responsive behavior; superficial styling alone is not enough. Do not impose a fixed number of alternatives.
-- Inspect tools available in the current session before relying on rendering. When practical, use the target application's technology and patterns or a lightweight, disposable prototype. Do not add production dependencies, architecture, or infrastructure solely to render concepts.
-- If rendering is unavailable or impractical, provide the strongest useful non-rendered representation, state the limitation, and do not claim that a prototype was rendered.
-- Label alternatives clearly and explain their differences in text as well as visually. The user may select, combine, revise, or reject them; incorporate the response and show a revision when useful.
+- For SIGNIFICANT work, decide explicitly whether the approved requirements and inspected product leave multiple credible, meaningfully different approaches. If they do and the choice can affect the user's experience, normally show **three rendered concepts** before selecting a direction. Show two when only two materially different approaches are credible; never invent an alternative to meet a count. One established pattern is enough only when repository evidence shows it is the clear fit or approved requirements leave no meaningful choice.
+- Concepts must differ in meaningful structure or behavior, such as task flow, information hierarchy, density, navigation, progressive disclosure, or interaction model. A palette, spacing, radius, or icon variation is not a separate concept.
+- A concept is rendered only when the user can inspect actual visual output in the current session or an accessible artifact, such as a running prototype, rendered HTML, or screenshot. Prose, ASCII, Mermaid, a component list, or a `design.md` description is not rendered evidence. Keep concepts comparable in content and viewport where practical, label them A/B/C, and explain the decision each explores.
+- Inspect current-session rendering tools first. Prefer the target application's technology and patterns or a lightweight disposable prototype. Do not add production dependencies, architecture, or infrastructure solely to render concepts.
+- If rendering is unavailable or impractical, state the limitation and provide the strongest useful non-rendered representation, but do not claim that visual selection or approval occurred. Keep the material choice unresolved; ask whether the user accepts a non-rendered decision path or wants to defer. Do not describe Design as approved or ready for `/speckit-plan` while the choice is pending.
+- Before presentation, critique and improve the concepts against the actual task, primary action, information hierarchy, interaction cost, product patterns, realistic content, responsive behavior, and accessibility. Remove generic or merely decorative options; do not mistake polish or a claimed skill invocation for usability.
+- Label alternatives clearly and explain their differences in text as well as visually. The user may select, combine, revise, or reject concepts, request another direction, or combine aspects; incorporate the response and render a revision when useful.
 - If a material choice is awaiting a response, remain paused. Do not treat silence as approval or describe the feature as ready for `/speckit-plan`.
-- After the user responds, record the selected/current direction in `design.md`. Include rejected alternatives only when needed to prevent downstream drift.
+- After the user responds, record the selected/current direction and links or paths to the concepts actually shown in `design.md`. Include rejected alternatives only when needed to prevent downstream drift.
 - If a visual direction requires a material product behavior that has not been approved, stop and return it to Clarify instead of deciding it in Design.
 
 ## Step 4 — Apply UI/UX Design Guidance
@@ -267,7 +270,10 @@ Record in `design.md`:
 **UI UX Pro Max:** USED | NOT AVAILABLE
 
 If used, briefly record the material recommendations that influenced the
-design.
+design and the specific design decision each informed. A `USED` label alone
+does not demonstrate contribution. If the skill was invoked but no relevant
+recommendation changed or validated a decision, say so plainly; do not claim
+that its presence proves design quality.
 
 If recommendations were deliberately rejected because they conflicted with
 the existing application, constitution, or user workflow, record that where
@@ -426,6 +432,8 @@ New components should be reusable where appropriate.
 
 Record the selected/current direction after the user responds, significant UX decisions, and why they were made. Keep this concise; include rejected alternatives only when needed to prevent downstream drift.
 
+For SIGNIFICANT work with rendered alternatives, also record the concept labels, the visual artifact links/paths shown to the user, the meaningful distinction between them, and the user's selection or requested refinement. Do not record a selected direction or readiness for Plan before the user responds to a material choice.
+
 Examples:
 
 - inline editing instead of modal
@@ -455,6 +463,9 @@ Before completing the design stage verify:
 - accessibility was considered
 - unnecessary cards, dialogs and containers were avoided
 - the design is consistent with the constitution
+- significant work with multiple credible approaches includes three rendered concepts by default (or two when only two are credible), with accessible visual evidence; a textual `design.md` is not a substitute
+- each presented concept was critiqued for task fit and usability, and weak/generic concepts were revised before presentation
+- any claimed UI UX Pro Max use is supported by a specific recommendation and its effect on a design decision
 
 Do not implement the feature.
 
