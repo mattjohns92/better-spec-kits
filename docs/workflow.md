@@ -14,6 +14,12 @@ The independent `/speckit.status` skill gives a read-only project-level overview
 
 The independent `/speckit.query <question>` utility answers a specific natural-language question by inspecting current project evidence. It responds in chat without changing project state. Query is question-focused; Project Status remains the lifecycle-focused overview of feature and Initiative progress.
 
+## Auto Mode
+
+The optional `/speckit-auto` skill advances one selected work item when the existing workflow makes the next stage deterministic. Use `/speckit-auto status` for a read-only state report and `/speckit-auto stop` to halt automatic progression at a safe stage boundary. It preserves the adaptive Feature, Quick, and upstream Bug routes, all existing approval checkpoints, and the selected work boundary.
+
+V1 targets VS Code Copilot Chat. Copilot hooks can request another agent turn but do not dispatch Better Spec Kit stages; installation or skill discovery does not prove orchestration or answer resumption. Auto must report unsupported transitions and give the exact manual next action. It never infers approval or claims that an authoritative stage ran without runtime evidence.
+
 ## Optional Graphify Repository Intelligence
 
 Graphify is optional. When it is already available through the active agent surface and a relevant graph can reduce discovery, existing stages may query it to locate likely code, dependencies, consumers, or related UI. Graph evidence is a map, not proof: source code and runtime behavior remain authoritative, and graph discovery does not create requirements or expand approved scope. If Graphify or useful graph evidence is unavailable, unsupported, stale, or failing, fall back to existing repository investigation and state limitations when relevant. Do not use a CLI availability check as proof of agent access or graph currentness.

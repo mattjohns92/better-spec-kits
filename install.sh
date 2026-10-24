@@ -7,16 +7,18 @@ INSTALL_CONSTITUTION="${INSTALL_CONSTITUTION:-0}"
 SPECKIT_INITIALIZED=0
 [[ -d "$TARGET/.specify" ]] && SPECKIT_INITIALIZED=1
 [[ -d "$TARGET" ]] || { echo "Target project does not exist: $TARGET" >&2; exit 1; }
-files=(".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-clarify/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-analyze/SKILL.md" ".github/skills/speckit-remediate/SKILL.md" ".github/skills/speckit-implement/SKILL.md" ".github/skills/speckit-review/SKILL.md" ".github/skills/speckit-summary/SKILL.md" ".github/skills/speckit-preview/SKILL.md" ".github/skills/speckit-status/SKILL.md" ".github/skills/speckit-query/SKILL.md" ".github/skills/speckit-scope/SKILL.md" ".github/skills/speckit-quick/SKILL.md" ".github/instructions/scope-handoffs.instructions.md" ".github/instructions/speckit-specify-scope.instructions.md")
+files=(".github/skills/speckit-auto/SKILL.md" ".github/hooks/speckit-auto.json" ".github/hooks/speckit-auto.mjs" ".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-clarify/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-analyze/SKILL.md" ".github/skills/speckit-remediate/SKILL.md" ".github/skills/speckit-implement/SKILL.md" ".github/skills/speckit-review/SKILL.md" ".github/skills/speckit-summary/SKILL.md" ".github/skills/speckit-preview/SKILL.md" ".github/skills/speckit-status/SKILL.md" ".github/skills/speckit-query/SKILL.md" ".github/skills/speckit-scope/SKILL.md" ".github/skills/speckit-quick/SKILL.md" ".github/instructions/scope-handoffs.instructions.md" ".github/instructions/speckit-specify-scope.instructions.md")
 if [[ "$INSTALL_CONSTITUTION" == "1" ]]; then files+=(".specify/memory/constitution.md"); fi
 source_for_destination() {
   case "$1" in
     .github/skills/*) printf '%s/skills/%s' "$ROOT" "${1#.github/skills/}" ;;
+    .github/hooks/*) printf '%s/hooks/%s' "$ROOT" "${1#.github/hooks/}" ;;
     .github/instructions/*) printf '%s/instructions/%s' "$ROOT" "${1#.github/instructions/}" ;;
     .specify/memory/constitution.md) printf '%s/constitution/constitution.md' "$ROOT" ;;
     *) return 1 ;;
   esac
 }
+  files+=(".github/skills/speckit-auto/SKILL.md" ".github/hooks/speckit-auto.json" ".github/hooks/speckit-auto.mjs")
 for dst in "${files[@]}"; do
   if [[ -e "$TARGET/$dst" && "$FORCE" != "1" ]]; then
     echo "Refusing to replace $TARGET/$dst. Set FORCE=1 to replace with backups." >&2; exit 1

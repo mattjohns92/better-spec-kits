@@ -42,6 +42,8 @@ The CLI previews managed-file changes, including the Analyze and Remediate skill
 
 The independent Project Status skill is distributed through the same managed and standalone skill installation paths. It reports feature and Initiative lifecycle evidence; `better-spec-kit status` remains limited to installation, integration, and provisioning diagnostics.
 
+Auto Mode installs its canonical skill and repository-scoped Copilot hook through the managed and standalone installers. V1 targets VS Code Copilot Chat only. Hook installation does not verify that a hook fired, an authoritative stage was dispatched, or a user answer resumes an Auto run. Validate those behaviors using the supported-agent scenarios in the Auto feature's `quickstart.md`; until verified, Auto reports a manual continuation instead of claiming automatic progress.
+
 The installer preserves the existing constitution by default, backs up replaced files outside the target repository, and requires explicit approval for customized or unknown managed files. An existing upstream Analyze skill at the shared path is treated as a conflict; review the preview and approve replacement explicitly to retain its backup.
 
 ## Upstream Bug extension

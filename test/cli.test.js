@@ -187,6 +187,86 @@ test("Better Spec Kit skill completion guidance follows stage outcomes", () => {
   }
 });
 
+test("Auto skill derives one continuation and preserves authoritative stage ownership", () => {
+  const autoPath = path.join(packageRoot, "skills/speckit-auto/SKILL.md");
+  assert.ok(fs.existsSync(autoPath), "canonical Auto skill is missing");
+  const auto = fs.readFileSync(autoPath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit-auto",
+    "stop",
+    "status",
+    "multiple plausible work items",
+    "current artifacts",
+    "adaptive",
+    "authoritative stage",
+    "manual continuation",
+    "silence is never approval",
+    "never copy complete stage instructions",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto skill is missing: ${phrase}`);
+  }
+});
+
+test("Auto skill pauses for human decisions and preserves the manual-resume fallback", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "material decision",
+    "no dependent work",
+    "silence is never approval",
+    "hard checkpoint",
+    "waiting_for_user",
+    "manual continuation",
+    "do not claim auto remains active across that boundary",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto decision-boundary guidance is missing: ${phrase}`);
+  }
+});
+
+test("Auto skill reports status and safe stop/completion outcomes", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit-auto stop",
+    "/speckit-auto status",
+    "stop_requested",
+    "stopped",
+    "done",
+    "failed",
+    "unknown",
+    "`status` is read-only",
+    "do not begin another stage",
+    "do not begin another stage",
+    "start another item",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto status/stop guidance is missing: ${phrase}`);
+  }
+});
+
+test("Auto skill preserves adaptive routes and remediation ownership", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "do not hard-code a fixed lifecycle sequence",
+    "analyze findings",
+    "auto never resolves an analyze finding",
+    "implement -> converge loop",
+    "review blocking findings",
+    "review alone owns finding status and resolution",
+    "quick",
+    "understand -> implement -> validate",
+    "upstream bug workflow",
+    "do not select or start another child",
+    "materially unchanged evidence",
+    "do not invent a universal attempt limit",
+    "if the prior cycle is not available or comparison is ambiguous, stop as `blocked`",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto adaptive-route guidance is missing: ${phrase}`);
+  }
+  assert.ok(!auto.includes("the hook compares findings"), "the hook must not own qualitative comparison");
+});
+
 test("Design, Plan, Tasks, and Implement preserve approved feature scope", () => {
   for (const [name, phrases] of [
     ["design", ["must not introduce material product behavior", "return it to specify/clarify"]],
@@ -1336,7 +1416,7 @@ test("CLI status remains installation diagnostics rather than project lifecycle 
   const output = await capture(["status", project()]);
   assert.match(output, /Review skill:/);
   assert.match(output, /Bug provisioning:/);
-  assert.doesNotMatch(output, /PROJECT STATUS|Feature 0\d\d|Needs Attention/);
+  assert.doesNotMatch(output, /PROJECT STATUS|AUTO STATUS|Feature 0\d\d|Needs Attention|Auto Mode is ON/);
 });
 
 test("Analyze recommends optional Preview when useful and preserves direct Implement", () => {

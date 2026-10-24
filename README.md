@@ -68,6 +68,12 @@ The independent Project Status skill provides a read-only, project-level view of
 
 Project Query (`/speckit.query <question>`) is a separate read-only project utility for answering specific natural-language questions from current repository evidence. It responds in chat and does not change project files or lifecycle state.
 
+## Auto Mode
+
+Auto Mode is an optional workflow-progression skill for VS Code Copilot Chat. Use `/speckit-auto` to continue one uniquely selected work item, `/speckit-auto status` to inspect Auto state, or `/speckit-auto stop` to stop progression at the next safe boundary. It follows existing Feature, Quick, and upstream Bug ownership; it does not replace stages or infer approvals.
+
+The installed Copilot hook can request another agent turn but does not invoke a workflow stage. Cross-stage dispatch and resumption after a user answer require supported-agent acceptance; when a transition is unsupported, Auto must stop and report the exact manual next action. Installation alone is not runtime evidence. This skill is separate from `better-spec-kit status`, which remains installation and integration diagnostics.
+
 ## Safety
 
 Better Spec Kit is designed to upgrade an existing Spec Kit project in place.

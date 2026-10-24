@@ -82,6 +82,9 @@ if ($interactive -and -not $InstallConstitution) {
     $InstallConstitution = Ask-Yes $label
 }
 $files = @(
+    @{ Source='skills/speckit-auto/SKILL.md'; Destination='.github/skills/speckit-auto/SKILL.md' },
+    @{ Source='hooks/speckit-auto.json'; Destination='.github/hooks/speckit-auto.json' },
+    @{ Source='hooks/speckit-auto.mjs'; Destination='.github/hooks/speckit-auto.mjs' },
     @{ Source='skills/speckit-design/SKILL.md'; Destination='.github/skills/speckit-design/SKILL.md' },
     @{ Source='skills/speckit-clarify/SKILL.md'; Destination='.github/skills/speckit-clarify/SKILL.md' },
     @{ Source='skills/speckit-plan/SKILL.md'; Destination='.github/skills/speckit-plan/SKILL.md' },
@@ -97,7 +100,10 @@ $files = @(
     @{ Source='skills/speckit-scope/SKILL.md'; Destination='.github/skills/speckit-scope/SKILL.md' },
     @{ Source='skills/speckit-quick/SKILL.md'; Destination='.github/skills/speckit-quick/SKILL.md' },
     @{ Source='instructions/scope-handoffs.instructions.md'; Destination='.github/instructions/scope-handoffs.instructions.md' },
-    @{ Source='instructions/speckit-specify-scope.instructions.md'; Destination='.github/instructions/speckit-specify-scope.instructions.md' }
+    @{ Source='instructions/speckit-specify-scope.instructions.md'; Destination='.github/instructions/speckit-specify-scope.instructions.md' },
+    @{ Source='skills/speckit-auto/SKILL.md'; Destination='.github/skills/speckit-auto/SKILL.md' },
+    @{ Source='hooks/speckit-auto.json'; Destination='.github/hooks/speckit-auto.json' },
+    @{ Source='hooks/speckit-auto.mjs'; Destination='.github/hooks/speckit-auto.mjs' }
 )
 if ($InstallConstitution) { $files += @{ Source='constitution/constitution.md'; Destination='.specify/memory/constitution.md' } }
 foreach ($item in $files) {

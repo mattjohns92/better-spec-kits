@@ -18,7 +18,7 @@ function project() {
 test("fresh install preserves constitution and writes metadata", () => {
   const p = project();
   const result = install({ project: p, packageRoot, plan: buildPlan(p, packageRoot), version: "0.4.0" });
-  assert.equal(result.changed, 16);
+  assert.equal(result.changed, 19);
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-review/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-summary/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-preview/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8"));
@@ -33,6 +33,72 @@ test("fresh install preserves constitution and writes metadata", () => {
   );
   assert.equal(fs.readFileSync(path.join(p, ".specify/memory/constitution.md"), "utf8"), "custom constitution");
   assert.equal(JSON.parse(fs.readFileSync(path.join(p, ".specify/better-spec-kit.json"), "utf8")).version, "0.4.0");
+});
+
+test("Auto skill and Copilot hook assets use managed install and customization safeguards", () => {
+  const assets = [
+    ["skills/speckit-auto/SKILL.md", ".github/skills/speckit-auto/SKILL.md"],
+    ["hooks/speckit-auto.json", ".github/hooks/speckit-auto.json"],
+    ["hooks/speckit-auto.mjs", ".github/hooks/speckit-auto.mjs"],
+  ];
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+  const freshProject = project();
+  const plan = buildPlan(freshProject, packageRoot);
+
+  for (const [sourceRel, destinationRel] of assets) {
+    const entry = plan.find((item) => item.destinationRel === destinationRel);
+    assert.equal(entry?.sourceRel, sourceRel);
+    assert.equal(entry?.classification, "new");
+  }
+  assert.ok(packageFiles.includes("hooks"));
+  assert.ok(!packageFiles.includes(".github"));
+  assert.ok(powershellInstaller.includes("Source='hooks/speckit-auto.json'; Destination='.github/hooks/speckit-auto.json'"));
+  assert.ok(powershellInstaller.includes("Source='hooks/speckit-auto.mjs'; Destination='.github/hooks/speckit-auto.mjs'"));
+  assert.ok(shellInstaller.includes('".github/hooks/speckit-auto.json"'));
+  assert.ok(shellInstaller.includes('".github/hooks/speckit-auto.mjs"'));
+
+  install({ project: freshProject, packageRoot, plan, version: "0.5.23" });
+  for (const [sourceRel, destinationRel] of assets) {
+    assert.equal(fs.readFileSync(path.join(freshProject, destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, sourceRel), "utf8"));
+  }
+  for (const [sourceRel, dogfoodRel] of [
+    ["skills/speckit-auto/SKILL.md", ".github/skills/speckit-auto/SKILL.md"],
+    ["hooks/speckit-auto.json", ".github/hooks/speckit-auto.json"],
+    ["hooks/speckit-auto.mjs", ".github/hooks/speckit-auto.mjs"],
+  ]) {
+    const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+    assert.equal(
+      normalizeLineEndings(fs.readFileSync(path.join(packageRoot, sourceRel), "utf8")),
+      normalizeLineEndings(fs.readFileSync(path.join(packageRoot, dogfoodRel), "utf8")),
+      `${dogfoodRel} must match ${sourceRel}`,
+    );
+  }
+
+  const customProject = project();
+  const customPath = path.join(customProject, ".github/hooks/speckit-auto.json");
+  const customContent = '{"version":1,"hooks":{"agentStop":[]},"custom":true}\n';
+  fs.mkdirSync(path.dirname(customPath), { recursive: true });
+  fs.writeFileSync(customPath, customContent);
+  const customPlan = buildPlan(customProject, packageRoot);
+  assert.equal(customPlan.find((item) => item.destinationRel === ".github/hooks/speckit-auto.json")?.classification, "custom");
+  assert.throws(() => install({ project: customProject, packageRoot, plan: customPlan, version: "0.5.23" }), /approval/);
+  assert.equal(fs.readFileSync(customPath, "utf8"), customContent);
+
+  const previousLocalAppData = process.env.LOCALAPPDATA;
+  const isolatedLocalAppData = fs.mkdtempSync(path.join(os.tmpdir(), "bsk-auto-backup-"));
+  process.env.LOCALAPPDATA = isolatedLocalAppData;
+  try {
+    const result = install({ project: customProject, packageRoot, plan: customPlan, version: "0.5.23", allowCustom: true });
+    assert.ok(result.backupRoot);
+    assert.equal(fs.readFileSync(path.join(result.backupRoot, ".github/hooks/speckit-auto.json"), "utf8"), customContent);
+    assert.equal(fs.readFileSync(customPath, "utf8"), fs.readFileSync(path.join(packageRoot, "hooks/speckit-auto.json"), "utf8"));
+  } finally {
+    if (previousLocalAppData === undefined) delete process.env.LOCALAPPDATA;
+    else process.env.LOCALAPPDATA = previousLocalAppData;
+    fs.rmSync(isolatedLocalAppData, { recursive: true, force: true });
+  }
 });
 
 test("Clarify install distinguishes absent, current, upstream, and customized files", () => {
@@ -192,7 +258,7 @@ test("upgrading a pre-Review installation adds the Review skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.5.0" });
 
-  assert.equal(result.changed, 12);
+  assert.equal(result.changed, 15);
   assert.equal(fs.readFileSync(path.join(p, review.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, review.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, summary.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, summary.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, analyze.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
@@ -402,7 +468,7 @@ test("updating an installed project detects the new Remediate skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.6.0" });
 
-  assert.equal(result.changed, 10);
+  assert.equal(result.changed, 13);
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));
