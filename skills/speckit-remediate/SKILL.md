@@ -14,7 +14,7 @@ Consider any requested scope, but do not let it override the feature specificati
 
 ## Purpose
 
-Invoke this workflow with `/speckit.remediate` to coordinate pre-implementation corrections identified by Analyze. It reads `analysis.md`, routes applicable findings through the existing authoritative stage behavior, reconciles only affected downstream artifacts, and returns control to the user for a fresh Analyze run.
+Invoke this workflow with `/speckit.remediate` to coordinate pre-implementation corrections identified by Analyze. It reads `analysis.md`, routes applicable findings through the existing authoritative stage behavior, reconciles only affected downstream artifacts, and returns control to its caller for a fresh Analyze run: the user when standalone, or Auto when composed by Auto.
 
 Remediate is not a second implementation of Clarify, Design, Plan, or Tasks. It does not decide whether a finding is resolved.
 
@@ -22,7 +22,7 @@ Remediate is not a second implementation of Clarify, Design, Plan, or Tasks. It 
 
 - Only Analyze owns `analysis.md` and its finding statuses. Do not create, edit, delete, renumber, resolve, or reprioritize any Analyze finding.
 - Do not claim Analyze accepted remediation or that an OPEN finding is resolved.
-- Do not automatically run Analyze, Implement, Converge, or Review.
+- Do not run Analyze, Implement, Converge, or Review from within Remediate. When composed by Auto, return control to Auto after reporting the remediation result; Auto executes the next authoritative stage without requiring another user command. Preserve all genuine human decision and approval checkpoints.
 - Do not create `remediation.md`, another findings ledger, a workflow engine, a dispatcher, persistent orchestration state, or new runtime services.
 - Do not copy complete stage instructions into this skill. Do not claim to invoke a nested skill or command unless the host actually supports and performs that invocation.
 - Keep the user's feature artifacts and existing task history intact except for targeted edits made by their authoritative stages.

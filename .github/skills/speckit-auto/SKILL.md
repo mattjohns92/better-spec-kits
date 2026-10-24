@@ -22,6 +22,24 @@ V1 support is limited to VS Code Copilot Chat. The expected registered skill ali
 
 Auto is not a background job. Hooks do not invoke workflow stages. A successful hook continuation only gives the active agent another turn; Auto must then use the owning stage's installed instructions. An unavailable or unverified command alias does not block same-turn instruction composition. Stop only when the owning stage's instructions cannot be found or followed, or when a real human or host boundary requires it. Never claim a stage ran when it was only recommended.
 
+## Execution Contract
+
+One `/speckit-auto` request authorizes execution of successive deterministic stages for the selected work item, not just selection or recommendation of one stage. Keep Auto as the outer workflow while following each owning stage's instructions.
+
+This caller contract applies to every applicable lifecycle skill, including installed upstream stages: Specify, Clarify, Design, Plan, Tasks, Analyze, Remediate, optional Preview, Implement, Converge, Review, and Summary. It is not limited to an Analyze/remediation pair. Follow the owning stage's context-sensitive route; do not run optional stages merely to exhaust this list or invoke unrelated utilities.
+
+For a Feature, the selected completion boundary is delivered and validated implementation, successful convergence, a current Review PASS with no OPEN blocking findings, and a written current Summary. Finishing the specification, tasks, implementation, or Review alone is not DONE. After Review PASS, execute Summary before reporting completion.
+
+Repeat within the current turn: derive the next action, load its authoritative instructions, execute the stage, validate its result, then return control to Auto and derive the next action again. A stage's completion report is an intermediate result, not the end of the Auto request. Send concise progress updates between stages; do not end the turn with "Next: run ..." when that action can be executed now. Do not require another `/speckit-auto` request at every stage boundary.
+
+Standalone-stage instructions to recommend the next command, return to the user, or not automatically launch another stage preserve that stage's ownership; they do not terminate the outer Auto workflow. The stage finishes before Auto executes the next stage. This does not bypass any material decision, approval, quality gate, or hard checkpoint.
+
+For example, after Tasks completes and establishes Analyze as next, execute Analyze. If Analyze reports OPEN blocking findings, execute Remediate for those findings; after actual remediation and any required downstream reconciliation, execute a fresh Analyze. Do not rerun Analyze against unchanged artifacts instead of executing Remediate. Assess non-progress only after a complete remediation cycle, not merely because findings are still OPEN before remediation.
+
+End the Auto request only at the selected completion boundary, an explicit stop request, a genuine human decision/approval, a concrete missing prerequisite or execution failure, a non-progressing remediation cycle, or an actual host limit that prevents further execution. Report the specific reason when stopping; a routine next-stage recommendation is not a stop reason.
+
+Resolve recoverable execution errors and obtain missing evidence yourself when safe and within the approved boundary. An agent-actionable failure or prerequisite is work to perform, not automatically a request for human intervention. Never bypass required permissions, invent evidence, or loop indefinitely on an unrecoverable failure.
+
 ## Resolve One Work Item
 
 1. For an explicit scope ID, resolve it exactly to the unique Scope record and recorded feature directory. For an explicit feature directory, verify it exists and contains the expected feature artifacts. Do not resolve by title, recency, branch name, partial ID, or directory order.
@@ -80,24 +98,24 @@ On `stop`, record `STOP_REQUESTED` for the selected Auto run. Do not interrupt a
 3. Derive the current stage and next action from current artifacts and the normal adaptive workflow. Use `docs/workflow.md` when present; its absence is not a blocker. Inspect the selected work's stage outputs and installed stage instructions. Do not hard-code a fixed lifecycle sequence.
 4. Before a stage transition, identify and load that stage's currently installed authoritative instructions from `.github/skills/`; for upstream stages, use the installed upstream instruction. Follow those instructions for this stage. Same-turn instruction composition does not require a registered alias or nested command invocation. If the instructions cannot be found or followed, stop and state the manual next action.
 5. Use the host's actual direct skill invocation only when it is demonstrably available. Otherwise continue by following the loaded authoritative stage instructions within the current agent turn. Never copy complete stage instructions into this skill or replace a stage with a summary of it.
-6. After each stage, inspect its actual output and the changed authoritative artifacts. Only continue when the result establishes the same deterministic next action that Manual Mode would recommend and the active host can safely continue.
-7. If an authoritative stage requires a material decision, approval, clarification, design selection, implementation judgment, or hard checkpoint, do no dependent work. Preserve the owning stage's question verbatim where possible. Set `WAITING_FOR_USER` only if the active host can reliably resume; otherwise set `STOPPED` and give the manual continuation. Silence is never approval.
-8. If a user answers in a later turn, let the stage that owns the question consume the answer. Resume only when the Auto skill and selected work context are present and supported-agent acceptance has verified that behavior. Otherwise stop safely, do not claim Auto remains active across that boundary, and explain the required manual action.
+6. After each stage, inspect its actual output and the changed authoritative artifacts. When the result establishes the same deterministic next action that Manual Mode would recommend and the active host can safely continue, execute that action now and repeat the loop. Do not merely report it as a manual next step.
+7. If an authoritative stage requires a material decision, approval, clarification, design selection, implementation judgment, or hard checkpoint, do no dependent work. Preserve the owning stage's question verbatim where possible. Keep the selected Auto intent waiting for the answer as `WAITING_FOR_USER`; persist it only through an accepted control-state path. Silence is never approval. A question pauses the workflow, not the user's Auto preference.
+8. When the user answers in the same conversation and the selected work and pending question are unambiguous, let the owning stage consume the answer, then resume the Auto loop without requiring another `/speckit-auto` command. If context is missing or ambiguous, ask only for the missing context; do not guess or claim unattended cross-session resumption. For unsupported host-driven resumption, do not claim Auto remains active across that boundary without retained context.
 9. If the user requests stop, honor `STOP_REQUESTED` at the next safe boundary. Do not start a subsequent stage.
 
 ## Authoritative Adaptive Routes
 
 Follow the current evidence and owning stage, not a predetermined list:
 
-- **Feature**: preserve optional Design/Preview and context-sensitive Analyze PASS/FINDINGS/INCOMPLETE outcomes.
+- **Feature**: continue through applicable Specify, Clarify, Design, Plan, Tasks, Analyze, Implement, Converge, Review, and Summary behavior. Preserve optional Design/Preview and context-sensitive Analyze PASS/FINDINGS/INCOMPLETE outcomes. Load each stage's installed instructions; this list is coverage, not a fixed lifecycle sequence.
 - **Analyze FINDINGS**: follow Analyze's remediation stage through Remediate, then use a fresh Analyze result. Auto never resolves an Analyze finding.
-- **Analyze INCOMPLETE**: stop for the missing prerequisite/evidence; do not implement.
+- **Analyze INCOMPLETE**: obtain the missing prerequisite/evidence when safely agent-actionable, then rerun Analyze. Ask the user only for evidence, access, or a decision the agent cannot supply; do not implement before this gate passes.
 - **Converge gaps**: follow the established Implement -> Converge loop. Proceed to Review only when current Converge evidence establishes convergence.
 - **Review blocking findings**: follow Implement -> Converge -> Review. Review alone owns finding status and resolution.
 - **Quick**: follow the existing Quick Understand -> Implement -> Validate workflow without creating Feature artifacts.
 - **Bug**: hand off only to the supported upstream Bug workflow; never duplicate or claim its behavior without runtime proof.
 - **Initiative**: stop at the selected child Feature boundary; do not select or start another child.
-- **Review PASS / Summary**: invoke or compose Summary only if supported-agent acceptance demonstrates it. Otherwise report the manual Summary action and do not claim final completion.
+- **Review PASS / Summary**: after a current Review PASS, load and execute Summary using the same instruction-composition path as every other stage. Do not stop at a manual Summary recommendation or require separate dispatch acceptance for same-turn composition. If Review is not PASS, continue its applicable remediation or evidence-gathering route; never use Summary to bypass Review.
 
 When artifacts conflict, are stale, or do not establish a unique next stage, stop and ask for the minimum human decision or report the manual next action.
 
@@ -116,4 +134,4 @@ Do not invent a universal attempt limit, compare hashes/timestamps as a proxy fo
 
 ## Completion
 
-When the selected item reaches its existing successful completion boundary, report DONE and turn Auto off. Do not begin another stage or start another item. Report what stages actually ran, their observed results, the selected boundary, and any runtime limitation. Never claim final completion when required Review, Summary, validation, or acceptance is missing.
+For a Feature, verify successful convergence, current Review PASS, no OPEN blocking findings, required validation/acceptance, and a current written Summary before reporting DONE and turning Auto off. Quick and Bug retain their own authoritative completion boundaries. Do not begin another stage or start another item after completion. Report what stages actually ran, their observed results, the selected boundary, and any runtime limitation. Never claim final completion when required Review, Summary, validation, or acceptance is missing.

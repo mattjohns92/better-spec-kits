@@ -238,6 +238,29 @@ test("Auto skill does not treat absent development docs or aliases as same-turn 
   }
 });
 
+test("Auto executes stage handoffs and Analyze remediation without repeated user commands", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    "a stage's completion report is an intermediate result",
+    "do not require another `/speckit-auto` request at every stage boundary",
+    "they do not terminate the outer auto workflow",
+    "do not rerun analyze against unchanged artifacts instead of executing remediate",
+    "execute that action now and repeat the loop",
+    "this does not bypass any material decision, approval, quality gate, or hard checkpoint",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto execution contract is missing: ${phrase}`);
+  }
+
+  for (const name of ["auto", "analyze", "remediate"]) {
+    const canonical = fs.readFileSync(path.join(packageRoot, `skills/speckit-${name}/SKILL.md`), "utf8");
+    const dogfood = fs.readFileSync(path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`), "utf8");
+    assert.equal(dogfood.replace(/\r\n/g, "\n"), canonical.replace(/\r\n/g, "\n"));
+    if (name !== "auto") {
+      assert.ok(canonical.toLowerCase().includes("return control to auto"), `${name} must return to its Auto caller`);
+    }
+  }
+});
+
 test("Auto skill reports status and safe stop/completion outcomes", () => {
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 
@@ -255,6 +278,33 @@ test("Auto skill reports status and safe stop/completion outcomes", () => {
     "start another item",
   ]) {
     assert.ok(auto.includes(phrase), `Auto status/stop guidance is missing: ${phrase}`);
+  }
+});
+
+test("Auto covers the whole feature lifecycle through Review PASS and Summary and resumes after answers", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    "every applicable lifecycle skill, including installed upstream stages",
+    "specify, clarify, design, plan, tasks, analyze, remediate, optional preview, implement, converge, review, and summary",
+    "finishing the specification, tasks, implementation, or review alone is not done",
+    "after review pass, execute summary before reporting completion",
+    "resume the auto loop without requiring another `/speckit-auto` command",
+    "a question pauses the workflow, not the user's auto preference",
+    "resolve recoverable execution errors and obtain missing evidence yourself",
+    "no open blocking findings, required validation/acceptance, and a current written summary",
+    "never use summary to bypass review",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto lifecycle contract is missing: ${phrase}`);
+  }
+  assert.ok(!auto.includes("invoke or compose summary only if supported-agent acceptance demonstrates it"));
+  for (const [name, phrase] of [
+    ["implement", "an active auto request is an applicable preference for `continuous`"],
+    ["review", "auto, which loads and executes summary before feature completion"],
+  ]) {
+    const canonical = fs.readFileSync(path.join(packageRoot, `skills/speckit-${name}/SKILL.md`), "utf8");
+    const dogfood = fs.readFileSync(path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`), "utf8");
+    assert.ok(canonical.toLowerCase().includes(phrase), `${name} must preserve the full Auto lifecycle`);
+    assert.equal(dogfood.replace(/\r\n/g, "\n"), canonical.replace(/\r\n/g, "\n"));
   }
 });
 
@@ -1289,7 +1339,8 @@ test("Analyze skill routes findings and applies severity and outcome rules", () 
     "**findings**",
     "**incomplete analysis**",
     "do not redesign the interface",
-    "feature 006 remediation orchestration is out of scope",
+    "auto owns subsequent stage execution",
+    "analyze still exclusively owns its findings and never performs remediation itself",
   ]) {
     assert.ok(skill.includes(phrase), `Analyze skill is missing routing/outcome guidance: ${phrase}`);
   }

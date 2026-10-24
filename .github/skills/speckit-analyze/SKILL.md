@@ -45,7 +45,7 @@ Analyze challenges and records findings. It does not remediate them.
 - This proportionality challenge extends the existing Analyze stage; do not create a parallel finding ledger, a general architecture-review framework, or a new workflow stage.
 - The constitution, approved requirements, design decisions, and discovered project constraints remain authoritative.
 - Analyze is technology-agnostic. Do not assume a language, framework, database, deployment platform, repository layout, or application type.
-- Do not implement a finding, invoke Clarify/Design/Plan/Tasks automatically, or run an automatic Analyze-remediate-Analyze loop. Feature 006 remediation orchestration is out of scope.
+- Do not implement a finding or invoke Clarify/Design/Plan/Tasks from within Analyze. When run standalone, recommend remediation rather than running an automatic Analyze-remediate-Analyze loop. When composed by Auto, finish this analysis and return control to Auto; Auto owns subsequent stage execution, including Remediate and a fresh Analyze. Analyze still exclusively owns its findings and never performs remediation itself.
 
 ## Execution Steps
 

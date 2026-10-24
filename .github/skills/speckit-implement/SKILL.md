@@ -194,6 +194,8 @@ Determine whether meaningful intermediate validation boundaries exist by conside
 
 If an explicitly established active-feature mode or applicable preference exists, honor it without asking for it again. Otherwise, briefly recommend `CONTINUOUS` or `INCREMENTAL` with the relevant evidence and present both modes as valid choices. Accept the user's direct choice when it is safe and remains within approved intent.
 
+An active Auto request is an applicable preference for `CONTINUOUS` work unless the user explicitly selected `INCREMENTAL` checkpoints for this feature. Do not ask for a routine execution-mode choice solely because Auto reached Implement. Preserve genuine material decisions, required approvals, and useful human UI feedback checkpoints; after completing this stage, return control to Auto for Converge and Review rather than ending the selected workflow.
+
 `CONTINUOUS` remains first-class: complete the approved work without artificial checkpoints when intermediate boundaries add little practical value.
 
 ### Incremental Checkpoints
