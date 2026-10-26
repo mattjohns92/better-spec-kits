@@ -2044,16 +2044,20 @@ test("Runtime verification preserves authentication, side-effect, and environmen
   }
 });
 
-test("Runtime capability contract and quickstart document safe execution boundaries", () => {
-  const contract = fs.readFileSync(path.join(packageRoot, "specs/026-runtime-verification/contracts/runtime-capability-report.md"), "utf8").toLowerCase();
-  const quickstart = fs.readFileSync(path.join(packageRoot, "specs/026-runtime-verification/quickstart.md"), "utf8").toLowerCase();
+test("Runtime verification guidance in shipped skills and docs preserves safety boundaries", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+  const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
 
-  for (const phrase of ["credentials, tokens, cookies, or session material", "stop and ask the user", "the target or its side effects are ambiguous", "environment limitation"]) {
-    assert.ok(contract.includes(phrase), `Runtime capability contract is missing: ${phrase}`);
-  }
-  assert.ok(quickstart.includes("production credentials or data"), "Quickstart must prohibit production credentials/data");
-  assert.ok(quickstart.includes("stop and ask"), "Quickstart must require user direction for unsafe authentication/access");
-  assert.ok(quickstart.includes("environment limitation"), "Quickstart must distinguish environment failure");
+  assert.ok(implement.includes("do not copy credentials, tokens, cookies, or session material into feature artifacts"));
+  assert.ok(implement.includes("stop and ask when safe access or side effects are unclear"));
+  assert.ok(review.includes("do not weaken authentication or perform unsafe production actions"));
+  assert.ok(review.includes("distinguish product failure from unavailable/expired authentication"));
+  assert.ok(workflow.includes("is not a successful verification result"));
+  assert.ok(workflow.includes("stop and ask when safe access or side effects are unclear"));
+  assert.ok(integrations.includes("pre-fix reproduction"));
+  assert.ok(integrations.includes("does not replace bug assess/fix/test"));
 });
 
 test("Implement resumes from durable task state and Tasks preserves its ownership", () => {
