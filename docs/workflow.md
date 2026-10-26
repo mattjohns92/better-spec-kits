@@ -80,6 +80,18 @@ Re-inspects relevant code before each task, preserves authoritative design decis
 
 Adaptive execution happens inside Implement. It may use continuous work for cohesive changes or meaningful increments with focused validation and concise checkpoints that pause for the user's response; checkpoints do not replace feature-level Converge, Review, or Summary.
 
+## Runtime Verification
+
+Runtime verification adds evidence within existing stages; it is not a mandatory stage or a replacement for source inspection and tests. Identify the approved changed behavior and its observable outcome, then use the strongest practical evidence at the execution boundary that demonstrates it. Verify the behavior that changed, not everything a runtime can do, and reuse existing project tooling before introducing infrastructure.
+
+Browser verification is the first-class V1 use case. Reuse an existing project browser framework or a supported browser capability callable by the active agent; do not install Playwright solely because BSK supports runtime verification. Non-browser behavior uses existing API, process, worker, or project/host execution without requiring browser automation. The CLI reports only bounded project-local browser configuration signals; host/session capability is `UNKNOWN` unless a reliable observation surface exists. `UNKNOWN` is not a successful verification result.
+
+Runtime depth follows behavior, risk, and available tooling. Implement may verify meaningful vertical slices; Review independently exercises or corroborates material behavior where practical. Inspect relevant console/request failures and compare significant UI with its approved Design only when those observations are supported and relevant. QUICK remains quality-conscious without creating Feature ceremony, and Auto may run deterministic safe checks but pauses for human authentication or consequential safety/Design decisions.
+
+Reuse existing safe test identities. Do not weaken authentication, expose or commit credentials/session state, or perform ambiguous/destructive production actions. Stop and ask when safe access or side effects are unclear. Report expired authentication, unavailable dependencies, sandbox, hardware, or host tooling as environment limitations; never fabricate success or misclassify an unobserved behavior as a product failure.
+
+Record concise evidence in existing stage outputs. For a safe, accessible bug, Auto may capture and hand off the pre-fix observation to the upstream Bug workflow; upstream Bug Test owns repeating the reproduction after the fix. GitHub Spec Kit owns `/speckit.converge`; BSK does not replace it or claim it assessed runtime evidence unless that behavior was observed.
+
 ## Converge (Upstream)
 
 GitHub Spec Kit owns `/speckit.converge`; Better Spec Kit does not duplicate, bundle, or replace it. Run Converge after implementation. If it appends remaining tasks, repeat `converge → implement → converge` until no work remains. If Converge is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit); do not install an unverified replacement.

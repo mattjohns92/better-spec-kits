@@ -35,6 +35,8 @@ Summary is available at any workflow stage. A current, unambiguous Review `PASS`
 
 Report a fidelity or comparison result only when current evidence supports it. State material comparison limitations and do not treat task completion or prompt assertions as runtime proof of visual fidelity.
 
+When runtime verification evidence is available, report the runtime used, approved behavior exercised, observed outcome, relevant failures, and material untested behavior or environment limitations. Distinguish an observed product failure from unavailable or expired authentication, dependencies, sandboxes, hardware, or host capabilities. Static tests, source inspection, and planned checks are not runtime evidence; do not claim verification that did not occur.
+
 - Inspect the delivered implementation and available completion evidence; prefer evidence of delivered behavior over planned work.
 - Treat the Brief and specification as intent, Plan and Tasks as intended work, Review as authority for final acceptance, and current source/tests as evidence of what exists. Do not infer implementation from a checked task or a planned artifact.
 - State a test, acceptance check, Converge result, or other verification only when current evidence shows that it ran and what result it produced.

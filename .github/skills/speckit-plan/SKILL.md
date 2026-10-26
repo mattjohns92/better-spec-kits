@@ -106,6 +106,10 @@ component reuse. If a real constraint prevents the approved target, document
 the evidence and return the proposed change for Design/user approval before
 planning dependent work.
 
+### Runtime Verification Constraints
+
+Identify runtime, authentication, role, sandbox, external side-effect, or hardware constraints when they affect implementation strategy. Reuse the project's existing runtime/browser framework or supported host capability; a detected project config is not proof that a tool is callable, and the CLI cannot infer host/session access. Browser verification is the first-class V1 use case, while non-browser behavior uses its existing project/host execution boundary. Do not turn runtime constraints into a step-by-step execution script or propose dedicated runtime adapters without demonstrated need.
+
 ### Optional Ponytail Solution Challenge
 
 Before finalizing the proposed implementation approach, complete the relevant

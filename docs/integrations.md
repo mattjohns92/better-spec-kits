@@ -10,6 +10,8 @@ An existing extension is left unchanged: Better Spec Kit does not force-reinstal
 
 Provisioning and command registration verify installation state only. Successful installation is not runtime handoff evidence: a separate fresh Copilot session must demonstrate that a sanitized `B###` record reaches the installed Bug Assess workflow before Bug-ID consumption is claimed. Failure or inability to run that check gates only the Bug receiver path.
 
+When an upstream Bug report has safe, accessible reproduction steps, Better Spec Kit's Auto workflow may capture the pre-fix reproduction and pass the observed result to Bug Assess. The upstream Bug Test command remains responsible for repeating the same reproduction after the fix. Better Spec Kit does not replace Bug Assess/Fix/Test or write their artifacts. If access, authentication, or side-effect safety prevents reproduction, report it as not run or an environment limitation; do not claim a product failure or successful reproduction without observing it.
+
 ## GitHub Spec Kit Analyze
 
 `/speckit.analyze` is an upstream GitHub Spec Kit capability. Better Spec Kit distributes an enhanced Analyze skill that preserves upstream consistency checks, challenges material decisions, and writes feature-local `analysis.md` findings. Run it after Tasks and before Implement. If an upstream or customized Analyze skill already occupies the installation path, review the proposed replacement; the installer requires explicit approval and creates a backup before replacing a differing managed file. Analyze itself remains non-mutating except for `analysis.md` and does not automate remediation.

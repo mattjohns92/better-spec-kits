@@ -25,6 +25,7 @@ Continue a resolved Quick handoff through **Understand → Implement → Validat
 5. Determine dependencies before implementation. Sequence dependent items; parallelize only independent work when existing BSK rules permit. Keep delegated work within assigned item boundaries and retain parent ownership of scope and integrated validation.
 6. Implement the smallest correct change that reuses the project’s existing abstractions. Avoid unrelated cleanup, new dependencies, or speculative generalization.
 7. Add or update relevant tests when behavior changes. Run appropriate item-level checks and perform parent-owned integrated validation across a grouped execution. Review-quality inspection may be folded into this step when it materially improves confidence. It creates no Feature Review artifact and does not require Converge. Do not add a mandatory review stage solely because implementation is broad or batched. Report commands and outcomes truthfully; never claim a check or downstream skill ran when it did not.
+   When runtime verification materially helps, use a lightweight runtime check at the changed behavior's execution boundary. QUICK does not mean skipping useful execution evidence, and a runtime check does not escalate the work into Feature ceremony. Reuse existing project/host capabilities; do not create browser or runtime infrastructure for irrelevant behavior.
 8. Summarize the exact items completed, changes, item-level and integrated validation evidence, any review performed, and remaining risks or escalations.
 
 ## Escalation

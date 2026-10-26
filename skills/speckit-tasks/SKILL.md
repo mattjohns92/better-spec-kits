@@ -120,6 +120,13 @@ interaction responsibility they deliver. Keep this traceability concise; do
 not copy the full Design artifact into Tasks or promote rejected or superseded
 concepts into requirements or work.
 
+Runtime verification responsibilities belong in a story task only when they
+validate a meaningful approved behavior or address a necessary safety/evidence
+boundary. Reuse an existing project or host execution mechanism. Keep checks
+coherent; do not create a task per browser action, require a browser for
+non-browser behavior, or add a runtime adapter solely to make a task executable.
+Keep supported-agent/runtime acceptance distinct from repository contract tests.
+
 ### Optional Ponytail Task-Surface Challenge
 
 Before finalizing `tasks.md`, inspect whether meaningful complexity in the

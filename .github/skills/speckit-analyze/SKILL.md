@@ -198,6 +198,13 @@ Use the strongest practical evidence at the actual execution boundary. Do not re
 
 Static contract assertions cover repository-owned behavior only; they do not prove external agent behavior. Keep supported-agent acceptance separate and do not add a heavyweight evaluation harness solely to simulate the external runtime.
 
+Challenge whether proposed runtime evidence can demonstrate the changed behavior
+that materially affects confidence, and whether its execution path is
+proportionate. Do not require runtime verification merely because a capability
+exists. Distinguish an available check that failed from missing/expired
+authentication or unavailable dependency, sandbox, hardware, or host capability;
+unknown evidence is not a pass.
+
 ### 5. Record findings and remediation routes
 
 Raise a finding only when it is material, supported by available evidence, and actionable or important to safe progression. Explain the actual evidence; do not turn missing evidence into an invented architecture recommendation.

@@ -1069,6 +1069,31 @@ test("status reports whether the Review skill is installed", async () => {
   assert.match(await capture(["status", installedProject]), /Review skill: installed/);
 });
 
+test("status and doctor distinguish project browser signals from unknown host capabilities", async () => {
+  const directory = project();
+  fs.writeFileSync(path.join(directory, "playwright.config.ts"), "export default {};");
+  fs.writeFileSync(path.join(directory, "package.json"), JSON.stringify({ devDependencies: { cypress: "1.0.0" } }));
+
+  const status = await capture(["status", directory]);
+  assert.match(status, /Runtime Verification/);
+  assert.match(status, /Project browser signals: Playwright config, Cypress dependency/);
+  assert.match(status, /Host\/session capabilities: UNKNOWN/);
+
+  const doctor = await capture(["doctor", directory]);
+  assert.match(doctor, /Project browser signals: Playwright config, Cypress dependency/);
+  assert.match(doctor, /Host\/session capabilities: UNKNOWN/);
+  assert.doesNotMatch(doctor, /browser runtime is missing|runtime verification is required/i);
+});
+
+test("status reports unknown project browser signals when its root manifest is malformed", async () => {
+  const directory = project();
+  fs.writeFileSync(path.join(directory, "package.json"), "{");
+
+  const output = await capture(["status", directory]);
+  assert.match(output, /Project browser signals: UNKNOWN/);
+  assert.match(output, /Host\/session capabilities: UNKNOWN/);
+});
+
 test("status reports missing, installed, and conflicting Remediate skills", async () => {
   const missingProject = project();
   assert.match(await capture(["status", missingProject]), /Remediate skill: missing/);
@@ -1234,6 +1259,12 @@ test("workflow documentation makes Analyze the normal pre-implementation gate", 
   assert.match(readme, /status.*analyze\/remediate\/review skills/);
   assert.match(workflow, /analyze returns \*{0,2}pass[\s\S]*implement/);
   assert.match(workflow, /blocking findings[\s\S]*remediate[\s\S]*analyze/);
+  assert.match(workflow, /runtime verification[\s\S]*changed behavior[\s\S]*strongest practical evidence/);
+  assert.match(workflow, /browser verification is the first-class v1 use case[\s\S]*existing project/);
+  assert.match(workflow, /non-browser behavior[\s\S]*without requiring browser automation/);
+  assert.match(workflow, /unknown[\s\S]*not a successful verification/);
+  assert.match(workflow, /credentials[\s\S]*stop and ask/);
+  assert.match(workflow, /github spec kit owns `\/speckit\.converge`/);
   assert.match(installation, /canonical skills to `\.github\/skills\//);
   assert.match(installation, /speckit-remediate/);
   assert.match(installation, /speckit-summary/);
@@ -1894,6 +1925,135 @@ test("Implement compares significant UI work against the approved Design using a
   ]) {
     assert.ok(skill.includes(phrase), `Implement visual-fidelity contract is missing: ${phrase}`);
   }
+});
+
+test("Implement and Review select behavior-driven runtime evidence without weakening safety", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const implementDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md"), "utf8");
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+  const reviewDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-review/SKILL.md"), "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const phrase of [
+    "identify the changed behavior and its observable outcome",
+    "discover project-local signals separately from callable host/session capabilities",
+    "prefer an existing project runtime, integration, or browser framework",
+    "browser verification is the first-class v1 use case",
+    "do not install playwright solely for runtime verification",
+    "do not require a browser for non-browser behavior",
+    "exercise only the changed behavior",
+    "copy credentials, tokens, cookies, or session material into feature artifacts",
+    "expired authentication or unavailable dependencies as environment limitations",
+    "unverified is not a successful verification result",
+    "recheck after deterministic corrections",
+  ]) {
+    assert.ok(implement.includes(phrase), `Implement runtime verification contract is missing: ${phrase}`);
+  }
+  for (const phrase of [
+    "independently exercise or corroborate material runtime behavior",
+    "do not accept implement's claim as the sole evidence",
+    "attributable console or request failures",
+    "distinguish product failure from unavailable/expired authentication",
+    "complementary to source inspection and tests",
+    "material untested behavior",
+    "environment limitations",
+  ]) {
+    assert.ok(review.includes(phrase), `Review runtime evidence contract is missing: ${phrase}`);
+  }
+
+  assert.equal(normalizeLineEndings(implementDogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")));
+  assert.equal(normalizeLineEndings(reviewDogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8")));
+});
+
+test("Planning and adaptive stages keep runtime verification behavior-driven and proportionate", () => {
+  const skill = (name) => fs.readFileSync(path.join(packageRoot, `skills/speckit-${name}/SKILL.md`), "utf8");
+  const plan = skill("plan").toLowerCase();
+  const tasks = skill("tasks").toLowerCase();
+  const analyze = skill("analyze").toLowerCase().replace(/\s+/g, " ");
+  const scope = skill("scope").toLowerCase();
+  const quick = skill("quick").toLowerCase();
+
+  for (const phrase of ["identify runtime, authentication, role, sandbox, external side-effect, or hardware constraints", "do not turn runtime constraints into a step-by-step execution script"]) {
+    assert.ok(plan.includes(phrase), `Plan runtime guidance is missing: ${phrase}`);
+  }
+  for (const phrase of ["runtime verification responsibilities", "do not create a task per browser action"]) {
+    assert.ok(tasks.includes(phrase), `Tasks runtime guidance is missing: ${phrase}`);
+  }
+  for (const phrase of ["strongest practical evidence at the actual execution boundary", "do not require runtime verification merely because a capability exists"]) {
+    assert.ok(analyze.includes(phrase), `Analyze runtime guidance is missing: ${phrase}`);
+  }
+  assert.ok(scope.includes("verification depth is independent from specification ceremony"), "Scope must keep verification separate from ceremony");
+  assert.ok(quick.includes("a lightweight runtime check"), "Quick must allow proportional runtime checks");
+  assert.ok(quick.includes("does not escalate"), "Quick runtime guidance must not force Feature ceremony");
+
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  for (const name of ["plan", "tasks", "analyze", "scope", "quick"]) {
+    const canonical = skill(name);
+    const dogfood = fs.readFileSync(path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`), "utf8");
+    assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), `${name} dogfood skill must match canonical`);
+  }
+});
+
+test("Auto captures safe bug reproductions and Summary reports only observed runtime evidence", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+  const autoDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-auto/SKILL.md"), "utf8");
+  const summary = fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8").toLowerCase();
+  const summaryDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-summary/SKILL.md"), "utf8");
+  const integrations = fs.readFileSync(path.join(packageRoot, "docs/integrations.md"), "utf8").toLowerCase();
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const phrase of [
+    "pre-fix reproduction",
+    "pass the observed result and relevant environment limitations to upstream bug assess",
+    "same reproduction after the fix",
+    "only when supplied reproduction steps and a non-production target are safe and accessible",
+    "do not modify or replace upstream bug artifacts or commands",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto Bug runtime guidance is missing: ${phrase}`);
+  }
+  for (const phrase of ["runtime verification evidence", "observed outcome", "material untested behavior", "environment limitation", "do not claim verification that did not occur"]) {
+    assert.ok(summary.includes(phrase), `Summary runtime evidence guidance is missing: ${phrase}`);
+  }
+  assert.ok(integrations.includes("pre-fix reproduction"), "Integration documentation must explain Bug evidence ownership");
+  assert.ok(integrations.includes("upstream bug"), "Integration documentation must preserve upstream Bug ownership");
+  assert.ok(integrations.includes("converge"), "Integration documentation must preserve upstream Converge ownership");
+  assert.equal(normalizeLineEndings(autoDogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8")));
+  assert.equal(normalizeLineEndings(summaryDogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8")));
+});
+
+test("Runtime verification preserves authentication, side-effect, and environment safety", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "do not weaken production authentication",
+    "or commit authentication state",
+    "stop and ask when safe access or side effects are unclear",
+    "expired authentication or unavailable dependencies as environment limitations",
+    "do not copy credentials, tokens, cookies, or session material into feature artifacts",
+  ]) {
+    assert.ok(implement.includes(phrase), `Implement security boundary is missing: ${phrase}`);
+  }
+  for (const phrase of [
+    "do not put credentials or session material in artifacts",
+    "do not weaken authentication",
+    "unsafe production actions",
+    "distinguish product failure from unavailable/expired authentication",
+  ]) {
+    assert.ok(review.includes(phrase), `Review security/evidence boundary is missing: ${phrase}`);
+  }
+});
+
+test("Runtime capability contract and quickstart document safe execution boundaries", () => {
+  const contract = fs.readFileSync(path.join(packageRoot, "specs/026-runtime-verification/contracts/runtime-capability-report.md"), "utf8").toLowerCase();
+  const quickstart = fs.readFileSync(path.join(packageRoot, "specs/026-runtime-verification/quickstart.md"), "utf8").toLowerCase();
+
+  for (const phrase of ["credentials, tokens, cookies, or session material", "stop and ask the user", "the target or its side effects are ambiguous", "environment limitation"]) {
+    assert.ok(contract.includes(phrase), `Runtime capability contract is missing: ${phrase}`);
+  }
+  assert.ok(quickstart.includes("production credentials or data"), "Quickstart must prohibit production credentials/data");
+  assert.ok(quickstart.includes("stop and ask"), "Quickstart must require user direction for unsafe authentication/access");
+  assert.ok(quickstart.includes("environment limitation"), "Quickstart must distinguish environment failure");
 });
 
 test("Implement resumes from durable task state and Tasks preserves its ownership", () => {

@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { detectProject, buildPlan } from "./detect.js";
 import { install } from "./installer.js";
 import { choose, yesNo } from "./prompt.js";
-import { integrationStatus } from "./integrations.js";
+import { integrationStatus, runtimeCapabilityStatus } from "./integrations.js";
 import { read } from "./io.js";
 import { inspectBug, provisionBug } from "./bug-extension.js";
 
@@ -33,6 +33,18 @@ function showPlan(plan) {
 function managedState(plan, destinationRel) {
   const classification = plan.find((item) => item.destinationRel === destinationRel)?.classification;
   return classification === "new" ? "missing" : classification === "custom" ? "needs review" : "installed";
+}
+
+function showRuntimeCapabilities(project) {
+  const capabilities = runtimeCapabilityStatus(project);
+  const projectSignals = capabilities.projectSignals.length
+    ? capabilities.projectSignals.join(", ")
+    : capabilities.unknownSignals.length
+      ? `UNKNOWN (${capabilities.unknownSignals.join("; ")})`
+      : "none detected";
+  console.log("\n  Runtime Verification");
+  console.log(`  Project browser signals: ${projectSignals}`);
+  console.log(`  Host/session capabilities: ${capabilities.hostSession}`);
 }
 
 export async function run(args) {
@@ -73,6 +85,7 @@ export async function run(args) {
     console.log(`  Bug provisioning: ${bug.state} - ${bug.message}`);
     console.log(`\n  Copilot CLI: ${integrations.copilotCli ? "available" : "not detected"}`);
     console.log(`  npx: ${integrations.npx ? "available" : "not detected"}`);
+    showRuntimeCapabilities(project);
     return;
   }
 
@@ -137,6 +150,7 @@ export async function run(args) {
       problems++;
     }
     if (!bug.available) console.log(`  ! Bug provisioning ${bug.state}: ${bug.message}`);
+    showRuntimeCapabilities(project);
     if (!problems) console.log("\n  ✔ No blocking Better Spec Kit issues detected.");
     return;
   }

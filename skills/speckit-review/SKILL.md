@@ -57,6 +57,14 @@ Graphify is optional repository intelligence. Use it only when a relevant graph 
 
 If graph currentness cannot be established, do not claim the graph is current; fall back to source inspection. Treat graph relationships as leads only and verify material findings against source and applicable tests or runtime evidence. Do not install Graphify, add hooks, or make Graphify availability a Review prerequisite.
 
+## Runtime Evidence
+
+When runtime execution materially strengthens confidence and is safely available, independently exercise or corroborate material runtime behavior at its relevant execution boundary. Do not accept Implement's claim as the sole evidence that a runtime check succeeded. Reuse project tooling or a callable host capability; do not install a browser framework merely for Review or force browser checks onto non-browser behavior.
+
+Derive checks from approved requirements and risk. For browser behavior, inspect relevant interaction/state and, where supported, attributable console or request failures. For API/process/worker behavior, use the existing appropriate execution path. Preserve approved Design as the target. Keep runtime evidence complementary to source inspection and tests; a passing static test is not proof of execution.
+
+Report only what ran: runtime used, behavior exercised, observed result, relevant failures, material untested behavior, and environment limitations. Distinguish product failure from unavailable/expired authentication, dependency, sandbox, hardware, or host tooling. Do not put credentials or session material in artifacts. Do not weaken authentication or perform unsafe production actions. Do not fail a feature for unrelated known noise. Missing optional runtime evidence alone is not an automatic failure; judge whether the specific unverified behavior prevents a trustworthy review.
+
 ## Review Passes
 
 Perform and report each applicable pass independently. Record a concise conclusion and key evidence. A pass with no applicable UI or design requirement may be marked not applicable with a reason; do not invent requirements.

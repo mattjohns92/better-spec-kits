@@ -39,6 +39,10 @@ Use graph results to locate current behavior, consumers, and existing patterns b
 6. Resolve existing records by exact typed ID. Ask rather than guess when an ID is missing, duplicated, or ambiguous.
 7. Write only the record needed for the selected work shape, then report its ID, blockers, and one exact next action.
 
+## Verification Depth
+
+Verification depth is independent from specification ceremony. A QUICK outcome may still benefit from a lightweight, safe runtime check; a Feature does not automatically require browser execution. Classify by unresolved product-definition uncertainty, then describe runtime evidence proportionately to the changed behavior and available project/host capabilities.
+
 ## Records and Ownership
 
 Allocate stable, non-reused IDs by inspecting existing records of the same type: `B###`, `Q###`, `F###`, and `I###`. Use three-digit numbering beginning at `001` and retain retired IDs as historical references.

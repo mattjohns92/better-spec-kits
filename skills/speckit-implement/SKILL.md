@@ -366,6 +366,18 @@ Do not run Analyze, Converge, Review, or Summary as per-increment workflows or c
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
+### Runtime Verification
+
+When execution evidence materially improves confidence, identify the changed behavior and its observable outcome before selecting a check. Discover project-local signals separately from callable host/session capabilities; a config, installed package, or catalog entry alone does not prove a tool can run in this stage. Prefer an existing project runtime, integration, or browser framework.
+
+Browser verification is the first-class V1 use case. Reuse the project's existing browser framework or a supported callable host browser capability; do not install Playwright solely for runtime verification and do not require a browser for non-browser behavior. Exercise only the changed behavior and relevant states. Inspect console errors, failed requests, persistence, roles, or responsive behavior only when relevant and observable; do not attribute unrelated known application noise to the feature.
+
+For API, CLI/process, worker, database, external-service, or hardware behavior, use the existing project or host execution that corresponds to the behavior. Do not build a parallel harness merely to claim runtime verification. For meaningful vertical slices, run focused automated tests and appropriate runtime checks before materially dependent work continues; do not launch an expensive runtime after every minor edit. Static tests, source inspection, and planned checks are not runtime evidence.
+
+Reuse existing test authentication and identities. Do not weaken production authentication or invent credentials. Do not copy credentials, tokens, cookies, or session material into Feature artifacts or commit authentication state. If existing stored state is used, confirm it is appropriately excluded from version control. Do not perform ambiguous or destructive external actions. Stop and ask when safe access or side effects are unclear. Treat expired authentication or unavailable dependencies as environment limitations, not product failures. If runtime verification fails against approved behavior, correct it within scope and recheck after deterministic corrections; otherwise report what did not run and why.
+
+Record the runtime used, behavior exercised, observed result, relevant failures, and material limitations in the existing stage/task report. `UNKNOWN` or unverified is not a successful verification result. Never claim verification that did not occur. Preserve approved Design decisions and use their existing fidelity path for significant UI; do not redesign the approved target.
+
 9. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification
