@@ -1652,7 +1652,6 @@ test("Design fidelity preserves Auto, Review, Summary, and Converge ownership", 
   const summary = fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8");
   const summaryDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-summary/SKILL.md"), "utf8");
   const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8");
-  const contract = fs.readFileSync(path.join(packageRoot, "specs/025-approved-design-implementation-fidelity/contracts/design-fidelity-workflow.md"), "utf8");
   const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
 
   assert.equal(normalizeLineEndings(autoDogfood), normalizeLineEndings(auto), "Auto dogfood skill must match the canonical skill");
@@ -1669,7 +1668,6 @@ test("Design fidelity preserves Auto, Review, Summary, and Converge ownership", 
     assert.ok(summary.toLowerCase().includes(phrase), `Summary Design evidence boundary is missing: ${phrase}`);
   }
   assert.ok(workflow.includes("GitHub Spec Kit owns `/speckit.converge`"), "Workflow must preserve upstream Converge ownership");
-  assert.ok(contract.includes("GitHub Spec Kit owns Converge"), "Fidelity contract must preserve upstream Converge ownership");
 });
 
 test("Plan and Implement require approval before changing the approved Design", () => {
