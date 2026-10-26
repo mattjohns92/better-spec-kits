@@ -114,6 +114,11 @@ necessary supporting work. The presence or repetition of work in `plan.md`
 alone does not authorize it. Do not create tasks for rejected, deferred, or
 unresolved material behavior. If the plan contains such an expansion, stop and
 return it to Plan or Specify/Clarify for resolution before generating tasks.
+When `design.md` identifies an approved Design, implementation tasks should
+reference approved Design decisions and state the specific visual or
+interaction responsibility they deliver. Keep this traceability concise; do
+not copy the full Design artifact into Tasks or promote rejected or superseded
+concepts into requirements or work.
 
 ### Optional Ponytail Task-Surface Challenge
 

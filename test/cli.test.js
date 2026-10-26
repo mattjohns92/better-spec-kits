@@ -727,6 +727,28 @@ test("Design presents useful visual alternatives and preserves the selected dire
   }
 });
 
+test("Design organizes concepts and identifies the approved refinement", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-design/SKILL.md");
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-design/SKILL.md");
+  const canonical = fs.readFileSync(canonicalPath, "utf8");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8");
+  const design = canonical.toLowerCase();
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Design dogfood skill must match the canonical skill");
+
+  for (const phrase of [
+    "feature's `concepts/` directory",
+    "approved concept or direction",
+    "approved refinement",
+    "rejected or superseded",
+    "supporting evidence only",
+    "disposable generated/runtime output",
+  ]) {
+    assert.ok(design.includes(phrase), `Design concept lifecycle contract is missing: ${phrase}`);
+  }
+});
+
 test("Workflow documentation explains visual alternatives and the Plan decision gate", () => {
   const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
 
@@ -757,6 +779,43 @@ test("Plan waits for material design decisions and preserves the selected direct
     "rejected or abandoned alternatives",
   ]) {
     assert.ok(plan.includes(phrase), `Plan visual decision contract is missing: ${phrase}`);
+  }
+});
+
+test("Approved Design remains traceable through planning and analysis", () => {
+  const contracts = [
+    {
+      name: "Plan",
+      canonicalPath: "skills/speckit-plan/SKILL.md",
+      dogfoodPath: ".github/skills/speckit-plan/SKILL.md",
+      phrase: "authoritative visual and interaction target",
+    },
+    {
+      name: "Tasks",
+      canonicalPath: "skills/speckit-tasks/SKILL.md",
+      dogfoodPath: ".github/skills/speckit-tasks/SKILL.md",
+      phrase: "reference approved design decisions",
+    },
+    {
+      name: "Analyze",
+      canonicalPath: "skills/speckit-analyze/SKILL.md",
+      dogfoodPath: ".github/skills/speckit-analyze/SKILL.md",
+      phrase: "check for material omissions or conflicts between the approved design and plan and tasks",
+    },
+    {
+      name: "Preview",
+      canonicalPath: "skills/speckit-preview/SKILL.md",
+      dogfoodPath: ".github/skills/speckit-preview/SKILL.md",
+      phrase: "implementation target",
+    },
+  ];
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  for (const contract of contracts) {
+    const canonical = fs.readFileSync(path.join(packageRoot, contract.canonicalPath), "utf8");
+    const dogfood = fs.readFileSync(path.join(packageRoot, contract.dogfoodPath), "utf8");
+    assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), `${contract.name} dogfood skill must match the canonical skill`);
+    assert.ok(canonical.toLowerCase().includes(contract.phrase), `${contract.name} is missing approved Design fidelity guidance`);
   }
 });
 
@@ -1585,6 +1644,55 @@ test("Summary dogfood skill matches the canonical skill", () => {
   assert.equal(normalizeLineEndings(fs.readFileSync(dogfoodPath, "utf8")), normalizeLineEndings(fs.readFileSync(canonicalPath, "utf8")), "Summary dogfood skill must match the canonical skill");
 });
 
+test("Design fidelity preserves Auto, Review, Summary, and Converge ownership", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8");
+  const autoDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-auto/SKILL.md"), "utf8");
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8");
+  const reviewDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-review/SKILL.md"), "utf8");
+  const summary = fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8");
+  const summaryDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-summary/SKILL.md"), "utf8");
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8");
+  const contract = fs.readFileSync(path.join(packageRoot, "specs/025-approved-design-implementation-fidelity/contracts/design-fidelity-workflow.md"), "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(autoDogfood), normalizeLineEndings(auto), "Auto dogfood skill must match the canonical skill");
+  assert.equal(normalizeLineEndings(reviewDogfood), normalizeLineEndings(review), "Review dogfood skill must match the canonical skill");
+  assert.equal(normalizeLineEndings(summaryDogfood), normalizeLineEndings(summary), "Summary dogfood skill must match the canonical skill");
+
+  for (const phrase of ["must not select or approve a material design", "continue deterministic corrections", "pause if correction would require changing the approved design"]) {
+    assert.ok(auto.toLowerCase().includes(phrase), `Auto Design approval boundary is missing: ${phrase}`);
+  }
+  for (const phrase of ["compare the actual implementation to the authoritative approved design", "report material unexplained mismatch", "harmless rendering variation"]) {
+    assert.ok(review.toLowerCase().includes(phrase), `Review Design fidelity assessment is missing: ${phrase}`);
+  }
+  for (const phrase of ["fidelity or comparison result only when current evidence", "task completion", "prompt assertions as runtime proof"]) {
+    assert.ok(summary.toLowerCase().includes(phrase), `Summary Design evidence boundary is missing: ${phrase}`);
+  }
+  assert.ok(workflow.includes("GitHub Spec Kit owns `/speckit.converge`"), "Workflow must preserve upstream Converge ownership");
+  assert.ok(contract.includes("GitHub Spec Kit owns Converge"), "Fidelity contract must preserve upstream Converge ownership");
+});
+
+test("Plan and Implement require approval before changing the approved Design", () => {
+  const plan = fs.readFileSync(path.join(packageRoot, "skills/speckit-plan/SKILL.md"), "utf8").toLowerCase();
+  const planDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-plan/SKILL.md"), "utf8");
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const implementDogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md"), "utf8");
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(planDogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-plan/SKILL.md"), "utf8")));
+  assert.equal(normalizeLineEndings(implementDogfood), normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")));
+
+  for (const [name, skill] of [
+    ["Plan", plan],
+    ["Implement", implement],
+  ]) {
+    assert.ok(skill.includes("explicit user approval before updating `design.md`"), `${name} must require approval before changing the approved artifact`);
+    assert.ok(skill.includes("stop dependent work"), `${name} must stop dependent work while approval is pending`);
+  }
+  assert.doesNotMatch(plan, /update `design\.md` with the revised decision and rationale before continuing/);
+  assert.doesNotMatch(implement, /update `design\.md` with the revised decision and rationale before implementing the change/);
+});
+
 test("Review skill uses current convergence evidence and four quality passes", () => {
   const skill = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8");
   assert.doesNotMatch(skill, /ponytail-review/);
@@ -1765,6 +1873,29 @@ test("Implement validates meaningful increments and reports concise checkpoints"
     normalizeLineEndings(fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8")),
     "Implement dogfood skill must match the canonical skill",
   );
+});
+
+test("Implement compares significant UI work against the approved Design using available evidence", () => {
+  const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8");
+  const dogfood = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-implement/SKILL.md"), "utf8");
+  const skill = canonical.toLowerCase();
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+
+  assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), "Implement dogfood skill must match the canonical skill");
+
+  for (const phrase of [
+    "inspect the approved design and available references before making significant ui changes",
+    "when both the approved reference and implementation can be rendered",
+    "compare them at equivalent relevant states and viewports",
+    "identify material visual or interaction differences",
+    "repeat the comparison after material corrections",
+    "harmless rendering variation",
+    "report the strongest practical evidence and the specific limitation",
+    "do not claim a comparison or fidelity result that was not observed",
+    "prototype-only behavior",
+  ]) {
+    assert.ok(skill.includes(phrase), `Implement visual-fidelity contract is missing: ${phrase}`);
+  }
 });
 
 test("Implement resumes from durable task state and Tasks preserves its ownership", () => {

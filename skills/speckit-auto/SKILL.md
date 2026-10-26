@@ -105,6 +105,8 @@ On `stop`, record `STOP_REQUESTED` for the selected Auto run. Do not interrupt a
 
 ## Authoritative Adaptive Routes
 
+**Approved Design fidelity**: Auto must not select or approve a material Design. After user approval, it may continue deterministic corrections toward the approved target. Pause if correction would require changing the approved Design, and wait for the user's decision.
+
 Follow the current evidence and owning stage, not a predetermined list:
 
 - **Feature**: continue through applicable Specify, Clarify, Design, Plan, Tasks, Analyze, Implement, Converge, Review, and Summary behavior. Preserve optional Design/Preview and context-sensitive Analyze PASS/FINDINGS/INCOMPLETE outcomes. Load each stage's installed instructions; this list is coverage, not a fixed lifecycle sequence.

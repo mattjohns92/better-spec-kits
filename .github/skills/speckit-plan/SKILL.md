@@ -76,7 +76,7 @@ Use Graphify to locate architecture, dependencies, extension points, and consume
      - Treat documented UI/UX decisions as authoritative feature requirements alongside FEATURE_SPEC.
      - Preserve documented user workflows, information hierarchy, interaction patterns, responsive behaviour, application states, accessibility requirements, and component reuse decisions during planning.
      - Do NOT silently replace established UX decisions with implementation-convenient alternatives.
-     - If a documented design decision conflicts with the constitution or is technically impractical, identify the conflict and update `design.md` with the revised decision and rationale before continuing.
+   - If a documented design decision conflicts with the constitution or is technically impractical, identify the constraint and evidence, stop dependent work, and present the proposed revision for explicit user approval. Require explicit user approval before updating `design.md` or planning dependent work; after approval, record the revised decision and rationale.
    - If `design.md` does not exist:
      - Determine from FEATURE_SPEC whether the feature contains meaningful user-facing UI changes.
      - If significant UI work appears to have skipped the design stage, STOP and instruct the user to run `/speckit-design` before `/speckit-plan`.
@@ -96,6 +96,15 @@ provenance or presents an unresolved product choice, stop and return it to
 Specify/Clarify; do not treat it as settled scope. Keep technical choices within
 the approved outcome Plan-owned, and explain material necessary supporting
 work with its evidence.
+
+When `design.md` identifies an approved concept or refinement, the approved
+Design is the authoritative visual and interaction target. Plan may choose how
+to deliver it within the existing architecture, but must preserve its material
+layout, hierarchy, placement, responsive behavior, and interactions. Do not
+substitute a materially different experience for implementation convenience or
+component reuse. If a real constraint prevents the approved target, document
+the evidence and return the proposed change for Design/user approval before
+planning dependent work.
 
 ### Optional Ponytail Solution Challenge
 

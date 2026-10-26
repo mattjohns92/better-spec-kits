@@ -56,6 +56,16 @@ Uses a pattern-first approach: inspect the existing application, reuse establish
 
 Classifies UI impact as NONE, MINOR, or SIGNIFICANT and uses `design.md` as the selected/current direction. Plan must wait while a material design choice is pending; it does not resolve the choice or promote abandoned alternatives into requirements. It otherwise discovers the project's actual technology, architecture, conventions, dependencies, and relevant implementation before choosing an approach, favouring the smallest maintainable solution that preserves the approved specification and design.
 
+When a user approves a visual Design, it remains the implementation target
+through the existing workflow. Plan and Tasks keep concise traceability to its
+material decisions; Analyze checks for omissions before implementation; Preview
+explains the approved target without creating a new decision. Implement compares
+significant UI work with the approved reference when both can be inspected
+using current host capabilities, and reports the evidence and limitations
+without claiming unobserved fidelity. GitHub Spec Kit owns Converge; Review
+independently assesses material Design compliance, and Summary reports only
+fidelity evidence actually obtained.
+
 ## Tasks
 
 Creates the original implementation plan in the feature's `tasks.md` while preferring reuse and extension over unnecessary new files, dependencies, abstractions, or infrastructure. That file remains the single implementation work ledger: upstream Converge may append missing completeness work, Implement may append Review-remediation tasks under `## Review Remediation`, and Review reads the ledger without modifying it. Review findings remain in `review.md` and are never replaced by task status.

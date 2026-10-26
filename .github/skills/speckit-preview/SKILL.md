@@ -42,6 +42,12 @@ Explain the proposal in plain English, prioritizing outcomes over internal files
 - Significant supporting work that has been approved and why it is included, described neutrally.
 - Important boundaries and what is not changing.
 - The high-level implementation shape when it helps explain the proposal.
+- The high-level implementation shape when it helps explain the proposal.
+
+When an approved `design.md` applies, explain the approved Design as the
+implementation target, including only the material visual or interaction
+decisions needed to understand the proposal. Do not reinterpret it or create a
+new design decision; Preview remains descriptive and non-authoritative.
 
 Use only sections that help this feature. Keep a small proposal short. A broader proposal may need more context, but must not become another Plan or an exhaustive changed-file forecast. Do not reproduce the tasks ledger. Do not assume supporting work is unwanted or unnecessary merely because it was not obvious in the original request.
 

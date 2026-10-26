@@ -93,6 +93,8 @@ Retain the useful upstream passes explicitly: duplication detection, ambiguity d
 - Missing requirement coverage or a requirement with no credible implementation path.
 - Plan decisions not represented in tasks, or substantial tasks unsupported by the specification, approved design, plan, constitution, project conventions, or demonstrated need.
 - Design decisions contradicted by the plan.
+- Design decisions contradicted by the plan.
+- When an approved `design.md` exists, check for material omissions or conflicts between the approved Design and Plan and Tasks. Report supported drift before implementation through existing Analyze ownership; do not redesign the interface or treat prompt-contract tests as proof of runtime fidelity.
 - Constitution conflicts, duplicated responsibilities, or meaningful ordering/ownership conflicts.
 
 Do not invent a missing-artifact problem when an optional artifact is not relevant to the feature.

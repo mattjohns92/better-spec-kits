@@ -347,8 +347,16 @@ Do not run Analyze, Converge, Review, or Summary as per-increment workflows or c
      - Do NOT invoke UI UX Pro Max to independently redesign an approved interface during normal implementation.
      - UI UX Pro Max MAY be consulted when `design.md` explicitly leaves a material UX question unresolved or an implementation discovery makes an approved design technically impractical.
      - When UI UX Pro Max is consulted during implementation, reconcile its guidance with the constitution, specification, existing application, and approved design.
-     - If this results in a material UI/UX change, update `design.md` with the revised decision and rationale before implementing the change.
-     - Minor implementation details that do not materially change the documented user experience do not require updating `design.md`.
+   - If implementation discovery makes the approved Design materially impractical or requires a material UX change, stop dependent work, present the constraint, evidence, and proposed revision, and wait for explicit user approval before updating `design.md` or implementing the changed target. After approval, record the revised decision and rationale.
+   - Minor implementation details that do not materially change the documented user experience do not require updating `design.md`.
+
+   - **Approved Design fidelity for significant UI work**:
+     - Inspect the approved Design and available references before making significant UI changes. Treat the currently approved concept/refinement identified in `design.md` as the target; rejected or superseded concepts are not implementation references.
+     - When both the approved reference and implementation can be rendered using currently supported capabilities, compare them at equivalent relevant states and viewports. Assess material layout, hierarchy, placement, density, navigation, responsive behavior, and interactions established by the Design.
+     - Identify material visual or interaction differences and correct unintended drift, then repeat the comparison after material corrections. Do not fail solely on harmless rendering variation or demand exact values the Design did not establish.
+     - If comparison is unavailable or partial, report the strongest practical evidence and the specific limitation. Do not claim a comparison or fidelity result that was not observed.
+     - A material unexplained difference prevents reporting significant UI work complete. Correct it within approved scope or stop and present the constraint, evidence, and proposed Design change for explicit user approval.
+     - Preserve product behavior from approved requirements and application contracts. Prototype-only behavior, synthetic data, and simplified validation are not production requirements.
 
 8. Progress tracking and error handling:
    - Report progress after each completed task

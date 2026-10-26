@@ -67,6 +67,8 @@ Inspect changed code and relevant surrounding implementation. Identify demonstra
 
 ### 2. Design Compliance
 
+For significant UI work with an approved Design, compare the actual implementation to the authoritative approved Design using the strongest practical current evidence. Report material unexplained mismatch even when Converge or functional tests passed. Distinguish approved refinements and harmless rendering variation from Design drift; state when visual comparison was unavailable or covered only part of the experience.
+
 When the feature affects user experience and approved design decisions exist, verify workflows, interactions, responsive behavior, accessibility, and important UX decisions against the applicable design. Report material unexplained deviations, not harmless implementation differences. For features without UI impact, state that design requirements are not applicable and invent none.
 
 ### 3. Test Quality
