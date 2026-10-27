@@ -2044,6 +2044,29 @@ test("Runtime verification preserves authentication, side-effect, and environmen
   }
 });
 
+test("Runtime verification supports approved assisted authentication without provisioning identities", () => {
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+  const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
+
+  assert.ok(implement.includes("inspect existing project/browser helpers, non-production identities, and local-state conventions"));
+  assert.ok(implement.includes("obtain explicit approval before setup changes, installs, credential-dependent actions, or state capture"));
+  assert.ok(implement.includes("manual login followed by locally persisted browser state"));
+  assert.ok(implement.includes("verify that the destination path is ignored before writing state"));
+  assert.ok(implement.includes("the user must enter credentials directly in the browser"));
+  assert.ok(review.includes("manual login followed by locally persisted browser state"));
+  assert.ok(review.includes("do not commit authentication state"));
+  assert.ok(auto.includes("pause for explicit approval before setup changes, credential-dependent steps, or state capture"));
+  assert.ok(quick.includes("obtain approval before setup changes, credential-dependent steps, or state capture"));
+  assert.ok(workflow.includes("obtain explicit approval before setup changes, credential-dependent steps, or state capture"));
+  for (const guidance of [auto, quick, workflow]) {
+    assert.ok(guidance.includes("must not itself create or provision"));
+    assert.ok(guidance.includes("manual login followed by locally persisted browser state"));
+  }
+});
+
 test("Runtime verification guidance in shipped skills and docs preserves safety boundaries", () => {
   const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
   const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();

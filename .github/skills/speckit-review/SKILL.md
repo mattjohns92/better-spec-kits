@@ -65,6 +65,8 @@ Derive checks from approved requirements and risk. For browser behavior, inspect
 
 Report only what ran: runtime used, behavior exercised, observed result, relevant failures, material untested behavior, and environment limitations. Distinguish product failure from unavailable/expired authentication, dependency, sandbox, hardware, or host tooling. Do not put credentials or session material in artifacts. Do not weaken authentication or perform unsafe production actions. Do not fail a feature for unrelated known noise. Missing optional runtime evidence alone is not an automatic failure; judge whether the specific unverified behavior prevents a trustworthy review.
 
+When authenticated runtime evidence relies on manual login followed by locally persisted browser state, independently confirm that the active tool supports capture/reuse and that the reported destination is excluded from version control; do not commit authentication state or inspect/repeat credential or session contents. External test identities must be existing, user-provided, or project-provisioned; BSK may guide the user in obtaining one but does not provision it. Do not require a permanent E2E test solely for agent-driven browser verification.
+
 ## Review Passes
 
 Perform and report each applicable pass independently. Record a concise conclusion and key evidence. A pass with no applicable UI or design requirement may be marked not applicable with a reason; do not invent requirements.
