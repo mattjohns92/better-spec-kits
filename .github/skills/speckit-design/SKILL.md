@@ -5,11 +5,15 @@ description: Design the UI/UX for the active Spec Kit feature before implementat
 
 # Spec Kit UI/UX Design
 
-Perform the UI/UX design stage for the active Spec Kit feature.
+Perform the UI/UX design stage for the active Spec Kit feature or UI Quick item.
 
-This stage sits between specification/clarification and implementation planning:
+For Features, this stage sits between specification/clarification and implementation planning:
 
 specify → clarify → design → plan → tasks → implement
+
+For a UI Quick, Design consumes the Scope-owned Q Brief and precedes Quick implementation; it does not require Feature specification or planning artifacts:
+
+Scope → Q Brief → design/approval → Quick implementation
 
 The purpose of this stage is to decide how users should interact with the feature before technical implementation decisions are made.
 
@@ -19,12 +23,14 @@ Do NOT implement application code during this stage.
 
 Before designing anything:
 
-1. Identify the active Spec Kit feature.
-2. Read the feature's `spec.md`.
+1. Identify the active Feature or exact Quick work item from the user's context or active feature metadata. Do not select by title, recency, or partial ID.
+2. For a Feature, read its `spec.md`. For a Quick, resolve exactly one new `specs/quick/Q###-<slug>/brief.md` or one legacy `specs/.scope/Q###-<slug>.md`, then read that authoritative Brief/handoff. Missing or duplicate Q records are ambiguous; stop and ask rather than guessing.
 3. Read `.specify/memory/constitution.md`.
 4. Inspect the existing user-facing application or interface, where one exists.
 5. Inspect existing shared components, layouts, pages, forms, tables, dialogs, navigation patterns, responsive patterns, theme and styling.
 6. Read and apply the installed UI UX Pro Max guidance where available.
+
+The Q Brief is the approved outcome and boundary for Quick Design. Do not require a Feature `spec.md`, Plan, or Tasks to design a Q item. Design resolves presentation and interaction within the Brief; it does not change Scope classification or add product behavior.
 
 ## UI/UX Design Skill
 
@@ -118,7 +124,7 @@ Report:
 
 `UI Impact: NONE`
 
-Explain briefly why and recommend proceeding to `/speckit-plan`.
+Explain briefly why and recommend `/speckit-plan` for a Feature or Quick implementation for a Q item. Do not route a non-visual Q item into Feature planning.
 
 ### MINOR
 
@@ -222,7 +228,7 @@ After approved product behavior and existing patterns are understood:
 - For a routine change answered by an established pattern, reuse it without manufacturing alternatives or requiring ceremonial approval. Show the proposed result only when that materially improves understanding.
 - For SIGNIFICANT work, decide explicitly whether the approved requirements and inspected product leave multiple credible, meaningfully different approaches. If they do and the choice can affect the user's experience, normally show **three rendered concepts** before selecting a direction. Show two when only two materially different approaches are credible; never invent an alternative to meet a count. One established pattern is enough only when repository evidence shows it is the clear fit or approved requirements leave no meaningful choice.
 - Concepts must differ in meaningful structure or behavior, such as task flow, information hierarchy, density, navigation, progressive disclosure, or interaction model. A palette, spacing, radius, or icon variation is not a separate concept.
-- Keep generated concepts and their supporting prototype/reference files under the active feature's `concepts/` directory. Keep authoritative feature artifacts easy to identify at the feature root. Follow the actual rendering mechanism's needs without adding unnecessary nested organization.
+- Keep generated concepts and their supporting prototype/reference files under the active feature's `concepts/` directory for Feature work, or under `concepts/` in the Q item's folder for Quick work. Keep authoritative artifacts easy to identify at that item root. Follow the actual rendering mechanism's needs without adding unnecessary nested organization.
 - Retain concept material that is useful evidence or a reference. Do not keep disposable generated/runtime output without a demonstrated need, and do not remove useful rejected or superseded concept evidence merely for tidiness.
 - A concept is rendered only when the user can inspect actual visual output in the current session or an accessible artifact, such as a running prototype, rendered HTML, or screenshot. Prose, ASCII, Mermaid, a component list, or a `design.md` description is not rendered evidence. Keep concepts comparable in content and viewport where practical, label them A/B/C, and explain the decision each explores.
 - Inspect current-session rendering tools first. Prefer the target application's technology and patterns or a lightweight disposable prototype. Do not add production dependencies, architecture, or infrastructure solely to render concepts.
@@ -233,6 +239,10 @@ After approved product behavior and existing patterns are understood:
 - After the user responds, record the selected/current direction and links or paths to the concepts actually shown in `design.md`. Include rejected alternatives only when needed to prevent downstream drift.
 - Make the current approved concept or direction and any approved refinement unambiguous in `design.md`. Rejected or superseded concepts remain supporting evidence only, not requirements or implementation targets. Do not record approval before the user responds to a material choice.
 - If a visual direction requires a material product behavior that has not been approved, stop and return it to Clarify instead of deciding it in Design.
+
+### Explicit Approval for UI Quick
+
+For Quick UI work, explicit user approval of the current Design is always required before implementation, even when one established pattern is clear. Keep the design proportionate: confirm the established pattern and present the intended result without manufacturing alternatives. For meaningful alternatives, reuse the existing rendered concept/refinement flow and wait for approval of the latest direction. Do not begin Quick implementation before approval. Silence, Auto being enabled, or approval of a prior/superseded refinement is not approval of the current Design. Non-visual Quick work does not receive Design ceremony. This Quick-specific approval rule does not change existing Feature approval behavior.
 
 ## Step 4 — Apply UI/UX Design Guidance
 
@@ -339,7 +349,9 @@ Consider:
 
 For MINOR or SIGNIFICANT UI impact, create:
 
-`<active-feature-directory>/design.md`
+`<active-work-item-directory>/design.md`
+
+For Quick work, the active work item directory is the exact Q folder containing `brief.md`.
 
 Use this structure:
 

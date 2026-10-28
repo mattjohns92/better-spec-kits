@@ -749,6 +749,23 @@ test("Design organizes concepts and identifies the approved refinement", () => {
   }
 });
 
+test("Design accepts Q Briefs and requires explicit UI Quick approval", () => {
+  const design = fs.readFileSync(path.join(packageRoot, "skills/speckit-design/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "q###",
+    "q brief",
+    "specs/quick/q###-<slug>/",
+    "under `concepts/` in the q item's folder",
+    "for quick ui work, explicit user approval of the current design is always required",
+    "even when one established pattern is clear",
+    "do not begin quick implementation before approval",
+    "non-visual quick work does not receive design ceremony",
+  ]) {
+    assert.ok(design.includes(phrase), `Design Quick routing is missing: ${phrase}`);
+  }
+});
+
 test("Workflow documentation explains visual alternatives and the Plan decision gate", () => {
   const workflow = fs.readFileSync(path.join(packageRoot, "docs/workflow.md"), "utf8").toLowerCase();
 
@@ -906,6 +923,34 @@ test("Feature Brief contract carries stable IDs, parent context, and exact direc
   }
 });
 
+test("Scope and Quick use one durable Q Brief and preserve legacy handoffs", () => {
+  const scope = fs.readFileSync(path.join(packageRoot, "skills/speckit-scope/SKILL.md"), "utf8").toLowerCase();
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "specs/quick/q###-<slug>/brief.md",
+    "one authoritative brief",
+    "exact `id: q###`",
+    "scan both new and legacy q records",
+    "specs/.scope/q###-<slug>.md",
+    "do not duplicate",
+    "do not reuse",
+    "preserve sanitized original intent separately from scope interpretation",
+  ]) {
+    assert.ok(scope.includes(phrase), `Durable Q Scope contract is missing: ${phrase}`);
+  }
+
+  for (const phrase of [
+    "resolve every q id to its unique record",
+    "legacy q handoff",
+    "new q brief",
+    "duplicate or conflicting matches",
+    "along with established scope evidence",
+  ]) {
+    assert.ok(quick.includes(phrase), `Durable Q Quick contract is missing: ${phrase}`);
+  }
+});
+
 test("Quick skill follows a bounded quality loop and escalates material decisions", () => {
   const quickPath = path.join(packageRoot, "skills/speckit-quick/SKILL.md");
   const quick = fs.readFileSync(quickPath, "utf8").toLowerCase();
@@ -929,6 +974,22 @@ test("Quick investigates bounded work and waits or escalates safely", () => {
     "broader unresolved product, architecture, persistence, permission, migration, security, or cross-cutting decisions",
   ]) {
     assert.ok(quick.includes(phrase), `Quick bounded-work guidance is missing: ${phrase}`);
+  }
+});
+
+test("Quick consumes the approved Q Design and stops before material redesign", () => {
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "read the authoritative brief and current approved `design.md` directly",
+    "approved concept and rendered reference",
+    "rejected or superseded concepts are never implementation targets",
+    "reuse components only when they faithfully implement the approved design",
+    "if a material implementation constraint requires changing the approved design, stop dependent implementation",
+    "return to design for explicit user approval",
+    "preserve the brief, approved design, concepts, and investigation evidence when escalating",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick approved-Design fidelity contract is missing: ${phrase}`);
   }
 });
 
@@ -958,18 +1019,68 @@ test("Scope and Quick preserve item boundaries in grouped executions", () => {
   }
 });
 
-test("Quick validates integrated work and reviews proportionately", () => {
+test("Quick Batch retains per-Q Review evidence and escalates only affected items", () => {
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "each q item retains its own brief, applicable design, and review outcome",
+    "perform parent-owned integrated validation when changed items interact",
+    "escalate only the affected q item",
+    "do not create a batch record",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick Batch evidence contract is missing: ${phrase}`);
+  }
+
+  assert.ok(review.includes("review each q item independently"), "Review must preserve per-Q review boundaries in a batch");
+  assert.ok(review.includes("shared integration-validation evidence may be referenced from each affected q review"), "Review must attribute shared integration evidence to affected Q items");
+});
+
+test("Quick validates integrated work before mandatory independent Review", () => {
   const quickPath = path.join(packageRoot, "skills/speckit-quick/SKILL.md");
   const quick = fs.readFileSync(quickPath, "utf8").toLowerCase();
 
   for (const phrase of [
     "run appropriate item-level checks",
-    "perform parent-owned integrated validation across a grouped execution",
-    "review-quality inspection may be folded into this step when it materially improves confidence",
-    "creates no feature review artifact and does not require converge",
-    "not add a mandatory review stage solely because implementation is broad or batched",
+    "perform parent-owned integrated validation when changed items interact",
+    "validation is required before every quick item goes through the existing independent review",
+    "review writes its existing `review.md` artifact",
+    "quick review does not require feature converge, summary, or a q task ledger",
+    "only a subsequent review reassessment may change status to `resolved`",
   ]) {
-    assert.ok(quick.includes(phrase), `Quick validation/review guidance is missing: ${phrase}`);
+    assert.ok(quick.includes(phrase), `Quick validation/Review guidance is missing: ${phrase}`);
+  }
+});
+
+test("Quick requires proportionate validation before Review and reports runtime limits", () => {
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "validation is required before review",
+    "selected from changed behavior, risk, available project/host capability, and safety",
+    "for frontend quick work, exercise the running interaction and compare it with the approved design",
+    "if runtime/browser execution is unavailable or unsafe, report the limitation",
+    "browser verification must not be required for non-browser behavior",
+    "planned checks and source inspection are not runtime evidence",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick validation contract is missing: ${phrase}`);
+  }
+});
+
+test("Quick remediates Review findings without taking Review ownership", () => {
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "validation is required before every quick item goes through the existing independent review",
+    "before quick work on an item with q-local `review.md`, read it",
+    "preserve every finding's stable id and status",
+    "automatically address open `blocker` and `high` findings",
+    "only when the user explicitly requests them",
+    "do not modify `review.md` or change finding status",
+    "only a subsequent review reassessment may change status to `resolved`",
+    "quick review does not require feature converge, summary, or a q task ledger",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick Review remediation contract is missing: ${phrase}`);
   }
 });
 
@@ -1002,6 +1113,14 @@ test("Quickstart separates deterministic pricing fixtures from agent acceptance"
     "reassesses after",
     "exact q ids",
     "parent-owned integrated validation",
+    "new quick work receives one durable q brief",
+    "existing `.scope/q###-<slug>.md` records remain readable as legacy quick handoffs",
+    "user explicitly approves the current design",
+    "backend and other non-visual quick work do not receive design ceremony",
+    "existing independent review",
+    "a quick is complete only with appropriate validation and current review pass",
+    "each quick retains its own brief, applicable design, and review outcome",
+    "escalates only the item whose evidence requires the feature workflow",
   ]) {
     assert.ok(publicGuidance.includes(phrase), `Public Scope/Quick guidance is missing: ${phrase}`);
   }
@@ -1574,6 +1693,32 @@ test("Project Status skill is project-first, evidence-based, and read-only", () 
   }
 });
 
+test("Status and Auto derive Quick completion from Q Review without Summary", () => {
+  const status = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "specs/quick/q###-<slug>/brief.md",
+    "legacy q handoff",
+    "matching supplemental q folder",
+    "quick is complete only with current review pass",
+    "quick completion does not require summary",
+    "do not infer design approval from file presence",
+  ]) {
+    assert.ok(status.includes(phrase), `Project Status Quick lifecycle is missing: ${phrase}`);
+  }
+
+  for (const phrase of [
+    "resolve quick work from an exact q id",
+    "wait for explicit user approval of the current design",
+    "after quick review pass, complete that q item without summary or converge",
+    "quick findings return through quick implementation, validation, and review",
+    "after feature review pass, load and execute summary",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto Quick lifecycle is missing: ${phrase}`);
+  }
+});
+
 test("CLI status remains installation diagnostics rather than project lifecycle status", async () => {
   const output = await capture(["status", project()]);
   assert.match(output, /Review skill:/);
@@ -1752,6 +1897,27 @@ test("Review skill uses current convergence evidence and four quality passes", (
     "`LOW`",
   ]) {
     assert.ok(skill.includes(phrase), `Review skill is missing: ${phrase}`);
+  }
+});
+
+test("Review reuses its finding model for Quick without Feature-only completion stages", () => {
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "for an exact q id, resolve exactly one new",
+    "one new `specs/quick/q###-<slug>/brief.md` or one legacy `specs/.scope/q###-<slug>.md`",
+    "matching supplemental q folder",
+    "authoritative q brief",
+    "design.md",
+    "validation/runtime evidence",
+    "write the same `review.md` model",
+    "### 4. simplicity, reuse, and maintainability",
+    "quick work does not require feature-only converge",
+    "a current quick review pass completes the review gate for that q item",
+    "quick findings return to quick for remediation, validation, and review",
+    "recommend `/speckit-summary` as the explicit handoff",
+  ]) {
+    assert.ok(review.includes(phrase), `Review Quick contract is missing: ${phrase}`);
   }
 });
 

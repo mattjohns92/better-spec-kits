@@ -27,10 +27,10 @@ Project Status reports state; it does not own state. Existing project artifacts 
 
 ## Discover Work Progressively
 
-1. Inspect standard numbered feature directories such as `specs/NNN-<slug>/` and relevant Scope records under `specs/.scope/`.
+1. Inspect standard numbered feature directories such as `specs/NNN-<slug>/`, new Quick Briefs at `specs/quick/Q###-<slug>/brief.md`, and relevant Scope records under `specs/.scope/`, including legacy Q handoffs.
 2. Read Initiative child maps and include planned child features even when no feature directory exists yet.
 3. Include legacy directories when they contain relevant Better Spec Kit artifacts, even if they lack a Scope Feature Brief or use older artifact conventions. State classification limits rather than requiring migration.
-4. Associate records only when exact IDs and recorded paths support the relationship. Report duplicate IDs and path conflicts; do not guess or silently merge them.
+4. Associate records only when exact IDs and recorded paths support the relationship. A legacy Q handoff may have a matching supplemental Q folder; associate its artifacts only by exact Q ID and filename slug. Report duplicate IDs and path conflicts; do not guess or silently merge them.
 5. After finding work, inspect only the relevant status-bearing artifacts needed to classify each item and support a blocker, conflict, or recommendation. Expand further only when evidence is ambiguous or contradictory.
 6. Do not scan arbitrary implementation files for TODO comments. Treat unfinished work as a feature blocker only when an established feature artifact ties it to the current completion requirements.
 
@@ -45,6 +45,7 @@ Use artifact contents, explicit outcomes, ownership, and applicability to the cu
 - A Feature Brief or Scope handoff proves scoped intent, not specification, implementation, or completion.
 - A Spec records specified intent. Applicable Design, Plan, and Tasks show workflow planning, not delivered or accepted behavior.
 - Design and Preview are optional where the feature's workflow does not use them; their absence alone is not a failure or blocker.
+- For a Quick, derive state from its exact new Q Brief or legacy Q handoff, any required approved Design, current validation evidence, and Q-local Review outcome. Quick is complete only with current Review PASS, implementation evidence, required Design approval, appropriate current validation, and no open blocking findings. Quick completion does not require Summary or Feature Converge; do not infer Design approval from file presence.
 - Initiative records own their existing decomposition and parent-map status. Use child artifacts for the child's detailed evidence; report parent/child conflicts without changing either source.
 - Do not assume an old directory is abandoned or superseded based on age or inactivity. Report those states only when existing authoritative records explicitly establish them.
 
@@ -80,7 +81,8 @@ Use artifact contents, explicit outcomes, ownership, and applicability to the cu
 - OPEN blocking Review findings prevent a COMPLETE claim. Recommend the established Review-remediation path without changing finding IDs, statuses, or evidence.
 - `INCOMPLETE REVIEW`, missing/malformed outcomes, stale evidence, or unclear applicability are not PASS.
 - Summary is a descriptive as-of account. Its existence or completion wording does not prove Review PASS, acceptance, or completion.
-- Report COMPLETE only when current, unambiguous Review PASS and a consistent final completion handoff support it, and all acceptance that the feature explicitly makes mandatory is evidenced as passed and current. Do not require runtime acceptance when the feature establishes no such requirement.
+- For a Feature, report COMPLETE only when current, unambiguous Review PASS and a consistent final completion handoff support it, and all acceptance that the feature explicitly makes mandatory is evidenced as passed and current. Do not require runtime acceptance when the feature establishes no such requirement.
+- For a Quick, report COMPLETE only when its exact Q record, implementation, required approved Design, current validation, and current Review PASS establish completion; no Feature Summary or Converge handoff is required.
 - If required manual or supported-agent acceptance is pending, failed, missing, or unverifiable, state that limitation and recommend the acceptance action. Deterministic test results do not prove an external runtime scenario passed.
 
 ## Recommend, Do Not Execute

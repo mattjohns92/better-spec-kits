@@ -35,6 +35,42 @@ test("fresh install preserves constitution and writes metadata", () => {
   assert.equal(JSON.parse(fs.readFileSync(path.join(p, ".specify/better-spec-kit.json"), "utf8")).version, "0.4.0");
 });
 
+test("Quick lifecycle skills remain in the existing managed distribution", () => {
+  const pairs = [
+    ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
+    ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
+    ["skills/speckit-design/SKILL.md", ".github/skills/speckit-design/SKILL.md"],
+    ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
+    ["skills/speckit-status/SKILL.md", ".github/skills/speckit-status/SKILL.md"],
+    ["skills/speckit-auto/SKILL.md", ".github/skills/speckit-auto/SKILL.md"],
+  ];
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+  const target = project();
+  const plan = buildPlan(target, packageRoot);
+
+  assert.ok(packageFiles.includes("skills"));
+  assert.ok(!packageFiles.includes(".github"));
+  for (const [source, destination] of pairs) {
+    const entry = plan.find((item) => item.destinationRel === destination);
+    assert.equal(entry?.sourceRel, source);
+    assert.equal(entry?.classification, "new");
+    assert.ok(powershellInstaller.includes(`Source='${source}'; Destination='${destination}'`));
+    assert.ok(shellInstaller.includes(`"${destination}"`));
+  }
+
+  install({ project: target, packageRoot, plan, version: "0.6.0" });
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  for (const [source, destination] of pairs) {
+    const canonical = fs.readFileSync(path.join(packageRoot, source), "utf8");
+    const managed = fs.readFileSync(path.join(target, destination), "utf8");
+    const dogfood = fs.readFileSync(path.join(packageRoot, destination), "utf8");
+    assert.equal(normalizeLineEndings(managed), normalizeLineEndings(canonical), `${destination} must install the canonical skill`);
+    assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), `${destination} must match the canonical skill`);
+  }
+});
+
 test("Auto skill and Copilot hook assets use managed install and customization safeguards", () => {
   const assets = [
     ["skills/speckit-auto/SKILL.md", ".github/skills/speckit-auto/SKILL.md"],

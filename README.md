@@ -28,7 +28,11 @@ The feature's `tasks.md` remains the single implementation work ledger: Tasks cr
 
 Use `/speckit.scope <request>` when the right workflow is uncertain. Scope investigates relevant project evidence and routes by whether further specification would materially reduce uncertainty about the outcome or its boundaries. It reassesses after new evidence and user answers; implementation breadth or effort alone does not require FEATURE.
 
-QUICK is for an understood outcome, not merely a trivial change. `/speckit.quick Q###` investigates relevant code, consumers, patterns, tests, and regression boundaries before editing. It can wait for a clear answer to a bounded consequential question and stops with evidence when broader definition is needed. Multiple independent Quick handoffs can be handled together by passing their exact Q IDs in one invocation; mixed Feature and Bug items remain on their existing routes. Dependencies are sequenced, and grouped work receives parent-owned integrated validation.
+QUICK is for an understood outcome, not merely a trivial change. Each new Q item has one durable Brief in `specs/quick/Q###-<slug>/`; existing `.scope` Q handoffs remain readable without being copied or migrated. `/speckit.quick Q###` consumes that Brief, investigates only what it must independently verify, and stops with evidence when broader definition is needed.
+
+For UI Quick work, the existing Design workflow runs before implementation and the user explicitly approves the current Design, even when an established pattern makes Design lightweight. Backend and other non-visual Quick work skip Design. Every Quick receives appropriate validation and the existing independent Review; completion requires current Review PASS, with scrutiny based on behavior and risk rather than the QUICK classification. Review findings return through Quick implementation, validation, and Review without Feature Converge or a second findings system.
+
+Multiple independent Quick items can still be handled together by passing exact Q IDs. Each item retains its own Brief, applicable Design, and Review outcome; dependencies are sequenced, only interacting changes require parent-owned integrated validation, and one item can escalate without forcing unrelated items to FEATURE.
 
 Start in a project where GitHub Spec Kit is already initialised:
 
