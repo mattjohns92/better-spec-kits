@@ -940,13 +940,7 @@ test("Scope and Quick use one durable Q Brief and preserve legacy handoffs", () 
     assert.ok(scope.includes(phrase), `Durable Q Scope contract is missing: ${phrase}`);
   }
 
-  for (const phrase of [
-    "resolve every q id to its unique record",
-    "legacy q handoff",
-    "new q brief",
-    "duplicate or conflicting matches",
-    "along with established scope evidence",
-  ]) {
+  for (const phrase of ["resolve every q id to its unique record", "legacy q handoff", "new q brief", "duplicate or conflicting matches", "along with established scope evidence"]) {
     assert.ok(quick.includes(phrase), `Durable Q Quick contract is missing: ${phrase}`);
   }
 });

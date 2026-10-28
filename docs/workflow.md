@@ -31,9 +31,8 @@ Graph use is proportional. Scope, Specify, Clarify, Design, Plan, Analyze, Imple
 Implementation can make a graph stale. Do not refresh it at every stage or intermediate checkpoint. When Review will rely on a local graph after source changes, use Graphify's documented update behavior at the final implementation or remediation boundary. If the active Graphify surface cannot establish currentness, Review falls back to source inspection and must not call the graph current. After Review passes, an unchanged graph may be reused by the next feature.
 
 ## Optional Scope and Quick entry
+
 Use `/speckit.scope <request>` when you want help choosing a proportionate path. Scope inspects relevant project evidence first, then routes work as BUG, QUICK, FEATURE, or INITIATIVE according to whether further specification would materially reduce uncertainty about the intended outcome or its important boundaries. It reassesses after relevant evidence and each user answer; implementation breadth or effort alone does not require FEATURE. Scope remains optional; direct expert entry is supported.
-
-
 
 Scope writes sanitized, ID-addressable Bug and Initiative records under `specs/.scope/`. New Quick work receives one durable Q Brief at `specs/quick/Q###-<slug>/brief.md`; existing `.scope/Q###-<slug>.md` records remain readable as legacy Quick handoffs and are not copied or migrated. A Feature Brief lives in its normal numbered feature directory. Quick consumes its Brief, investigates relevant source, callers, patterns, tests, and regression boundaries, waits for a clear answer to a bounded consequential question, and preserves evidence when broader product, architecture, persistence, permission, or cross-cutting decisions need an owner. Quick is suitable for substantial implementation when the outcome and boundaries are understood.
 
