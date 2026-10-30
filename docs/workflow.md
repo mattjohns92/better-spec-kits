@@ -10,6 +10,10 @@ Analyze is the normal final pre-implementation gate. It checks that applicable a
 
 The independent `/speckit.status` skill gives a read-only project-level overview from existing Feature Briefs, Initiative maps, and lifecycle artifacts. It prioritizes attention, reports evidence and uncertainty, and recommends a next action without invoking it or changing project state. This is separate from `better-spec-kit status`, which reports installation and integration diagnostics.
 
+## Preflight
+
+Use `/speckit-preflight <exact-work-item>` for a read-only readiness, current-source, and surface-compatibility inspection of one Feature, QUICK, or assessed BUG. `CLEAR AT INSPECTION` is advisory and does not reserve or admit the item; implementation repeats Preflight immediately before its atomic claim.
+
 ## Project Query
 
 The independent `/speckit.query <question>` utility answers a specific natural-language question by inspecting current project evidence. It responds in chat without changing project state. Query is question-focused; Project Status remains the lifecycle-focused overview of feature and Initiative progress.

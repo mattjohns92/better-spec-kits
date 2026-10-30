@@ -58,11 +58,9 @@ Use artifact contents, explicit outcomes, ownership, and applicability to the cu
 
 ### Pre-Implementation Readiness
 
-Readiness is derived from existing evidence, never saved as work-item state. Feature readiness requires all applicable preparation and decisions to be complete: required Design is approved, Plan and Tasks are complete, and the current Analyze outcome is `PASS` with no OPEN blocking findings. Confirm the Analyze result still applies to the current relevant Feature artifacts; missing, stale, malformed, conflicting, or unverifiable evidence is not ready. Do not infer readiness from artifact presence, checked Tasks, or an agent's completion claim. Preview absence alone does not block readiness unless Preview was requested as a separate user-facing handoff.
+Apply the exact identity, readiness, and currentness criteria in `.github/skills/speckit-preflight/SKILL.md` when reporting whether one item is prepared for implementation. Derive these facts from current authoritative artifacts; never save readiness as work-item state. Status reports the evidence read-only and does not invoke Preflight as a workflow or make an admission decision.
 
-For QUICK, require its one exact Q Brief or legacy handoff and resolved applicable decisions. A non-visual QUICK does not require Feature-only Spec, Plan, Tasks, or Analyze. A UI QUICK requires explicit approval of its current Design; Design file presence alone is not approval. QUICK implementation, validation, and Review are post-start evidence, not pre-implementation readiness gates.
-
-`READY TO IMPLEMENT` describes preparation only. Readiness does not mean the shared implementation lifecycle is available or grant authority to begin shared-source work. Preserve unknown readiness whenever evidence cannot establish identity, applicability, approval, or currentness.
+`READY TO IMPLEMENT` describes preparation only. It does not establish surface compatibility or admission. Report readiness, implementation progress/completion, and reservation state as separate facts; do not infer one from another. Preserve `UNKNOWN` whenever identity, applicability, approval, or currentness cannot be established.
 
 ### Tasks and Implementation
 
@@ -70,6 +68,15 @@ For QUICK, require its one exact Q Brief or legacy handoff and resolved applicab
 - Checked tasks do not prove Review PASS or completion. Unchecked tasks do not automatically prove remaining work when current evidence establishes otherwise; however, do not dismiss an explicitly required acceptance item without evidence.
 - When implementation has not begun and its required pre-implementation checks are satisfied, report ready to implement. When work is partial, report it as in progress.
 - When implementation appears complete but required validation is not established, report validation pending and recommend the applicable next validation stage.
+
+### Surface Reservations
+
+- Inspect the reservation registry read-only with `node .github/hooks/speckit-source-ownership.mjs status` when the helper is installed. Associate entries only by exact Feature directory, QUICK ID, or BUG directory.
+- Report `RESERVED`, `NO CURRENT RESERVATION`, or `UNKNOWN` separately from readiness, implementation progress, and overall item completion. An unknown registry is not an empty registry.
+- For an exact item, follow the canonical Preflight skill's complete-surface and read-only `preview` procedure before reporting candidate compatibility. Use `CLEAR AT INSPECTION`, exact conflict evidence, or `UNKNOWN` as returned; the snapshot is advisory and may change before a claim.
+- Report readiness, candidate compatibility, reservation/admission, implementation progress, and work-item completion separately. A READY item is not admitted; only successful atomic `claim` at automatic Implement Preflight admits it. No current reservation is not admission approval.
+- Status never attempts admission, releases or revises a reservation, persists Preflight outcomes, or predicts future availability. Do not imply active execution solely from a reservation.
+- A released reservation does not establish that the work item is complete. Report known outstanding source remediation and required acceptance from their authoritative artifacts independently.
 
 ### Required and Deferred Work
 

@@ -108,7 +108,6 @@ test("Project Query distinguishes evidence types and reports uncertainty", () =>
 
   for (const phrase of [
     "documentation",
-    "authoritative project contract",
     "implementation evidence",
     "test exists",
     "do not claim a test currently passes",
@@ -118,6 +117,28 @@ test("Project Query distinguishes evidence types and reports uncertainty", () =>
     "not established",
   ]) {
     assert.ok(skill.includes(phrase), `Project Query evidence guidance is missing: ${phrase}`);
+  }
+});
+
+test("standalone Preflight is exact-item, read-only, and never grants admission", () => {
+  const canonicalPath = path.join(packageRoot, "skills/speckit-preflight/SKILL.md");
+  const preflight = fs.readFileSync(canonicalPath, "utf8").toLowerCase();
+  const dogfoodPath = path.join(packageRoot, ".github/skills/speckit-preflight/SKILL.md");
+  const dogfood = fs.readFileSync(dogfoodPath, "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit-preflight <exact-work-item>",
+    "accept an exact `f###`",
+    "accept an exact `q###`",
+    "do not map a scope `b###` handoff",
+    "upstream `assessment.md`",
+    "clear at inspection",
+    "admission: not claimed",
+    "do not write an outcome, reservation, cache, or report file",
+    "only a successful atomic `claim` means `admitted to implement`",
+  ]) {
+    assert.ok(preflight.includes(phrase), `Standalone Preflight contract is missing: ${phrase}`);
+    assert.ok(dogfood.includes(phrase), `Dogfood Preflight contract is missing: ${phrase}`);
   }
 });
 
@@ -211,14 +232,7 @@ test("Auto skill derives one continuation and preserves authoritative stage owne
 test("Auto pre-implement mode stops Feature work at evidence-derived readiness", () => {
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 
-  for (const phrase of [
-    "/speckit-auto pre-implement",
-    "preparation-only mode",
-    "current analyze pass",
-    "absence of preview alone does not prevent readiness",
-    "ready to implement",
-    "stop before implement",
-  ]) {
+  for (const phrase of ["/speckit-auto pre-implement", "preparation-only mode", ".github/skills/speckit-preflight/skill.md", "admission: not claimed", "stop before implement"]) {
     assert.ok(auto.includes(phrase), `Auto Feature preparation contract is missing: ${phrase}`);
   }
 });
@@ -226,13 +240,7 @@ test("Auto pre-implement mode stops Feature work at evidence-derived readiness",
 test("Auto pre-implement mode respects QUICK readiness without Feature-only stages", () => {
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 
-  for (const phrase of [
-    "quick pre-implementation",
-    "exact q brief",
-    "non-visual quick may be ready without feature-only artifacts",
-    "ui quick is not ready until its current design is explicitly approved",
-    "without entering quick implementation, validation, or review",
-  ]) {
+  for (const phrase of ["quick pre-implementation", ".github/skills/speckit-preflight/skill.md", "admission: not claimed", "do not enter quick implementation, validation, or review"]) {
     assert.ok(auto.includes(phrase), `Auto QUICK preparation contract is missing: ${phrase}`);
   }
 });
@@ -243,8 +251,8 @@ test("Auto preserves human decisions and stops when implementation is unavailabl
   for (const phrase of [
     "silence is never approval",
     "no dependent work",
-    "readiness from implementation availability",
-    "f022 reports ownership as held, unknown, or unverifiable",
+    "readiness from implementation-surface availability",
+    "if implementation entry is refused for overlap, duplicate entry, unknown, or unverifiable surface",
     "stop the current run",
     "fresh explicit `/speckit-auto` invocation after availability changes",
     "do not wait for release, resume automatically, or start another item",
@@ -316,37 +324,102 @@ test("work item boundaries allow distinct-item preparation without same-item saf
   }
 });
 
-test("Implement and Auto require an exact source claim immediately before edits", () => {
+test("Implement, Quick, and Bug reserve complete surfaces once while Auto delegates", () => {
   const policy = fs.readFileSync(path.join(packageRoot, "instructions/shared-source-ownership.instructions.md"), "utf8").toLowerCase();
+  const preflight = fs.readFileSync(path.join(packageRoot, "skills/speckit-preflight/SKILL.md"), "utf8").toLowerCase();
   const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 
   for (const phrase of [
-    "immediately before the first source-changing action",
-    "a second claim is blocked even when it targets the same item",
-    "immediately before each later source-changing action, run `check`",
+    "any exact or ancestor/descendant path overlap",
+    "rejects the entire incoming item",
+    "complete disjoint surfaces may proceed concurrently",
+    "a fresh duplicate entry for the same item is blocked",
+    "without further ownership checks or transient tokens",
   ]) {
     assert.ok(policy.includes(phrase), `Shared ownership policy is missing: ${phrase}`);
   }
-  assert.ok(implement.includes("acquire the exact feature/quick claim"));
-  assert.ok(implement.includes("keep the token out of `tasks.md`, `## implement state`, and all repository files"));
-  assert.ok(auto.includes("never bypasses the lock because it is progressing stages automatically"));
+  assert.ok(preflight.includes("verify the exact upstream `assessment.md` and report its verdict"));
+  assert.ok(preflight.includes("build one complete expected shared-source surface"));
+  assert.ok(implement.includes("one atomic `claim`"));
+  assert.ok(quick.includes("one atomic `claim` for that q"));
+  assert.ok(auto.includes("auto does not reserve surfaces"));
+  assert.ok(auto.includes("auto delegates to the authoritative implementation workflow"));
 });
 
-test("source ownership releases at the stable-source boundary, not feature completion", () => {
+test("Implement, Quick, Bug, and Auto use automatic semantic Preflight before admission", () => {
   const policy = fs.readFileSync(path.join(packageRoot, "instructions/shared-source-ownership.instructions.md"), "utf8").toLowerCase();
+  const preflight = fs.readFileSync(path.join(packageRoot, "skills/speckit-preflight/SKILL.md"), "utf8").toLowerCase();
   const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 
-  for (const source of [policy, implement, auto]) {
-    assert.ok(source.includes("stable-source boundary"), "Lifecycle guidance must name the approved release boundary");
-    assert.ok(source.includes("review pass"), "Lifecycle guidance must not make Review PASS a release prerequisite");
+  assert.ok(policy.includes(".github/skills/speckit-preflight/skill.md"));
+  assert.ok(policy.includes("only a successful claim means `admitted to implement`"));
+  for (const phrase of [
+    "a file changing alone, elapsed time, or a stale graph is not evidence",
+    "route feature changes through existing analyze/remediate",
+    "only a successful atomic `claim` means `admitted to implement`",
+    "complete expected shared-source surface",
+  ]) {
+    assert.ok(preflight.includes(phrase), `Canonical Preflight policy is missing: ${phrase}`);
   }
-  assert.ok(policy.includes("known finding/task requires source modification"));
-  assert.ok(implement.includes("known source remediation remains"));
-  assert.ok(auto.includes("known source remediation remains"));
-  assert.ok(policy.includes("acquire a new claim immediately before any later source remediation"));
-  assert.ok(policy.includes("external verification and non-source-changing acceptance may remain"));
+  assert.ok(implement.includes(".github/skills/speckit-preflight/skill.md"), "Implement must own the automatic Preflight boundary");
+  assert.ok(implement.includes("no per-edit checks or tokens"), "Admitted implementation must not repeat ownership checks");
+  assert.ok(quick.includes("each quick in a batch is independently admitted"), "Quick batch admission must be per exact Q item");
+  assert.ok(quick.includes("a conflict blocks only that whole q"), "Quick batch conflicts must not block disjoint Q items");
+  assert.ok(auto.includes(".github/skills/speckit-preflight/skill.md"), "Auto must delegate the same Preflight behavior");
+  assert.ok(auto.includes("fresh explicit `/speckit-auto` invocation after availability changes"), "Auto must not resume a blocked item automatically");
+});
+
+test("Status reports readiness and advisory surface compatibility without admission", () => {
+  const status = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    ".github/skills/speckit-preflight/skill.md",
+    "canonical preflight skill's complete-surface and read-only `preview` procedure",
+    "clear at inspection",
+    "snapshot is advisory",
+    "does not establish surface compatibility or admission",
+    "readiness, candidate compatibility, reservation/admission, implementation progress, and work-item completion separately",
+    "status never attempts admission",
+  ]) {
+    assert.ok(status.includes(phrase), `Status Preflight reporting is missing: ${phrase}`);
+  }
+});
+
+test("implementation surface release is independent of work-item completion", () => {
+  const policy = fs.readFileSync(path.join(packageRoot, "instructions/shared-source-ownership.instructions.md"), "utf8").toLowerCase();
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  assert.ok(policy.includes("implementation complete"), "Lifecycle guidance must separate implementation completion");
+  assert.ok(policy.includes("review pass"), "Lifecycle guidance must not make Review PASS a universal release prerequisite");
+  assert.ok(policy.includes("invoke the helper's `release` operation once"), "Implementation completion must execute exact registry release");
+  for (const source of [implement, quick]) assert.ok(source.includes("shared ownership instruction"));
+  assert.ok(policy.includes("changes only the matching registry reservation"));
+  assert.ok(policy.includes("only at a stable implementation boundary"));
+  assert.ok(policy.includes("after release, later source remediation builds a new complete surface and runs ordinary admission against all current reservations; no historical priority applies"));
+  assert.ok(auto.includes("owning implementation workflow retains existing material-expansion, stable-boundary release, and recovery responsibilities"));
+});
+
+test("explicit release is exact-item, stable-boundary, and registry-only", () => {
+  const release = fs.readFileSync(path.join(packageRoot, "skills/speckit-release/SKILL.md"), "utf8").toLowerCase();
+  const status = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "only at a stable implementation boundary",
+    "one concise warning",
+    "release --feature-dir",
+    "release --quick-id",
+    "release --bug-dir",
+    "changes only the exact matching registry reservation",
+  ]) {
+    assert.ok(release.includes(phrase), `Release workflow is missing: ${phrase}`);
+  }
+  assert.ok(status.includes("report readiness, implementation progress/completion, and reservation state as separate facts"));
+  assert.ok(status.includes("do not infer one from another"));
 });
 
 test("Review remains read-only and stops when source stability or attribution is unknown", () => {
@@ -1775,24 +1848,31 @@ test("Project Status summarizes Initiatives and resolves focused targets exactly
 test("Project Status derives Feature and Quick readiness from applicable current evidence", () => {
   const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8");
   const managed = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-status/SKILL.md"), "utf8");
+  const preflight = fs.readFileSync(path.join(packageRoot, "skills/speckit-preflight/SKILL.md"), "utf8").toLowerCase();
   for (const [location, skill] of [
     ["canonical", canonical],
     ["managed", managed],
   ]) {
     const text = skill.toLowerCase();
     for (const phrase of [
-      "feature readiness requires all applicable preparation and decisions to be complete",
-      "required design is approved",
-      "plan and tasks are complete",
-      "current analyze outcome is `pass` with no open blocking findings",
-      "missing, stale, malformed, conflicting, or unverifiable evidence is not ready",
-      "preview absence alone does not block readiness",
-      "non-visual quick does not require feature-only spec, plan, tasks, or analyze",
-      "ui quick requires explicit approval of its current design",
-      "readiness does not mean the shared implementation lifecycle is available",
+      ".github/skills/speckit-preflight/skill.md",
+      "ready to implement",
+      "does not establish surface compatibility or admission",
+      "report readiness, implementation progress/completion, and reservation state as separate facts",
+      "node .github/hooks/speckit-source-ownership.mjs status",
+      "no current reservation is not admission approval",
+      "an unknown registry is not an empty registry",
     ]) {
       assert.ok(text.includes(phrase), `${location} Status readiness contract is missing: ${phrase}`);
     }
+  }
+  for (const phrase of [
+    "verify the exact brief, completed applicable preparation",
+    "a current analyze `pass` with no open blocking findings",
+    "verify the exact brief/handoff and resolved applicable decisions",
+    "a ui quick additionally requires explicit approval of its current design",
+  ]) {
+    assert.ok(preflight.includes(phrase), `Canonical Preflight readiness contract is missing: ${phrase}`);
   }
   assert.equal(canonical.replace(/\r\n/g, "\n").trimEnd(), managed.replace(/\r\n/g, "\n").trimEnd());
 });

@@ -18,10 +18,11 @@ function project() {
 test("fresh install preserves constitution and writes metadata", () => {
   const p = project();
   const result = install({ project: p, packageRoot, plan: buildPlan(p, packageRoot), version: "0.4.0" });
-  assert.equal(result.changed, 22);
+  assert.equal(result.changed, 24);
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-review/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-summary/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-preview/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8"));
+  assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-preflight/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preflight/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-status/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-analyze/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-analyze/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-remediate/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-remediate/SKILL.md"), "utf8"));
@@ -35,13 +36,15 @@ test("fresh install preserves constitution and writes metadata", () => {
   assert.equal(JSON.parse(fs.readFileSync(path.join(p, ".specify/better-spec-kit.json"), "utf8")).version, "0.4.0");
 });
 
-test("Quick lifecycle skills remain in the existing managed distribution", () => {
+test("lifecycle skills remain in the existing managed distribution", () => {
   const pairs = [
     ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
     ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
     ["skills/speckit-design/SKILL.md", ".github/skills/speckit-design/SKILL.md"],
     ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
     ["skills/speckit-status/SKILL.md", ".github/skills/speckit-status/SKILL.md"],
+    ["skills/speckit-preflight/SKILL.md", ".github/skills/speckit-preflight/SKILL.md"],
+    ["skills/speckit-release/SKILL.md", ".github/skills/speckit-release/SKILL.md"],
     ["skills/speckit-auto/SKILL.md", ".github/skills/speckit-auto/SKILL.md"],
   ];
   const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
@@ -294,13 +297,16 @@ test("upgrading a pre-Review installation adds the Review skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.5.0" });
 
-  assert.equal(result.changed, 18);
+  assert.equal(result.changed, 20);
   assert.equal(fs.readFileSync(path.join(p, review.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, review.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, summary.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, summary.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, analyze.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));
+  const preflight = plan.find((item) => item.destinationRel === ".github/skills/speckit-preflight/SKILL.md");
+  assert.equal(preflight.classification, "new");
+  assert.equal(fs.readFileSync(path.join(p, preflight.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preflight.sourceRel), "utf8"));
   for (const [source, destination] of [
     ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
     ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
@@ -582,10 +588,13 @@ test("updating an installed project detects the new Remediate skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.6.0" });
 
-  assert.equal(result.changed, 16);
+  assert.equal(result.changed, 18);
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));
+  const preflight = plan.find((item) => item.destinationRel === ".github/skills/speckit-preflight/SKILL.md");
+  assert.equal(preflight.classification, "new");
+  assert.equal(fs.readFileSync(path.join(p, preflight.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preflight.sourceRel), "utf8"));
   assert.equal(fs.existsSync(path.join(p, ".github/skills/speckit-scope/SKILL.md")), true);
   assert.equal(fs.existsSync(path.join(p, ".github/skills/speckit-quick/SKILL.md")), true);
   assert.equal(fs.existsSync(path.join(p, ".github/instructions/scope-handoffs.instructions.md")), true);

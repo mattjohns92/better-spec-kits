@@ -2,151 +2,91 @@
 
 **Better design. Simpler code. Stronger Spec Kit workflows.**
 
-Better Spec Kit is a technology-agnostic, opinionated extension to GitHub Spec Kit. It adds a dedicated design stage, stronger codebase discovery, reuse-before-creation guidance, implementation discipline, and an independent post-implementation review without prescribing your language, framework, database, architecture, or repository structure.
+Better Spec Kit extends GitHub Spec Kit with evidence-led workflow guidance for design, implementation, validation, and independent review. It is technology-agnostic: it does not prescribe your language, framework, database, architecture, or repository structure.
 
-When you are unsure which workflow fits a request, start with the optional `/speckit.scope` entry. It routes bugs, contained changes, features, and initiatives; users who already know their workflow can continue to enter it directly.
+## Quick Start
 
-## Workflow
+Use Better Spec Kit inside a project that has already been initialized with GitHub Spec Kit. The CLI requires Node.js 20 or later.
 
-```text
-specify → clarify → design → plan → tasks → analyze → implement → converge → review
-```
-
-Analyze is the normal final pre-implementation check after Tasks. It checks artifact consistency and challenges material decisions, then records its outcome and any findings in the feature's `analysis.md`. Analyze does not modify upstream artifacts. Address blocking findings through their routed upstream stage and rerun Analyze before implementation normally proceeds.
-
-After Analyze returns PASS, follow its next-step recommendation. Analyze may recommend `/speckit.preview` when a human-readable overview would materially improve understanding; for straightforward proposals, it may recommend `/speckit-implement` directly. Preview remains optional. If OPEN blocking findings remain, run `/speckit.remediate` and then run Analyze again; do not implement while blocking findings remain. If analysis is incomplete, obtain the missing evidence or prerequisite before proceeding.
-
-GitHub Spec Kit provides `/speckit.converge` to check for work still missing after implementation. If it appends tasks, repeat `converge → implement → converge` until no work remains, then run Review. Better Spec Kit does not bundle or replace Converge. If the command is unavailable, follow the [official GitHub Spec Kit installation and update instructions](https://github.com/github/spec-kit) and verify the command is available before continuing.
-
-Review writes a durable `review.md` artifact in the active feature directory. That artifact is the authoritative record for review outcome, blocking findings, validation evidence, and the concise resolved-history that survives the implementation handoff.
-
-The feature's `tasks.md` remains the single implementation work ledger: Tasks creates the original planned work, upstream Converge may append completeness work, Implement may append Review-remediation tasks, and Review reads the ledger without modifying it. After remediation, the expected sequence remains `implement -> converge -> review`; only a subsequent Review reassessment can resolve a finding.
-
-## Install
-
-### Optional Scope and Quick entry
-
-Use `/speckit.scope <request>` when the right workflow is uncertain. Scope investigates relevant project evidence and routes by whether further specification would materially reduce uncertainty about the outcome or its boundaries. It reassesses after new evidence and user answers; implementation breadth or effort alone does not require FEATURE.
-
-QUICK is for an understood outcome, not merely a trivial change. Each new Q item has one durable Brief in `specs/quick/Q###-<slug>/`; existing `.scope` Q handoffs remain readable without being copied or migrated. `/speckit.quick Q###` consumes that Brief, investigates only what it must independently verify, and stops with evidence when broader definition is needed.
-
-For UI Quick work, the existing Design workflow runs before implementation and the user explicitly approves the current Design, even when an established pattern makes Design lightweight. Backend and other non-visual Quick work skip Design. Every Quick receives appropriate validation and the existing independent Review; completion requires current Review PASS, with scrutiny based on behavior and risk rather than the QUICK classification. Review findings return through Quick implementation, validation, and Review without Feature Converge or a second findings system.
-
-Multiple independent Quick items can still be handled together by passing exact Q IDs. Each item retains its own Brief, applicable Design, and Review outcome; dependencies are sequenced, only interacting changes require parent-owned integrated validation, and one item can escalate without forcing unrelated items to FEATURE.
-
-Start in a project where GitHub Spec Kit is already initialised:
+When a release is available on npm, start the installer from the project root:
 
 ```bash
 npx better-spec-kit@latest
 ```
 
-The CLI detects the current project and launches an interactive installation or update wizard.
-
-You can also install the CLI globally:
-
-```bash
-npm install -g better-spec-kit
-better-spec-kit
-```
-
-> Until the npm package is published, test locally with `npm link` from this repository, then run `better-spec-kit` from a disposable Spec Kit project.
-
-## CLI
+The interactive wizard detects the project, previews managed-file changes, and asks before applying the selected install or update. To run a specific operation, use:
 
 ```text
-better-spec-kit             Interactive wizard
-better-spec-kit install     Install into the current project
-better-spec-kit update      Update an existing installation
-better-spec-kit status      Show project, Analyze/Remediate/Review skills, Scope/Quick state, Bug provisioning, and integration status
-better-spec-kit doctor      Diagnose blocking installation issues
-better-spec-kit --version   Show CLI version
+better-spec-kit install [project-path]
+better-spec-kit update [project-path]
+better-spec-kit status [project-path]
+better-spec-kit doctor [project-path]
+better-spec-kit --version
 ```
 
-A project path may be supplied after a command, for example:
+Run `better-spec-kit` without an operation to open the wizard. `status` reports installation and integration diagnostics, including Analyze/Remediate/Review skills, Scope/Quick state, upstream Bug provisioning, and runtime capability signals; `doctor` highlights blocking installation issues. Neither command reports Feature lifecycle progress. See [Installation](docs/installation.md) for local development and installer details.
 
-```bash
-better-spec-kit status ../my-project
+## Choose a Workflow
+
+If the right path is unclear, start with `/speckit.scope <request>`. Scope investigates current project evidence and routes the work as a BUG, QUICK, FEATURE, or INITIATIVE. Scope is optional; when you already know the workflow, enter it directly.
+
+- **QUICK**: Use `/speckit.quick Q###` for an understood outcome whose important boundaries are already clear. Scope creates one durable Brief for each new Q item. UI work requires approval of its current Design; non-visual work skips Feature-only planning. Quick still gets appropriate validation and independent Review, but does not require Feature Converge or Summary.
+- **FEATURE**: Use the normal Spec Kit workflow when the outcome or a material boundary needs definition. The recommended lifecycle is:
+
+  `specify → clarify → design → plan → tasks → analyze → implement → converge → review`
+
+  Clarify resolves consequential unanswered decisions; Design applies when the feature needs a visual direction. Tasks creates the implementation ledger. Analyze is the normal final pre-implementation gate.
+
+- **BUG**: Use the official upstream Spec Kit Bug extension for Assess, Fix, and Test. Better Spec Kit may provision that extension during installation when prerequisites allow, but does not replace or own its workflow.
+- **INITIATIVE**: Use Scope when evidence supports multiple independently specifiable outcomes with meaningful boundaries. An Initiative is a map, not an instruction to start every child at once.
+
+The examples use the workflow names documented by Better Spec Kit. The exact slash-command spelling and availability depend on the active agent integration; use the installed skill or command form exposed by that integration.
+
+## Feature Workflow
+
+Run the applicable Feature stages against one exact selected Feature. After Tasks, run Analyze before implementation. Analyze checks artifact consistency and challenges whether material decisions are justified and proportionate; its findings go in the Feature's `analysis.md`, and it does not edit upstream artifacts.
+
+After Analyze returns PASS, follow its recommendation. Analyze may recommend `/speckit.preview` when a human-readable overview would materially improve understanding; for straightforward proposals it may recommend `/speckit-implement` directly. Preview remains optional. If OPEN blocking findings remain, run `/speckit.remediate`, address the routed upstream work, and run Analyze again before implementing. If analysis is incomplete, obtain the missing evidence or prerequisite first.
+
+Immediately before source-changing work, Implement performs a fresh Preflight and atomically claims its complete shared-source surface. The standalone command is also available for inspection:
+
+```text
+/speckit-preflight F###
+/speckit-preflight Q###
+/speckit-preflight .specify/bugs/<slug>
 ```
 
-The independent Project Status skill provides a read-only, project-level view of feature and Initiative work from existing artifacts, including evidence gaps, blockers, and recommended next actions. It does not execute workflows or change lifecycle state. It is separate from the `better-spec-kit status` CLI command, which reports installation, integration, and provisioning state.
+Preflight checks readiness, current-source assumptions, and surface compatibility. `CLEAR AT INSPECTION` is only an advisory snapshot; it means `ADMISSION: NOT CLAIMED`. Implementation repeats Preflight for its current attempt, and only its successful atomic claim admits the work. You do not need to run standalone Preflight first.
 
-Project Query (`/speckit.query <question>`) is a separate read-only project utility for answering specific natural-language questions from current repository evidence. It responds in chat and does not change project files or lifecycle state.
+After implementation, GitHub Spec Kit owns `/speckit.converge`. If it appends tasks, repeat `converge → implement → converge` until no work remains, then run Review. Review independently records the outcome and findings in `review.md`; only a later Review reassessment can resolve a finding. After remediation, the expected sequence is `implement -> converge -> review`.
 
-## Auto Mode
+After a current Review PASS, run `/speckit-summary <feature-directory>` for a concise, evidence-based completion handoff. Summary is also available earlier as a descriptive as-of report, but it does not replace Review or prove completion. Automatic skill-to-skill invocation is not guaranteed; do not claim a stage ran unless it actually did.
 
-Auto Mode is an optional workflow-progression skill for VS Code Copilot Chat. Use `/speckit-auto` to continue one uniquely selected work item, `/speckit-auto status` to inspect Auto state, or `/speckit-auto stop` to stop progression at the next safe boundary. It follows existing Feature, Quick, and upstream Bug ownership; it does not replace stages or infer approvals.
+## Project Utilities
 
-The installed Copilot hook can request another agent turn but does not invoke a workflow stage. Cross-stage dispatch and resumption after a user answer require supported-agent acceptance; when a transition is unsupported, Auto must stop and report the exact manual next action. Installation alone is not runtime evidence. This skill is separate from `better-spec-kit status`, which remains installation and integration diagnostics.
+- **Project Status** (`/speckit.status`) gives a read-only lifecycle overview from current Feature, Quick, and Initiative artifacts. It reports blockers, evidence gaps, and supported next actions without changing project state. This is separate from the CLI `better-spec-kit status` installation diagnostics.
+- **Project Query** (`/speckit.query <question>`) answers a focused question from current repository evidence. It responds in chat and does not change files or lifecycle state.
+- **Auto Mode** (`/speckit-auto`) can advance one selected work item when the next stage is deterministic. Its supported arguments include `pre-implement`, `status`, and `stop`. `pre-implement` stops at evidence-derived readiness and does not claim implementation admission. Auto does not replace workflow stages or infer approvals.
 
-## Safety
+Auto targets VS Code Copilot Chat. Installed hooks can request another agent turn but do not invoke workflow stages. Cross-turn dispatch or answer resumption must not be assumed; when the active host cannot continue safely, Auto reports the manual next action. Installation alone is not runtime evidence.
 
-Better Spec Kit is designed to upgrade an existing Spec Kit project in place.
+## Safe Upgrades and Integrations
 
-- Existing Spec Kit skills are detected and shown for review. Until upstream release checksums are bundled, differing files require explicit approval before replacement.
-- Original files are backed up outside the target repository before replacement.
-- Unknown or customised managed files are flagged for explicit approval.
-- Existing constitutions are preserved by default.
-- The neutral Better Spec Kit constitution is opt-in.
-- Better Spec Kit records its installed version in `.specify/better-spec-kit.json`.
+Better Spec Kit upgrades an existing Spec Kit project in place. Existing constitutions are preserved by default; the neutral Better Spec Kit constitution is opt-in. Differing or customized managed files are shown for review, require explicit approval before replacement, and are backed up outside the target repository. The installed version is recorded in `.specify/better-spec-kit.json`.
 
-## Technology neutrality
+Ponytail and UI UX Pro Max are separate projects and remain optional. Better Spec Kit does not vendor or copy Ponytail and does not automatically install Ponytail. Plan and Tasks may use Ponytail when meaningful complexity exists and the active host exposes a safely stage-scoped capability; otherwise Better Spec Kit's built-in simplicity and reuse guidance applies. Copilot CLI and Copilot Chat integrations differ, and CLI availability does not prove Ponytail is installed or callable. See [Optional integrations](docs/integrations.md) for setup and limitations.
 
-Better Spec Kit makes no assumptions about programming language, frontend/backend framework, database, test framework, deployment platform, repository topology, state management, or architectural style.
+The official Spec Kit Bug extension is also upstream-owned. Standard install/update attempts native provisioning only when the project and prerequisites permit; an existing Bug extension is never force-reinstalled, re-enabled, or automatically updated. Provisioning failure is reported as partial success and does not block unrelated workflows. Successful installation does not prove that a fresh Copilot session can consume a Bug handoff.
 
-Its rule is simple: **discover first, then decide**.
+## Development and Further Reading
 
-## Optional integrations
-
-Better Spec Kit can take advantage of specialist tools such as:
-
-- **UI UX Pro Max** during design
-- **Ponytail** as an optional, evidence-adaptive challenge during Plan and Tasks, with a lightweight reuse guard during implementation
-
-Ponytail and UI UX Pro Max are separate projects and remain optional. Better Spec Kit does not vendor or copy Ponytail and does not automatically install Ponytail. Ponytail challenges are used only when meaningful implementation complexity exists and the active host exposes a safely stage-scoped capability; otherwise Better Spec Kit's built-in simplicity and reuse guidance applies. The official Spec Kit Bug extension is different: standard install/update attempts native upstream provisioning when the project and prerequisites permit. Existing Bug installations are never force-reinstalled, re-enabled, or automatically updated. Provisioning failure is reported as partial success and does not roll back Better Spec Kit files or block other workflows. Successful installation is not evidence that a fresh Copilot session can consume a Bug handoff; that runtime check is separate.
-
-## Development
-
-Requires Node.js 20 or later.
+The distributable skill sources live in `skills/`; `.github/skills/` contains the copies used while Better Spec Kit dogfoods its own workflow.
 
 ```bash
 npm test
 npm link
 ```
 
-Then open a disposable project with GitHub Spec Kit initialised and run:
+From a disposable, initialized Spec Kit project, run `better-spec-kit` to test the local CLI. For the full workflow guide, see [docs/workflow.md](docs/workflow.md). For setup and release details, see [docs/installation.md](docs/installation.md) and [docs/releasing.md](docs/releasing.md).
 
-```bash
-better-spec-kit
-```
-
-## Status
-
-`v0.5.0` adds an independent post-implementation Review stage and installs it for new and existing Better Spec Kit projects. The package must be published to npm before `npx better-spec-kit@latest` provides this release.
-
-## Repository structure
-
-Better Spec Kit dogfoods its own workflow.
-
-The canonical distributable skills live in:
-
-skills/
-
-These are the source files packaged and installed by Better Spec Kit.
-
-The repository also contains:
-
-.github/skills/
-
-These are the installed project copies used by GitHub Copilot while
-developing Better Spec Kit itself. They are not the canonical source.
-
-Changes to Better Spec Kit skills should be made in `skills/` and then
-installed into the repository using the local CLI.
-
-## Licence
-
-MIT.
-
-## Releases
-
-See [docs/releasing.md](docs/releasing.md) for npm first-publish and GitHub Actions trusted publishing setup.
+Better Spec Kit is MIT licensed. Its rule is simple: **discover first, then decide**.

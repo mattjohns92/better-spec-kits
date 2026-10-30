@@ -119,7 +119,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **IF EXISTS**: Read .specify/memory/constitution.md for governance constraints
 
 - **IF EXISTS**: Read quickstart.md for integration scenarios
-- **IF EXISTS**: Read `instructions/shared-source-ownership.instructions.md` and follow its claim, check, release, and recovery rules before source-changing work.
+- **IF EXISTS**: Read `instructions/shared-source-ownership.instructions.md` and follow its complete-surface admission, stable-boundary release, and explicit recovery rules.
 - **PONYTAIL**: Discover and load the globally installed Ponytail skill/plugin
   before implementation begins.
 - Prefer invoking Ponytail through Copilot's installed skill/plugin system
@@ -181,7 +181,11 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ### Adaptive Execution Mode
 
-Before the first source-changing task, complete verified read-only preparation, then acquire the exact Feature/QUICK claim using the shared-source ownership instruction. Recheck the same token immediately before each later source edit. A held or unknown claim blocks source changes; do not recover without the user's explicit inspection and acceptance. Keep the token out of `tasks.md`, `## Implement State`, and all repository files. Retain ownership while source changes, stable-source validation, or known source remediation remains. Release at the first evidenced stable-source boundary; neither Review PASS nor Feature completion is required. Reacquire before any later source remediation.
+Complete verified read-only and item-local preparation first. Immediately before source-changing implementation, load and follow `.github/skills/speckit-preflight/SKILL.md` for the selected exact Feature, QUICK, or BUG. This is a fresh automatic Preflight; never reuse a prior clear inspection. If it does not establish a clear result, stop the whole item without source changes.
+
+After the canonical procedure establishes readiness, current-source validity, and a complete candidate surface, the owning implementation workflow calls one atomic `claim` with that exact identity and surface. Only a successful claim means `ADMITTED TO IMPLEMENT`. A current-conversation continuation may skip a new claim only when direct evidence shows its still-active successful reservation.
+
+After admission, proceed through edits, tests, builds, and validation with no per-edit checks or tokens. Use the shared ownership instruction for the existing material-expansion `revise` and implementation-complete `release` boundaries. Later source remediation re-enters through a fresh canonical Preflight and ordinary admission with no priority.
 
 Before substantial implementation, inspect the approved `spec.md`, applicable `design.md`, `plan.md`, `tasks.md`, Analyze result in `analysis.md`, relevant existing project behavior, and current implementation state when work has already started.
 
