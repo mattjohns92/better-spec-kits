@@ -48,18 +48,19 @@ async function concurrentClaim(root, directory) {
   });
   let stdout = "";
   let stderr = "";
-  child.stdout.setEncoding("utf8").on("data", (value) => { stdout += value; });
-  child.stderr.setEncoding("utf8").on("data", (value) => { stderr += value; });
+  child.stdout.setEncoding("utf8").on("data", (value) => {
+    stdout += value;
+  });
+  child.stderr.setEncoding("utf8").on("data", (value) => {
+    stderr += value;
+  });
   const [code] = await once(child, "close");
   return { code, stdout, stderr };
 }
 
 test("competing processes cannot claim shared source simultaneously", async () => {
   const root = project();
-  const results = await Promise.all([
-    concurrentClaim(root, "specs/001-first"),
-    concurrentClaim(root, "specs/002-second"),
-  ]);
+  const results = await Promise.all([concurrentClaim(root, "specs/001-first"), concurrentClaim(root, "specs/002-second")]);
 
   assert.equal(results.filter((result) => result.code === 0).length, 1, results.map((result) => result.stderr).join("\n"));
   assert.equal(results.filter((result) => result.code !== 0).length, 1);

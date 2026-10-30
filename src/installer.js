@@ -21,15 +21,15 @@ function ignoreOwnershipRecord(project) {
 }
 
 export function install({ project, packageRoot, plan, version, installConstitution = false, allowCustom = false }) {
-  const custom = plan.filter(x => x.classification === "custom");
+  const custom = plan.filter((x) => x.classification === "custom");
   if (custom.length && !allowCustom) {
     throw new Error("Customised/unknown managed files require explicit approval.");
   }
 
   ignoreOwnershipRecord(project);
 
-  const changing = plan.filter(x => x.classification !== "current");
-  const replacing = changing.filter(x => exists(path.join(project, x.destinationRel)));
+  const changing = plan.filter((x) => x.classification !== "current");
+  const replacing = changing.filter((x) => exists(path.join(project, x.destinationRel)));
   let backupRoot = null;
 
   if (replacing.length) {

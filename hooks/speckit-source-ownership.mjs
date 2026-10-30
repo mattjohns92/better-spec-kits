@@ -34,7 +34,8 @@ function featureIdentity(root, directory) {
   if (!id || recordedDirectory !== directory) {
     throw new OwnershipError("Feature brief identity does not match the selected directory.");
   }
-  const matches = fs.readdirSync(specsRoot, { withFileTypes: true })
+  const matches = fs
+    .readdirSync(specsRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && /^[0-9]{3}-[a-z0-9-]+$/.test(entry.name))
     .filter((entry) => {
       const candidate = path.join(specsRoot, entry.name, "brief.md");

@@ -117,16 +117,17 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **IF EXISTS**: Read contracts/ for API specifications and test requirements
    - **IF EXISTS**: Read research.md for technical decisions and constraints
    - **IF EXISTS**: Read .specify/memory/constitution.md for governance constraints
-  - **IF EXISTS**: Read quickstart.md for integration scenarios
-  - **IF EXISTS**: Read `instructions/shared-source-ownership.instructions.md` and follow its claim, check, release, and recovery rules before source-changing work.
-   - **PONYTAIL**: Discover and load the globally installed Ponytail skill/plugin
-     before implementation begins.
-   - Prefer invoking Ponytail through Copilot's installed skill/plugin system
-     rather than searching the repository for a local copy.
-   - Do NOT require Ponytail to exist inside the current repository.
-   - If available, apply its guidance throughout implementation.
-   - If unavailable, continue using the constitution's simplicity, reuse, and
-     maintainability principles.
+
+- **IF EXISTS**: Read quickstart.md for integration scenarios
+- **IF EXISTS**: Read `instructions/shared-source-ownership.instructions.md` and follow its claim, check, release, and recovery rules before source-changing work.
+- **PONYTAIL**: Discover and load the globally installed Ponytail skill/plugin
+  before implementation begins.
+- Prefer invoking Ponytail through Copilot's installed skill/plugin system
+  rather than searching the repository for a local copy.
+- Do NOT require Ponytail to exist inside the current repository.
+- If available, apply its guidance throughout implementation.
+- If unavailable, continue using the constitution's simplicity, reuse, and
+  maintainability principles.
 
 4. **Project Setup Verification**:
    - **REQUIRED**: Create/verify ignore files based on actual project setup:
