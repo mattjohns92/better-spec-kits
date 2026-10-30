@@ -17,10 +17,13 @@ export const managedFiles = [
   ["skills/speckit-query/SKILL.md", ".github/skills/speckit-query/SKILL.md"],
   ["skills/speckit-scope/SKILL.md", ".github/skills/speckit-scope/SKILL.md"],
   ["skills/speckit-quick/SKILL.md", ".github/skills/speckit-quick/SKILL.md"],
+  ["instructions/work-item-identity.instructions.md", ".github/instructions/work-item-identity.instructions.md"],
+  ["instructions/shared-source-ownership.instructions.md", ".github/instructions/shared-source-ownership.instructions.md"],
   ["instructions/scope-handoffs.instructions.md", ".github/instructions/scope-handoffs.instructions.md"],
   ["instructions/speckit-specify-scope.instructions.md", ".github/instructions/speckit-specify-scope.instructions.md"],
   ["hooks/speckit-auto.json", ".github/hooks/speckit-auto.json"],
   ["hooks/speckit-auto.mjs", ".github/hooks/speckit-auto.mjs"],
+  ["hooks/speckit-source-ownership.mjs", ".github/hooks/speckit-source-ownership.mjs"],
 ];
 
 export function metadataPath(project) {

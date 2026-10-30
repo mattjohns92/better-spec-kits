@@ -99,11 +99,14 @@ $files = @(
     @{ Source='skills/speckit-query/SKILL.md'; Destination='.github/skills/speckit-query/SKILL.md' },
     @{ Source='skills/speckit-scope/SKILL.md'; Destination='.github/skills/speckit-scope/SKILL.md' },
     @{ Source='skills/speckit-quick/SKILL.md'; Destination='.github/skills/speckit-quick/SKILL.md' },
+    @{ Source='instructions/work-item-identity.instructions.md'; Destination='.github/instructions/work-item-identity.instructions.md' },
+    @{ Source='instructions/shared-source-ownership.instructions.md'; Destination='.github/instructions/shared-source-ownership.instructions.md' },
     @{ Source='instructions/scope-handoffs.instructions.md'; Destination='.github/instructions/scope-handoffs.instructions.md' },
     @{ Source='instructions/speckit-specify-scope.instructions.md'; Destination='.github/instructions/speckit-specify-scope.instructions.md' },
     @{ Source='skills/speckit-auto/SKILL.md'; Destination='.github/skills/speckit-auto/SKILL.md' },
     @{ Source='hooks/speckit-auto.json'; Destination='.github/hooks/speckit-auto.json' },
     @{ Source='hooks/speckit-auto.mjs'; Destination='.github/hooks/speckit-auto.mjs' }
+    @{ Source='hooks/speckit-source-ownership.mjs'; Destination='.github/hooks/speckit-source-ownership.mjs' }
 )
 if ($InstallConstitution) { $files += @{ Source='constitution/constitution.md'; Destination='.specify/memory/constitution.md' } }
 foreach ($item in $files) {
@@ -196,6 +199,19 @@ foreach ($item in $changed) {
         }
         New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
         Copy-Item -LiteralPath $src -Destination $dst -Force
+    }
+}
+$ownershipIgnore = Join-Path $TargetRoot '.specify/.gitignore'
+if ($PSCmdlet.ShouldProcess($ownershipIgnore, 'Ignore local source ownership state')) {
+    $currentIgnore = if (Test-Path -LiteralPath $ownershipIgnore -PathType Leaf) { [IO.File]::ReadAllText($ownershipIgnore) } else { '' }
+    $ignoreLines = @($currentIgnore -split "`r?`n" | ForEach-Object { $_.Trim() })
+    $requiredIgnoreEntries = @('source-ownership.json', 'source-ownership.lock/')
+    $missingIgnoreEntries = @($requiredIgnoreEntries | Where-Object { $_ -notin $ignoreLines })
+    if ($missingIgnoreEntries.Count -gt 0) {
+        $lineEnding = if ($currentIgnore.Contains("`r`n")) { "`r`n" } else { "`n" }
+        $separator = if ($currentIgnore.Length -gt 0 -and -not $currentIgnore.EndsWith("`n")) { $lineEnding } else { '' }
+        [IO.Directory]::CreateDirectory((Split-Path -Parent $ownershipIgnore)) | Out-Null
+        [IO.File]::AppendAllText($ownershipIgnore, $separator + ($missingIgnoreEntries -join $lineEnding) + $lineEnding, (New-Object Text.UTF8Encoding($false)))
     }
 }
 $marker = Join-Path $TargetRoot '.specify/better-spec-kit.json'

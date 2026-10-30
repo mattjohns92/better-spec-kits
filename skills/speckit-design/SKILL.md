@@ -23,7 +23,7 @@ Do NOT implement application code during this stage.
 
 Before designing anything:
 
-1. Identify the active Feature or exact Quick work item from the user's context or active feature metadata. Do not select by title, recency, or partial ID.
+1. Use an exact work-item identity supplied in the invocation before any conversation or repository context. Otherwise continue only one exact Feature or Quick item already selected in the current conversation; repository-level active feature metadata cannot establish or override session identity. If identity is missing or ambiguous, stop and ask before reading item artifacts. Do not select by title, recency, or partial ID.
 2. For a Feature, read its `spec.md`. For a Quick, resolve exactly one new `specs/quick/Q###-<slug>/brief.md` or one legacy `specs/.scope/Q###-<slug>.md`, then read that authoritative Brief/handoff. Missing or duplicate Q records are ambiguous; stop and ask rather than guessing.
 3. Read `.specify/memory/constitution.md`.
 4. Inspect the existing user-facing application or interface, where one exists.

@@ -1,7 +1,7 @@
 ---
 name: speckit-auto
 description: Advance one selected Better Spec Kit work item through deterministic authoritative workflow stages in VS Code Copilot Chat, preserving every existing human decision, approval, quality gate, and stop boundary.
-argument-hint: "[stop|status]"
+argument-hint: "[pre-implement|stop|status]"
 ---
 
 ## User Input
@@ -10,9 +10,9 @@ argument-hint: "[stop|status]"
 $ARGUMENTS
 ```
 
-Treat no argument as enable/resume. Supported arguments are `stop` and `status`. Do not interpret any other argument as a route expression, stage selection, approval, or skip request.
+Treat no argument as full Auto enable/resume. Supported arguments are `pre-implement`, `stop`, and `status`. Do not interpret any other argument as a route expression, stage selection, approval, or skip request.
 
-Expected Copilot Chat command forms are `/speckit-auto`, `/speckit-auto stop`, and `/speckit-auto status`; verify the alias in the active VS Code Copilot Chat installation before claiming it is registered.
+Expected Copilot Chat command forms are `/speckit-auto`, `/speckit-auto pre-implement`, `/speckit-auto stop`, and `/speckit-auto status`; verify the alias in the active VS Code Copilot Chat installation before claiming it is registered.
 
 ## Purpose and Limits
 
@@ -26,9 +26,13 @@ Auto is not a background job. Hooks do not invoke workflow stages. A successful 
 
 One `/speckit-auto` request authorizes execution of successive deterministic stages for the selected work item, not just selection or recommendation of one stage. Keep Auto as the outer workflow while following each owning stage's instructions.
 
+`pre-implement` selects preparation-only mode for the current request. It follows applicable preparation until derived readiness, then ends successfully without entering source-changing implementation. Do not persist the mode, a readiness flag, a stage cursor, or an implementation-availability wait.
+
 This caller contract applies to every applicable lifecycle skill, including installed upstream stages: Specify, Clarify, Design, Plan, Tasks, Analyze, Remediate, optional Preview, Implement, Converge, Review, and Summary. It is not limited to an Analyze/remediation pair. Follow the owning stage's context-sensitive route; do not run optional stages merely to exhaust this list or invoke unrelated utilities.
 
 For a Feature, the selected completion boundary is delivered and validated implementation, successful convergence, a current Review PASS with no OPEN blocking findings, and a written current Summary. Finishing the specification, tasks, implementation, or Review alone is not DONE. After Review PASS, execute Summary before reporting completion.
+
+For `pre-implement`, the selected completion boundary is current `READY TO IMPLEMENT` evidence. This successful boundary ends the Auto request before Implement; it is not full Feature completion.
 
 Repeat within the current turn: derive the next action, load its authoritative instructions, execute the stage, validate its result, then return control to Auto and derive the next action again. A stage's completion report is an intermediate result, not the end of the Auto request. Send concise progress updates between stages; do not end the turn with "Next: run ..." when that action can be executed now. Do not require another `/speckit-auto` request at every stage boundary.
 
@@ -42,14 +46,16 @@ Resolve recoverable execution errors and obtain missing evidence yourself when s
 
 ## Resolve One Work Item
 
-1. For an explicit Feature ID, resolve it exactly to the unique Scope record and recorded feature directory. Resolve Quick work from an exact Q ID to exactly one new Q Brief or legacy `.scope` handoff, associating any supplemental Q folder only by the recorded ID and slug. Ambiguous or conflicting Q records stop for clarification. For an explicit feature directory, verify it exists and contains the expected feature artifacts. Do not resolve by title, recency, branch name, partial ID, or directory order.
-2. With no target, use the current conversation's explicit work item or `.specify/feature.json` only when it identifies one unique feature. For Quick or Bug work, require the exact Q/B handoff or current explicit user context and preserve upstream ownership.
+1. An exact target in the current invocation takes precedence over conversation context and repository metadata. For an explicit Feature ID, resolve it exactly to the unique Scope record and recorded feature directory. Resolve Quick work from an exact Q ID to exactly one new Q Brief or legacy `.scope` handoff, associating any supplemental Q folder only by the recorded ID and slug. Ambiguous or conflicting records stop for clarification. For an explicit feature directory, verify it exists and contains the expected feature artifacts. Do not resolve by title, recency, branch name, partial ID, or directory order.
+2. Without an invocation target, continue only the current conversation's explicit work item when it identifies one exact item. Never use `.specify/feature.json` as session identity or to override that selection; it is shared repository state. For Quick or Bug work, require the exact Q/B handoff or current explicit user context and preserve upstream ownership.
 3. If there are multiple plausible work items, missing records, mismatched paths, or conflicting artifact state, ask the user to select or resolve the ambiguity before starting work.
 4. An Initiative is not an executable batch. Auto may advance only one separately selected child Feature; it must not start siblings.
 
 ## Control State
 
 Use `.specify/auto-mode.json` only for control state that cannot be derived: version, Auto state, selected work boundary, optional Copilot session ID, and a concise reason for waiting/stopping/blocking. Do not store stage cursors, findings, evidence snapshots, task history, prompts, answers, credentials, or a second workflow ledger.
+
+Do not store the `pre-implement` mode or derived readiness. When full Auto stops because implementation availability is held, unknown, or unverifiable, it must not retain an automatic waiting run; a fresh explicit Auto request is required after availability changes.
 
 The hook handler at `.github/hooks/speckit-auto.mjs` owns validated JSON parsing and turn-gating decisions. When this skill creates or changes the record, preserve the schema:
 
@@ -93,7 +99,7 @@ On `stop`, record `STOP_REQUESTED` for the selected Auto run. Do not interrupt a
 
 ## Enable or Resume
 
-1. Resolve one work item and inspect the current repository state. A stopped run resumes by deriving the next stage from authoritative artifacts; never use a stored stage cursor.
+1. Resolve one work item and inspect the current repository state. A stopped run resumes by deriving the next stage from authoritative artifacts; never use a stored stage cursor. If the current request is `pre-implement`, keep that boundary for this request only.
 2. When hook-driven continuation is verified, set Auto `ON` for that item and persist the control record. Otherwise keep the run current-turn only; do not claim persisted or unattended Auto state. Do not claim a hook or stage is callable merely because it is installed or discoverable.
 3. Derive the current stage and next action from current artifacts and the normal adaptive workflow. Use `docs/workflow.md` when present; its absence is not a blocker. Inspect the selected work's stage outputs and installed stage instructions. Do not hard-code a fixed lifecycle sequence.
 4. Before a stage transition, identify and load that stage's currently installed authoritative instructions from `.github/skills/`; for upstream stages, use the installed upstream instruction. Follow those instructions for this stage. Same-turn instruction composition does not require a registered alias or nested command invocation. If the instructions cannot be found or followed, stop and state the manual next action.
@@ -109,6 +115,7 @@ On `stop`, record `STOP_REQUESTED` for the selected Auto run. Do not interrupt a
 
 Follow the current evidence and owning stage, not a predetermined list:
 
+- **Feature pre-implementation**: For `pre-implement`, derive the applicable preparation route from current artifacts and owning-stage recommendations. Continue through applicable Specify, Clarify, Design, Plan, Tasks, Analyze, and blocking-finding Remediate behavior. Require F021's current Feature readiness evidence, including a current Analyze PASS without blocking findings; preserve optional Design and Preview semantics, and absence of Preview alone does not prevent readiness. At `READY TO IMPLEMENT`, report successful preparation and stop before Implement. Never enter Converge, Review, or Summary in this mode. If implementation has already begun, report the evidenced current stage and stop without changing or restarting it.
 - **Feature**: continue through applicable Specify, Clarify, Design, Plan, Tasks, Analyze, Implement, Converge, Review, and Summary behavior. Preserve optional Design/Preview and context-sensitive Analyze PASS/FINDINGS/INCOMPLETE outcomes. Load each stage's installed instructions; this list is coverage, not a fixed lifecycle sequence.
 - **Analyze FINDINGS**: follow Analyze's remediation stage through Remediate, then use a fresh Analyze result. Auto never resolves an Analyze finding.
 - **Analyze INCOMPLETE**: obtain the missing prerequisite/evidence when safely agent-actionable, then rerun Analyze. Ask the user only for evidence, access, or a decision the agent cannot supply; do not implement before this gate passes.
@@ -117,11 +124,18 @@ Follow the current evidence and owning stage, not a predetermined list:
 - **Quick Review findings**: Quick findings return through Quick implementation, validation, and Review for the same selected Q item. Do not add Feature Converge or change Review-owned finding status.
 - **Assisted authentication**: inspect existing project/browser mechanisms and explain the required non-production identity/role. BSK may guide the user through providing or creating an external identity, but must not itself create or provision one. Pause for explicit approval before setup changes, credential-dependent steps, or state capture. When approved and callable, the user enters credentials directly; manual login followed by locally persisted browser state may be used only after version-control exclusion is verified. Otherwise report authentication as unavailable.
 - **Quick**: resolve Quick work from the exact Q ID and follow its authoritative Brief -> Design when UI applies -> Quick implementation -> validation -> Review route without creating Feature artifacts. Quick retains its Understand -> Implement -> Validate execution loop inside this route. Wait for explicit user approval of the current Design before UI implementation. After Quick Review PASS, complete that Q item without Summary or Converge. If Quick Review has completion-blocking findings, return through Quick implementation, validation, and Review; Review alone owns finding status.
+- **Quick pre-implementation**: In `pre-implement` mode, follow the exact Q Brief and applicable decision/Design route only. A non-visual QUICK may be ready without Feature-only artifacts; a UI QUICK is not ready until its current Design is explicitly approved. Stop at F021 readiness without entering Quick implementation, validation, or Review.
 - **Bug**: Follow the supported upstream Bug workflow and preserve Bug Assess/Fix/Test ownership. Only when supplied reproduction steps and a non-production target are safe and accessible, attempt the pre-fix reproduction and pass the observed result and relevant environment limitations to upstream Bug Assess as input. Do not modify or replace upstream Bug artifacts or commands. If target access, authentication, or side-effect safety is missing, do not guess or bypass it; pause for required user input or report the reproduction as not run with its reason. After the upstream fix, upstream Bug Test owns the same reproduction after the fix; never claim either observation unless it actually ran.
 - **Initiative**: stop at the selected child Feature boundary; do not select or start another child.
 - **Feature Review PASS / Summary**: after Feature Review PASS, load and execute Summary using the same instruction-composition path as every other stage. Do not stop at a manual Summary recommendation or require separate dispatch acceptance for same-turn composition. A Quick Review PASS completes the selected Q item after Auto verifies current implementation/validation and no OPEN blocking findings; do not invoke Summary or Converge for Quick. If Review is not PASS, continue its applicable remediation or evidence-gathering route; never use Summary to bypass Review.
 
 When artifacts conflict, are stale, or do not establish a unique next stage, stop and ask for the minimum human decision or report the manual next action.
+
+## Shared-Source Ownership
+
+Before Auto starts a source-changing implementation task, load `instructions/shared-source-ownership.instructions.md` and acquire the exact work item's claim immediately before the first source edit. Recheck the token before later source changes; a HELD or UNKNOWN claim blocks that path. Do not serialize verified read-only preparation or item-local artifact work. Keep the token only in the current conversation/terminal context, never in Auto control state or repository artifacts. Retain ownership while source changes, stable-source validation, or known source remediation remains, and release at the first evidenced stable-source boundary without waiting solely for Review PASS or Feature completion. Reacquire before later remediation. Auto never performs explicit recovery without the user's inspection and acceptance, and never bypasses the lock because it is progressing stages automatically.
+
+Full Auto must distinguish readiness from implementation availability. If it reaches readiness and F022 reports ownership as HELD, UNKNOWN, or unverifiable, stop the current run, report that state, and require a fresh explicit `/speckit-auto` invocation after availability changes. Do not wait for release, resume automatically, or start another item. A `pre-implement` run stops at readiness regardless of availability and does not claim or modify source ownership.
 
 ## Non-Progressing Remediation
 

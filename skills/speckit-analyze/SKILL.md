@@ -51,7 +51,7 @@ Analyze challenges and records findings. It does not remediate them.
 
 ### 1. Resolve the active feature
 
-Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireSpec -RequireTasks -IncludeTasks` once from the repository root. Parse `FEATURE_DIR` and `AVAILABLE_DOCS`; use the active feature directory returned by setup rather than inferring it from a branch name. If setup fails or required inputs are missing, report the exact impediment and do not report PASS.
+Resolve the exact Feature from the invocation or current conversation using the shared Work Item Identity instruction. Set `SPECIFY_FEATURE_DIRECTORY` to its recorded `feature_directory` only for this read-only helper invocation, then restore the previous environment value. Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly -RequireSpec -RequireTasks -IncludeTasks` once from the repository root. Parse `FEATURE_DIR` and `AVAILABLE_DOCS`; do not infer the path from a branch name. If setup fails or required inputs are missing, report the exact impediment and do not report PASS.
 
 For single quotes in arguments such as `I'm Groot`, escape them as `I'\''m Groot` or use double quotes where possible.
 

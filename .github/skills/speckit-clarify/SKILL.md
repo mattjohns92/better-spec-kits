@@ -33,7 +33,7 @@ Check `.specify/extensions.yml` for `hooks.before_clarify`. If absent or no hook
 
 ## Resolve the Active Feature
 
-1. Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly` once from the repository root and parse `FEATURE_DIR` and `FEATURE_SPEC`.
+1. Resolve the exact Feature from the invocation or current conversation using the shared Work Item Identity instruction. For this helper invocation only, set `SPECIFY_FEATURE_DIRECTORY` to the Feature Brief's recorded `feature_directory`, then restore the previous environment value afterward. Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly` once from the repository root and parse `FEATURE_DIR` and `FEATURE_SPEC`.
 2. If setup fails or JSON cannot be parsed, stop and ask the user to run `/speckit-specify` or repair the feature context.
 3. Read `.specify/memory/constitution.md` when present, then read the active `spec.md` and applicable Scope Feature Brief or other authoritative intent artifacts.
 4. If the spec does not exist, direct the user to `/speckit-specify`; do not create a feature here.

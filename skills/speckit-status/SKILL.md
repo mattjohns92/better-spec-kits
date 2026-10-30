@@ -56,6 +56,14 @@ Use artifact contents, explicit outcomes, ownership, and applicability to the cu
 - `INCOMPLETE ANALYSIS`, missing or malformed outcomes, and inaccessible evidence are not PASS. Report the limitation and the smallest useful evidence-recovery action.
 - Analyze owns its findings. Report their IDs/status as written; do not resolve or reinterpret them.
 
+### Pre-Implementation Readiness
+
+Readiness is derived from existing evidence, never saved as work-item state. Feature readiness requires all applicable preparation and decisions to be complete: required Design is approved, Plan and Tasks are complete, and the current Analyze outcome is `PASS` with no OPEN blocking findings. Confirm the Analyze result still applies to the current relevant Feature artifacts; missing, stale, malformed, conflicting, or unverifiable evidence is not ready. Do not infer readiness from artifact presence, checked Tasks, or an agent's completion claim. Preview absence alone does not block readiness unless Preview was requested as a separate user-facing handoff.
+
+For QUICK, require its one exact Q Brief or legacy handoff and resolved applicable decisions. A non-visual QUICK does not require Feature-only Spec, Plan, Tasks, or Analyze. A UI QUICK requires explicit approval of its current Design; Design file presence alone is not approval. QUICK implementation, validation, and Review are post-start evidence, not pre-implementation readiness gates.
+
+`READY TO IMPLEMENT` describes preparation only. Readiness does not mean the shared implementation lifecycle is available or grant authority to begin shared-source work. Preserve unknown readiness whenever evidence cannot establish identity, applicability, approval, or currentness.
+
 ### Tasks and Implementation
 
 - Use T### tasks, Implement-owned remediation tasks such as R###, and other established completion work as progress evidence.
@@ -96,6 +104,10 @@ Give the most useful next action based on current evidence and the workflow owne
 - If required acceptance or a final completion handoff remains, recommend that specific action rather than an unrelated missing artifact.
 - Recommend a slash-command spelling only when the active integration exposes or otherwise verifies that alias. Examples written in artifacts are not proof that the host supports them. If the alias is not established, name the workflow stage and describe the manual action without inventing a command.
 - Recommendations are informational. Status must not execute the recommended workflow. Never invoke another skill, run implementation, modify a file, check off a task, resolve a finding, or alter lifecycle state.
+
+## Multiple Work Items
+
+In the default project view, report each Feature and QUICK as a separate exact work item. Status must derive each entry from authoritative artifacts. Do not select or imply one repository-wide current Feature. Keep ready, active, waiting, and uncertain states distinct; report an active state only when authoritative evidence establishes it. Missing or insufficient evidence remains unknown rather than being inferred from another item's state or artifact presence. Readiness is not implementation availability.
 
 ## Initiative and Project Summary
 

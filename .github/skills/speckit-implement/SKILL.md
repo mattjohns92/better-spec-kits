@@ -59,7 +59,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. Resolve the exact Feature from the invocation or current conversation using the shared Work Item Identity instruction. Set `SPECIFY_FEATURE_DIRECTORY` to its recorded `feature_directory` only for this read-only helper invocation, then restore the previous environment value. Run `.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly -RequireTasks -IncludeTasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
 2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
    - Treat checklist markers as a read-only gate: scan checkbox state, report status, and ask before proceeding when needed; do NOT modify checklist files or markers
@@ -117,7 +117,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **IF EXISTS**: Read contracts/ for API specifications and test requirements
    - **IF EXISTS**: Read research.md for technical decisions and constraints
    - **IF EXISTS**: Read .specify/memory/constitution.md for governance constraints
-   - **IF EXISTS**: Read quickstart.md for integration scenarios
+  - **IF EXISTS**: Read quickstart.md for integration scenarios
+  - **IF EXISTS**: Read `instructions/shared-source-ownership.instructions.md` and follow its claim, check, release, and recovery rules before source-changing work.
    - **PONYTAIL**: Discover and load the globally installed Ponytail skill/plugin
      before implementation begins.
    - Prefer invoking Ponytail through Copilot's installed skill/plugin system
@@ -178,6 +179,8 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Execution flow**: Order and dependency requirements
 
 ### Adaptive Execution Mode
+
+Before the first source-changing task, complete verified read-only preparation, then acquire the exact Feature/QUICK claim using the shared-source ownership instruction. Recheck the same token immediately before each later source edit. A held or unknown claim blocks source changes; do not recover without the user's explicit inspection and acceptance. Keep the token out of `tasks.md`, `## Implement State`, and all repository files. Retain ownership while source changes, stable-source validation, or known source remediation remains. Release at the first evidenced stable-source boundary; neither Review PASS nor Feature completion is required. Reacquire before any later source remediation.
 
 Before substantial implementation, inspect the approved `spec.md`, applicable `design.md`, `plan.md`, `tasks.md`, Analyze result in `analysis.md`, relevant existing project behavior, and current implementation state when work has already started.
 

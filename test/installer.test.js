@@ -18,7 +18,7 @@ function project() {
 test("fresh install preserves constitution and writes metadata", () => {
   const p = project();
   const result = install({ project: p, packageRoot, plan: buildPlan(p, packageRoot), version: "0.4.0" });
-  assert.equal(result.changed, 19);
+  assert.equal(result.changed, 22);
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-review/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-summary/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-summary/SKILL.md"), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, ".github/skills/speckit-preview/SKILL.md"), "utf8"), fs.readFileSync(path.join(packageRoot, "skills/speckit-preview/SKILL.md"), "utf8"));
@@ -294,7 +294,7 @@ test("upgrading a pre-Review installation adds the Review skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.5.0" });
 
-  assert.equal(result.changed, 15);
+  assert.equal(result.changed, 18);
   assert.equal(fs.readFileSync(path.join(p, review.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, review.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, summary.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, summary.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, analyze.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, analyze.sourceRel), "utf8"));
@@ -468,6 +468,84 @@ test("standalone installers call the shared Bug provisioner best-effort", () => 
   assert.ok(shellInstaller.includes("source_for_destination"));
 });
 
+test("work item identity instruction is managed, packaged, and synchronized", () => {
+  const sourceRel = "instructions/work-item-identity.instructions.md";
+  const destinationRel = ".github/instructions/work-item-identity.instructions.md";
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+  const target = project();
+  const plan = buildPlan(target, packageRoot);
+  const entry = plan.find((item) => item.destinationRel === destinationRel);
+
+  assert.equal(entry?.sourceRel, sourceRel);
+  assert.equal(entry?.classification, "new");
+  assert.ok(packageFiles.includes("instructions"));
+  assert.ok(!packageFiles.includes(".github"));
+  assert.ok(powershellInstaller.includes(`Source='${sourceRel}'; Destination='${destinationRel}'`));
+  assert.ok(shellInstaller.includes(`"${destinationRel}"`));
+
+  install({ project: target, packageRoot, plan, version: "0.6.2" });
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  const canonical = fs.readFileSync(path.join(packageRoot, sourceRel), "utf8");
+  assert.equal(fs.readFileSync(path.join(target, destinationRel), "utf8"), canonical);
+  assert.equal(normalizeLineEndings(fs.readFileSync(path.join(packageRoot, destinationRel), "utf8")), normalizeLineEndings(canonical));
+});
+
+test("installer preserves local ignore rules and ignores source ownership state", () => {
+  const target = project();
+  const ignorePath = path.join(target, ".specify/.gitignore");
+  const existing = "# consumer-local rules\nfeature.json\n";
+  fs.writeFileSync(ignorePath, existing);
+
+  install({ project: target, packageRoot, plan: [], version: "0.6.2" });
+  const firstInstall = fs.readFileSync(ignorePath, "utf8");
+  assert.ok(firstInstall.startsWith(existing));
+  assert.match(firstInstall, /(^|\n)source-ownership\.json(\n|$)/);
+  assert.match(firstInstall, /(^|\n)source-ownership\.lock\/(\n|$)/);
+
+  install({ project: target, packageRoot, plan: [], version: "0.6.2" });
+  assert.equal(fs.readFileSync(ignorePath, "utf8"), firstInstall);
+});
+
+test("source ownership assets use managed install and preserve dogfood parity", () => {
+  const assets = [
+    ["hooks/speckit-source-ownership.mjs", ".github/hooks/speckit-source-ownership.mjs"],
+    ["instructions/shared-source-ownership.instructions.md", ".github/instructions/shared-source-ownership.instructions.md"],
+    ["skills/speckit-implement/SKILL.md", ".github/skills/speckit-implement/SKILL.md"],
+    ["skills/speckit-auto/SKILL.md", ".github/skills/speckit-auto/SKILL.md"],
+    ["skills/speckit-review/SKILL.md", ".github/skills/speckit-review/SKILL.md"],
+  ];
+  const packageFiles = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8")).files;
+  const powershellInstaller = fs.readFileSync(path.join(packageRoot, "install.ps1"), "utf8");
+  const shellInstaller = fs.readFileSync(path.join(packageRoot, "install.sh"), "utf8");
+  const target = project();
+  const plan = buildPlan(target, packageRoot);
+
+  assert.ok(packageFiles.includes("hooks"));
+  assert.ok(packageFiles.includes("instructions"));
+  assert.ok(!packageFiles.includes(".github"));
+  for (const [sourceRel, destinationRel] of assets) {
+    const entry = plan.find((item) => item.destinationRel === destinationRel);
+    assert.equal(entry?.sourceRel, sourceRel);
+    assert.equal(entry?.classification, "new");
+    assert.ok(powershellInstaller.includes(`Source='${sourceRel}'; Destination='${destinationRel}'`));
+    assert.ok(shellInstaller.includes(`"${destinationRel}"`));
+  }
+  assert.ok(powershellInstaller.includes("source-ownership.json"));
+  assert.ok(shellInstaller.includes("source-ownership.json"));
+
+  install({ project: target, packageRoot, plan, version: "0.6.2" });
+  const normalizeLineEndings = (content) => content.replace(/\r\n/g, "\n").trimEnd();
+  for (const [sourceRel, destinationRel] of assets) {
+    const canonical = fs.readFileSync(path.join(packageRoot, sourceRel), "utf8");
+    const installed = fs.readFileSync(path.join(target, destinationRel), "utf8");
+    const dogfood = fs.readFileSync(path.join(packageRoot, destinationRel), "utf8");
+    assert.equal(normalizeLineEndings(installed), normalizeLineEndings(canonical), `${destinationRel} must install the canonical asset`);
+    assert.equal(normalizeLineEndings(dogfood), normalizeLineEndings(canonical), `${destinationRel} must match the canonical asset`);
+  }
+});
+
 test("customized handoff instruction requires approval and is backed up", () => {
   const p = project();
   const destination = path.join(p, ".github/instructions/scope-handoffs.instructions.md");
@@ -504,7 +582,7 @@ test("updating an installed project detects the new Remediate skill", () => {
   assert.equal(status.classification, "new");
   const result = install({ project: p, packageRoot, plan, version: "0.6.0" });
 
-  assert.equal(result.changed, 13);
+  assert.equal(result.changed, 16);
   assert.equal(fs.readFileSync(path.join(p, remediate.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, remediate.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, preview.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, preview.sourceRel), "utf8"));
   assert.equal(fs.readFileSync(path.join(p, status.destinationRel), "utf8"), fs.readFileSync(path.join(packageRoot, status.sourceRel), "utf8"));

@@ -208,6 +208,158 @@ test("Auto skill derives one continuation and preserves authoritative stage owne
   }
 });
 
+test("Auto pre-implement mode stops Feature work at evidence-derived readiness", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "/speckit-auto pre-implement",
+    "preparation-only mode",
+    "current analyze pass",
+    "absence of preview alone does not prevent readiness",
+    "ready to implement",
+    "stop before implement",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto Feature preparation contract is missing: ${phrase}`);
+  }
+});
+
+test("Auto pre-implement mode respects QUICK readiness without Feature-only stages", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "quick pre-implementation",
+    "exact q brief",
+    "non-visual quick may be ready without feature-only artifacts",
+    "ui quick is not ready until its current design is explicitly approved",
+    "without entering quick implementation, validation, or review",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto QUICK preparation contract is missing: ${phrase}`);
+  }
+});
+
+test("Auto preserves human decisions and stops when implementation is unavailable", () => {
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "silence is never approval",
+    "no dependent work",
+    "readiness from implementation availability",
+    "f022 reports ownership as held, unknown, or unverifiable",
+    "stop the current run",
+    "fresh explicit `/speckit-auto` invocation after availability changes",
+    "do not wait for release, resume automatically, or start another item",
+  ]) {
+    assert.ok(auto.includes(phrase), `Auto decision/availability contract is missing: ${phrase}`);
+  }
+});
+
+test("work item identity stays exact and session-scoped across workflow skills", () => {
+  const identity = fs.readFileSync(path.join(packageRoot, "instructions/work-item-identity.instructions.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    "explicit invocation or current conversation",
+    "exact `f###`",
+    "exact `q###`",
+    "verify its `feature_directory`",
+    "identity is missing, duplicated, unsupported, or inconsistent",
+    "before reading or mutating uncertain item artifacts",
+    "never select by title",
+    "do not allow `.specify/feature.json` to override",
+    "for that helper invocation",
+    "write only artifacts owned by the selected item",
+  ]) {
+    assert.ok(identity.includes(phrase), `Shared identity instruction is missing: ${phrase}`);
+  }
+
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+  for (const phrase of ["the current conversation's explicit work item", "exact target in the current invocation takes precedence", "never use `.specify/feature.json` as session identity"]) {
+    assert.ok(auto.includes(phrase), `Auto identity contract is missing: ${phrase}`);
+  }
+
+  const design = fs.readFileSync(path.join(packageRoot, "skills/speckit-design/SKILL.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    "exact work-item identity supplied in the invocation",
+    "one exact feature or quick item already selected in the current conversation",
+    "repository-level active feature metadata cannot establish or override session identity",
+    "stop and ask before reading item artifacts",
+  ]) {
+    assert.ok(design.includes(phrase), `Design identity contract is missing: ${phrase}`);
+  }
+
+  const quick = fs.readFileSync(path.join(packageRoot, "skills/speckit-quick/SKILL.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    "those explicit targets take precedence",
+    "an exact q item already selected in the current conversation",
+    "do not infer a quick from `.specify/feature.json`",
+    "duplicate or conflicting matches",
+  ]) {
+    assert.ok(quick.includes(phrase), `Quick identity contract is missing: ${phrase}`);
+  }
+
+  for (const name of ["clarify", "plan", "tasks", "analyze", "implement"]) {
+    const source = fs.readFileSync(path.join(packageRoot, `skills/speckit-${name}/SKILL.md`), "utf8");
+    const managed = fs.readFileSync(path.join(packageRoot, `.github/skills/speckit-${name}/SKILL.md`), "utf8");
+    assert.ok(source.includes("SPECIFY_FEATURE_DIRECTORY"), `speckit-${name} must pass exact Feature path context`);
+    assert.ok(managed.includes("SPECIFY_FEATURE_DIRECTORY"), `Managed speckit-${name} copy must pass exact Feature path context`);
+    assert.equal(source.replace(/\r\n/g, "\n").trimEnd(), managed.replace(/\r\n/g, "\n").trimEnd(), `Managed speckit-${name} copy must match its canonical source`);
+  }
+});
+
+test("work item boundaries allow distinct-item preparation without same-item safety claims", () => {
+  const identity = fs.readFileSync(path.join(packageRoot, "instructions/work-item-identity.instructions.md"), "utf8").toLowerCase();
+  for (const phrase of [
+    "read shared repository evidence when relevant",
+    "write only artifacts owned by the selected item and current stage",
+    "do not serialize preparation of distinct work-item ids solely because they share a repository",
+    "identity does not make concurrent writes to the same item's artifacts safe",
+  ]) {
+    assert.ok(identity.includes(phrase), `Preparation boundary is missing: ${phrase}`);
+  }
+});
+
+test("Implement and Auto require an exact source claim immediately before edits", () => {
+  const policy = fs.readFileSync(path.join(packageRoot, "instructions/shared-source-ownership.instructions.md"), "utf8").toLowerCase();
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const phrase of [
+    "immediately before the first source-changing action",
+    "a second claim is blocked even when it targets the same item",
+    "immediately before each later source-changing action, run `check`",
+  ]) {
+    assert.ok(policy.includes(phrase), `Shared ownership policy is missing: ${phrase}`);
+  }
+  assert.ok(implement.includes("acquire the exact feature/quick claim"));
+  assert.ok(implement.includes("keep the token out of `tasks.md`, `## implement state`, and all repository files"));
+  assert.ok(auto.includes("never bypasses the lock because it is progressing stages automatically"));
+});
+
+test("source ownership releases at the stable-source boundary, not feature completion", () => {
+  const policy = fs.readFileSync(path.join(packageRoot, "instructions/shared-source-ownership.instructions.md"), "utf8").toLowerCase();
+  const implement = fs.readFileSync(path.join(packageRoot, "skills/speckit-implement/SKILL.md"), "utf8").toLowerCase();
+  const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
+
+  for (const source of [policy, implement, auto]) {
+    assert.ok(source.includes("stable-source boundary"), "Lifecycle guidance must name the approved release boundary");
+    assert.ok(source.includes("review pass"), "Lifecycle guidance must not make Review PASS a release prerequisite");
+  }
+  assert.ok(policy.includes("known finding/task requires source modification"));
+  assert.ok(implement.includes("known source remediation remains"));
+  assert.ok(auto.includes("known source remediation remains"));
+  assert.ok(policy.includes("acquire a new claim immediately before any later source remediation"));
+  assert.ok(policy.includes("external verification and non-source-changing acceptance may remain"));
+});
+
+test("Review remains read-only and stops when source stability or attribution is unknown", () => {
+  const policy = fs.readFileSync(path.join(packageRoot, "instructions/shared-source-ownership.instructions.md"), "utf8").toLowerCase();
+  const review = fs.readFileSync(path.join(packageRoot, "skills/speckit-review/SKILL.md"), "utf8").toLowerCase();
+
+  assert.ok(review.includes("inspect ownership status"));
+  assert.ok(review.includes("stop the affected assessment"));
+  assert.ok(review.includes("review never claims, releases, recovers, or modifies source ownership"));
+  assert.ok(policy.includes("converge retains its existing upstream behavior and inputs"));
+  assert.ok(!review.includes("converge consumes git diff provenance"));
+});
+
 test("Auto skill pauses for human decisions and preserves the manual-resume fallback", () => {
   const auto = fs.readFileSync(path.join(packageRoot, "skills/speckit-auto/SKILL.md"), "utf8").toLowerCase();
 
@@ -1618,6 +1770,55 @@ test("Project Status summarizes Initiatives and resolves focused targets exactly
   ]) {
     assert.ok(skill.includes(phrase), `Project Status Initiative/focus contract is missing: ${phrase}`);
   }
+});
+
+test("Project Status derives Feature and Quick readiness from applicable current evidence", () => {
+  const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8");
+  const managed = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-status/SKILL.md"), "utf8");
+  for (const [location, skill] of [
+    ["canonical", canonical],
+    ["managed", managed],
+  ]) {
+    const text = skill.toLowerCase();
+    for (const phrase of [
+      "feature readiness requires all applicable preparation and decisions to be complete",
+      "required design is approved",
+      "plan and tasks are complete",
+      "current analyze outcome is `pass` with no open blocking findings",
+      "missing, stale, malformed, conflicting, or unverifiable evidence is not ready",
+      "preview absence alone does not block readiness",
+      "non-visual quick does not require feature-only spec, plan, tasks, or analyze",
+      "ui quick requires explicit approval of its current design",
+      "readiness does not mean the shared implementation lifecycle is available",
+    ]) {
+      assert.ok(text.includes(phrase), `${location} Status readiness contract is missing: ${phrase}`);
+    }
+  }
+  assert.equal(canonical.replace(/\r\n/g, "\n").trimEnd(), managed.replace(/\r\n/g, "\n").trimEnd());
+});
+
+test("Project Status reports multiple exact work items without a readiness registry", () => {
+  const canonical = fs.readFileSync(path.join(packageRoot, "skills/speckit-status/SKILL.md"), "utf8");
+  const managed = fs.readFileSync(path.join(packageRoot, ".github/skills/speckit-status/SKILL.md"), "utf8");
+  for (const [location, skill] of [
+    ["canonical", canonical],
+    ["managed", managed],
+  ]) {
+    const text = skill.toLowerCase();
+    for (const phrase of [
+      "report each feature and quick as a separate exact work item",
+      "do not select or imply one repository-wide current feature",
+      "keep ready, active, waiting, and uncertain states distinct",
+      "report an active state only when authoritative evidence establishes it",
+      "missing or insufficient evidence remains unknown",
+      "derive each entry from authoritative artifacts",
+      "or create a status registry",
+      "readiness is not implementation availability",
+    ]) {
+      assert.ok(text.includes(phrase), `${location} multi-item Status contract is missing: ${phrase}`);
+    }
+  }
+  assert.equal(canonical.replace(/\r\n/g, "\n").trimEnd(), managed.replace(/\r\n/g, "\n").trimEnd());
 });
 
 test("Project Status surfaces blockers and uncertainty without changing source artifacts", () => {

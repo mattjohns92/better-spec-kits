@@ -8,6 +8,7 @@ SPECKIT_INITIALIZED=0
 [[ -d "$TARGET/.specify" ]] && SPECKIT_INITIALIZED=1
 [[ -d "$TARGET" ]] || { echo "Target project does not exist: $TARGET" >&2; exit 1; }
 files=(".github/skills/speckit-auto/SKILL.md" ".github/hooks/speckit-auto.json" ".github/hooks/speckit-auto.mjs" ".github/skills/speckit-design/SKILL.md" ".github/skills/speckit-clarify/SKILL.md" ".github/skills/speckit-plan/SKILL.md" ".github/skills/speckit-tasks/SKILL.md" ".github/skills/speckit-analyze/SKILL.md" ".github/skills/speckit-remediate/SKILL.md" ".github/skills/speckit-implement/SKILL.md" ".github/skills/speckit-review/SKILL.md" ".github/skills/speckit-summary/SKILL.md" ".github/skills/speckit-preview/SKILL.md" ".github/skills/speckit-status/SKILL.md" ".github/skills/speckit-query/SKILL.md" ".github/skills/speckit-scope/SKILL.md" ".github/skills/speckit-quick/SKILL.md" ".github/instructions/scope-handoffs.instructions.md" ".github/instructions/speckit-specify-scope.instructions.md")
+files+=(".github/instructions/work-item-identity.instructions.md" ".github/instructions/shared-source-ownership.instructions.md" ".github/hooks/speckit-source-ownership.mjs")
 if [[ "$INSTALL_CONSTITUTION" == "1" ]]; then files+=(".specify/memory/constitution.md"); fi
 source_for_destination() {
   case "$1" in
@@ -40,6 +41,14 @@ for dst in "${files[@]}"; do
 done
 mkdir -p "$TARGET/.specify"
 printf '{"name":"better-spec-kit","version":"%s","constitutionInstalled":%s}\n' "$(cat "$ROOT/VERSION")" "$([[ "$INSTALL_CONSTITUTION" == "1" ]] && echo true || echo false)" > "$TARGET/.specify/better-spec-kit.json"
+ownership_ignore="$TARGET/.specify/.gitignore"
+mkdir -p "$(dirname "$ownership_ignore")"
+for ownership_entry in source-ownership.json source-ownership.lock/; do
+  if ! grep -Fxq "$ownership_entry" "$ownership_ignore" 2>/dev/null; then
+    if [[ -s "$ownership_ignore" ]] && [[ -n "$(tail -c1 "$ownership_ignore")" ]]; then printf '\n' >> "$ownership_ignore"; fi
+    printf '%s\n' "$ownership_entry" >> "$ownership_ignore"
+  fi
+done
 echo "Better Spec Kit $(cat "$ROOT/VERSION") installed into $TARGET"
 if [[ "$SPECKIT_INITIALIZED" == "1" ]]; then
   if ! command -v specify >/dev/null 2>&1; then

@@ -1,9 +1,23 @@
+import fs from "node:fs";
 import path from "node:path";
-import { copy, exists, writeJson } from "./io.js";
+import { copy, ensureDir, exists, read, writeJson } from "./io.js";
 import { backupBase, metadataPath } from "./paths.js";
 
 function stamp() {
   return new Date().toISOString().replace(/[:.]/g, "-");
+}
+
+function ignoreOwnershipRecord(project) {
+  const ignoreFile = path.join(project, ".specify", ".gitignore");
+  const current = exists(ignoreFile) ? read(ignoreFile) : "";
+  const required = ["source-ownership.json", "source-ownership.lock/"];
+  const lines = current.split(/\r?\n/).map((line) => line.trim());
+  const missing = required.filter((entry) => !lines.includes(entry));
+  if (!missing.length) return;
+  const lineEnding = current.includes("\r\n") ? "\r\n" : "\n";
+  const prefix = current && !current.endsWith("\n") ? lineEnding : "";
+  ensureDir(path.dirname(ignoreFile));
+  fs.appendFileSync(ignoreFile, `${prefix}${missing.join(lineEnding)}${lineEnding}`, "utf8");
 }
 
 export function install({ project, packageRoot, plan, version, installConstitution = false, allowCustom = false }) {
@@ -11,6 +25,8 @@ export function install({ project, packageRoot, plan, version, installConstituti
   if (custom.length && !allowCustom) {
     throw new Error("Customised/unknown managed files require explicit approval.");
   }
+
+  ignoreOwnershipRecord(project);
 
   const changing = plan.filter(x => x.classification !== "current");
   const replacing = changing.filter(x => exists(path.join(project, x.destinationRel)));
