@@ -146,12 +146,16 @@ function normalizePath(root, input) {
 function normalizeSurface(root, paths, resources) {
   if (!Array.isArray(paths) || !Array.isArray(resources)) throw new OwnershipError("A complete surface must declare path and resource arrays.");
   const normalizedPaths = [...new Set(paths.map((entry) => normalizePath(root, entry)))].sort();
-  const normalizedResources = [...new Set(resources.map((entry) => {
-    if (typeof entry !== "string" || !entry.trim() || /[*?{}\[\]]/.test(entry) || entry.includes("\0")) {
-      throw new OwnershipError("Shared resource identifiers must be non-empty canonical exact values.");
-    }
-    return entry.trim();
-  }))].sort();
+  const normalizedResources = [
+    ...new Set(
+      resources.map((entry) => {
+        if (typeof entry !== "string" || !entry.trim() || /[*?{}\[\]]/.test(entry) || entry.includes("\0")) {
+          throw new OwnershipError("Shared resource identifiers must be non-empty canonical exact values.");
+        }
+        return entry.trim();
+      }),
+    ),
+  ].sort();
   if (!normalizedPaths.length && !normalizedResources.length) throw new OwnershipError("The complete implementation surface must include at least one path or shared resource.");
   return { paths: normalizedPaths, resources: normalizedResources };
 }
@@ -262,7 +266,9 @@ function assertNoConflicts(reservations, workItem, surface) {
     if (surfaceOverlap(current.surface, surface)) {
       const overlapPath = surface.paths.find((candidate) => current.surface.paths.some((reserved) => pathOverlap(candidate, reserved)));
       const overlapResource = surface.resources.find((candidate) => current.surface.resources.includes(candidate));
-      throw new OwnershipError(`Entire work item ${display(workItem)} is blocked by overlapping reservation ${display(current.workItem)}${overlapPath ? ` at ${overlapPath}` : overlapResource ? ` for resource ${overlapResource}` : ""}.`);
+      throw new OwnershipError(
+        `Entire work item ${display(workItem)} is blocked by overlapping reservation ${display(current.workItem)}${overlapPath ? ` at ${overlapPath}` : overlapResource ? ` for resource ${overlapResource}` : ""}.`,
+      );
     }
   }
 }
@@ -341,9 +347,11 @@ export function revise({ root = process.cwd(), featureDirectory, quickId, bugDir
       const conflict = conflicts[0];
       const overlapPath = conflict.paths[0];
       const overlapResource = conflict.resources[0];
-      throw new OwnershipError(`Entire surface revision for ${display(workItem)} is blocked by overlapping reservation ${display(conflict.workItem)}${overlapPath ? ` at ${overlapPath}` : overlapResource ? ` for resource ${overlapResource}` : ""}.`);
+      throw new OwnershipError(
+        `Entire surface revision for ${display(workItem)} is blocked by overlapping reservation ${display(conflict.workItem)}${overlapPath ? ` at ${overlapPath}` : overlapResource ? ` for resource ${overlapResource}` : ""}.`,
+      );
     }
-    const reservations = registry.reservations.map((entry) => entry === current ? { ...entry, surface } : entry);
+    const reservations = registry.reservations.map((entry) => (entry === current ? { ...entry, surface } : entry));
     writeRegistry(registryPaths.record, { version: 3, reservations });
     return { workItem, surface };
   });
